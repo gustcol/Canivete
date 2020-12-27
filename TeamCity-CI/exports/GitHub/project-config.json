@@ -1,0 +1,191 @@
+{
+  "id": "GitHub",
+  "name": "Hari Sekhon GitHub Projects",
+  "parentProjectId": "_Root",
+  "description": "HariSekhon's GitHub Projects Builds",
+  "href": "/app/rest/projects/id:GitHub",
+  "webUrl": "http://localhost:8111/project.html?projectId=GitHub",
+  "parentProject": {
+    "id": "_Root",
+    "name": "<Root project>",
+    "description": "Contains all other projects",
+    "href": "/app/rest/projects/id:_Root",
+    "webUrl": "http://localhost:8111/project.html?projectId=_Root"
+  },
+  "defaultTemplate": {
+    "id": "HariSekhon_Make",
+    "name": "Make",
+    "templateFlag": true,
+    "description": "Standard 'make' build",
+    "projectName": "Hari Sekhon GitHub Projects",
+    "projectId": "GitHub",
+    "href": "/app/rest/buildTypes/id:HariSekhon_Make"
+  },
+  "buildTypes": {
+    "count": 11,
+    "buildType": [
+      {
+        "id": "DevOpsBashTools",
+        "name": "DevOps Bash tools",
+        "description": "550+ DevOps Bash Scripts - AWS, GCP, Kubernetes, Kafka, Docker, APIs, Hadoop, SQL, PostgreSQL, MySQL, Hive, Impala, Travis CI, Jenkins, Concourse, GitHub, GitLab, BitBucket, Azure DevOps, TeamCity, Spotify, MP3, LDAP, Code/Build Linting, pkg mgmt for Linux, Mac, Python, Perl, Ruby, NodeJS, Golang, Advanced dotfiles: .bashrc, .vimrc, .gitconfig, .screenrc, .tmux.conf, .psqlrc ...",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:DevOpsBashTools",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=DevOpsBashTools"
+      },
+      {
+        "id": "DevOpsPerlTools",
+        "name": "DevOps Perl tools",
+        "description": "25+ DevOps CLI Tools - Kubernetes & Code templates, Log Anonymizer, SQL ReCaser (MySQL, PostgreSQL, AWS Redshift, Snowflake, Apache Drill, Hive, Impala, Cassandra CQL, Microsoft SQL Server, Oracle, Couchbase N1QL, Dockerfiles), Hadoop HDFS & Hive tools, Solr/SolrCloud CLI, Nginx stats & HTTP(S) URL watchers for load-balanced web farms, Linux tools etc.",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:DevOpsPerlTools",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=DevOpsPerlTools"
+      },
+      {
+        "id": "DevOpsPythonTools",
+        "name": "DevOps Python tools",
+        "description": "80+ DevOps & Data CLI Tools - AWS, GCP, GCF Python Cloud Function, Log Anonymizer, Spark, Hadoop, HBase, Hive, Impala, Linux, Docker, Spark Data Converters & Validators (Avro/Parquet/JSON/CSV/INI/XML/YAML), Travis CI, AWS CloudFormation, Elasticsearch, Solr etc.",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:DevOpsPythonTools",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=DevOpsPythonTools"
+      },
+      {
+        "id": "Dockerfiles",
+        "name": "Dockerfiles",
+        "description": "50+ DockerHub public images for Docker & Kubernetes - Hadoop, Kafka, ZooKeeper, HBase, Cassandra, Solr, SolrCloud, Presto, Apache Drill, Nifi, Spark, Consul, Riak, and DevOps tools built various distros: Alpine, CentOS, Debian, Fedora, Ubuntu",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:Dockerfiles",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=Dockerfiles"
+      },
+      {
+        "id": "HAProxyConfigs",
+        "name": "HAProxy Configs",
+        "description": "80+ HAProxy Configs for Hadoop, Big Data, NoSQL, Docker, Elasticsearch, SolrCloud, HBase, MySQL, PostgreSQL, Apache Drill, Hive, Presto, Impala, Hue, ZooKeeper, SSH, RabbitMQ, Redis, Riak, Cloudera, OpenTSDB, InfluxDB, Prometheus, Kibana, Graphite, Rancher etc.",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:HAProxyConfigs",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=HAProxyConfigs"
+      },
+      {
+        "id": "lib",
+        "name": "lib",
+        "description": "Perl Utility Library for my other repos",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:lib",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=lib"
+      },
+      {
+        "id": "libjava",
+        "name": "lib-java",
+        "description": "Java Utility library for my other repos",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:libjava",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=libjava"
+      },
+      {
+        "id": "NagiosPluginKafka",
+        "name": "Nagios Plugin Kafka",
+        "description": "Kafka Scala API CLI / Advanced Nagios Plugin, with Kerberos support (uses Kafka 0.9+ native Java API)",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:NagiosPluginKafka",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=NagiosPluginKafka"
+      },
+      {
+        "id": "NagiosPlugins",
+        "name": "Nagios Plugins",
+        "description": "450+ AWS, Hadoop, Cloud, Kafka, Docker, Elasticsearch, RabbitMQ, Redis, HBase, Solr, Cassandra, ZooKeeper, HDFS, Yarn, Hive, Presto, Drill, Impala, Consul, Spark, Jenkins, Travis CI, Git, MySQL, Linux, DNS, Whois, SSL Certs, Yum Security Updates, Kubernetes, Cloudera etc...",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:NagiosPlugins",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=NagiosPlugins"
+      },
+      {
+        "id": "pylib",
+        "name": "pylib",
+        "description": "Python / Jython Utility Library for my other repos",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:pylib",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=pylib"
+      },
+      {
+        "id": "SpotifyTools",
+        "name": "Spotify tools",
+        "description": "Spotify Tools - Playlists Backups, Spotify CLI, URI translator, duplication detection / removal, API search queries, API automation etc.",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:SpotifyTools",
+        "webUrl": "http://localhost:8111/viewType.html?buildTypeId=SpotifyTools"
+      }
+    ]
+  },
+  "templates": {
+    "count": 1,
+    "buildType": [
+      {
+        "id": "HariSekhon_Make",
+        "name": "Make",
+        "templateFlag": true,
+        "description": "Standard 'make' build",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:HariSekhon_Make"
+      }
+    ]
+  },
+  "parameters": {
+    "count": 0,
+    "href": "/app/rest/projects/id:GitHub/parameters",
+    "property": []
+  },
+  "vcsRoots": {
+    "count": 11,
+    "href": "/app/rest/vcs-roots?locator=project:(id:GitHub)"
+  },
+  "projectFeatures": {
+    "count": 1,
+    "href": "/app/rest/projects/id:GitHub/projectFeatures",
+    "projectFeature": [
+      {
+        "id": "PROJECT_EXT_4",
+        "type": "versionedSettings",
+        "href": "/app/rest/projects/id:GitHub/projectFeatures/id:PROJECT_EXT_4",
+        "properties": {
+          "count": 5,
+          "href": "/app/rest/projects/id:GitHub/projectFeatures/id:PROJECT_EXT_4/properties",
+          "property": [
+            {
+              "name": "buildSettings",
+              "value": "PREFER_CURRENT"
+            },
+            {
+              "name": "credentialsStorageType",
+              "value": "credentialsJSON"
+            },
+            {
+              "name": "enabled",
+              "value": "true"
+            },
+            {
+              "name": "rootId",
+              "value": "TeamCity"
+            },
+            {
+              "name": "showChanges",
+              "value": "false"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "projects": {
+    "count": 0
+  }
+}

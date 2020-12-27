@@ -1,0 +1,9 @@
+{
+    "status_code": 200,
+    "data": {
+        "Attributes": {
+            "Policy": "{\"Version\":\"2008-10-17\",\"Id\":\"\",\"Statement\":[{\"Sid\":\"SpecificAllow\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::644160558196:root\"},\"Action\":\"sqs:Subscribe\"}]}"
+        },
+        "ResponseMetadata": {}
+    }
+}

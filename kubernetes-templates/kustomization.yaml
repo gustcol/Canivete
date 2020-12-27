@@ -1,0 +1,112 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2020-09-21 13:19:44 +0100 (Mon, 21 Sep 2020)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/HariSekhon/kubernetes-templates
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/HariSekhon
+#
+
+# ============================================================================ #
+#                               K u s t o m i z e
+# ============================================================================ #
+
+# Quick Reference:
+#
+# https://kubectl.docs.kubernetes.io/pages/reference/kustomize.html
+#
+# https://kubectl.docs.kubernetes.io/pages/examples/kustomize.html
+
+# =============
+
+# Edit / Delete below as necessary for your environment (it's easier than remembering / finding / adding all this stuff)
+
+# =============
+
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# override namespace for all resources
+namespace: NAMESPACE
+
+# add resource configs from ../../base/kustomization.yaml
+#bases:
+#  - ../../base
+
+#namePrefix: dev-
+
+# set labels on all resources and selectors - will override base
+# eg. this will replace all 'app' labels
+commonLabels:
+  app: NAME-dev
+
+# set annotations on all resources - will override base
+#commonAnnotations:
+#  annotationKey1: annotationValue2
+
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  #- cronjob.yaml
+  #- statefulset.yaml
+  #- github.com/username/repo # can add paths and ?ref=dev-branch or ?ref=v1.0.6
+
+# I prefer this to the JSON inline patch as it's separately usable from the CLI as well
+# must name metadata.name [and often metadata.namespace] in order to match exact resources from the above yamls to match + patch
+patchesStrategicMerge:
+  # overrides replica counts / memory / ports across environments etc - anything that could be defined in a normal deployment
+  #- deployment.patch.yaml
+  #
+  # set in cronjob.yml now - besides this is too generic without metadata.name necessary for patching selection, designed to be called from CLI as a fix
+  #- cronjob-fix-stale.patch.yaml
+  #
+  # enable to override LoadBalancer to NodePort for testing locally
+  #- service-nodeport.patch.yaml
+
+# not my favourite way of doing it, prefer patchesStrategicMerge above
+# the only reason to use this is because not all resources or fields support strategic merge patches
+#patchesJson6902:
+#- target:
+#    version: v1
+#    kind: Deployment
+#    name: NAME
+#  # this has to be in Json Patch format, not regular k8s yaml format
+#  # eg. some.patch.yaml's contents should be something like:
+#  #
+#	 #		{"op": "replace", "path": "/some/existing/path", "value": "new value"}
+#	 #
+#  # OR in yaml format:
+#	 #
+#	 #   - op:replace
+#	 #     path: /some/existing/path
+#	 #     value: new value
+#	 #
+#  path: some.patch.yaml
+
+# override image names and tags
+# can use newName and/or newTag to override image name and/or tag
+images:
+  - name: eu.gcr.io/myproject/myimage
+    newName: eu.gcr.io/myproject/myotherimage
+    newTag: "latest"
+
+configMapGenerator:
+  # useful for straight mounts to files
+  #- name: my-config-files
+  #  files:
+  #    - file1.properties
+  #    - file2.properties
+  # useful for extracting to environment variables
+  - name: my-env
+    namespace: NAMESPACE
+    literals:
+    - env=dev
+    - version=latest

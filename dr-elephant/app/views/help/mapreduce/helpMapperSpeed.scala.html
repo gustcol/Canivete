@@ -1,0 +1,64 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+
+<p>
+    This analysis shows the effectiveness of your mapper code.<br>
+    This should allow you to determine if your mapper is CPU-bound or if your mapper is outputting huge amounts of data.
+</p>
+<p>
+    This result of the analysis shows problems with mappers with significant slow speeds for the amount of data it needs
+    to read.
+</p>
+<h5>Example</h5>
+<p>
+<div class="list-group">
+    <a class="list-group-item list-group-item-danger" href="">
+        <h4 class="list-group-item-heading">Mapper Speed</h4>
+        <table class="list-group-item-text table table-condensed left-table">
+            <thead><tr><th colspan="2">Severity: Critical</th></tr></thead>
+            <tbody>
+            <tr>
+                <td>Number of tasks</td>
+                <td>20</td>
+            </tr>
+            <tr>
+                <td>Average task input size</td>
+                <td>509 MB</td>
+            </tr>
+            <tr>
+                <td>Average task speed</td>
+                <td>56 KB/s</td>
+            </tr>
+            <tr>
+                <td>Average task runtime</td>
+                <td>2hr 5min 54sec</td>
+            </tr>
+            </tbody>
+        </table>
+    </a>
+</div>
+</p>
+<h3>Suggestions</h3>
+<p>
+    If your mappers are CPU bound (Average task speed ~KB/s), then your mappers are performing significant CPU work,
+    and you should consider optimizing your mapper code or check for inefficiencies in code. Alternatively, in rare
+    cases, it may help to reduce the size of input that each mapper can process.<br>
+    <br>
+    The maximum map split size is controlled by the FileInputFormat.SPLIT_MAXSIZE
+    ("mapreduce.input.fileinputformat.split.maxsize") parameter. By
+    decreasing this value below dfs.block.size, you can reduce the input size for each mapper, thereby increase the
+    number of mappers in your job.<br>
+</p>

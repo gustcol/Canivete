@@ -1,0 +1,13 @@
+[
+  {
+    "category": "syslog",
+    "processid": "0",
+    "severity": "WARNING",
+    "hostname": "example.com",
+    "summary": "The IP <randomipaddress> has been banned for 21600 seconds after 4 failed attempts against SIP\n",
+    "file": "systemslogs",
+    "details": {
+      "program": "fail2ban"
+    }
+  }
+]

@@ -1,0 +1,51 @@
+{
+    "blueprint": "cluster-basic-named",
+    "default_password": "test",
+    "host_groups": [
+        {
+            "name": "NN",
+            "hosts": [
+                {
+                    "fqdn": "host1.internal"
+                }
+            ]
+        },
+        {
+            "name": "SNN",
+            "hosts": [
+                {
+                    "fqdn": "host2.internal"
+                }
+            ]
+        },
+        {
+            "name": "HIVE",
+            "hosts": [
+                {
+                    "fqdn": "host3.internal"
+                }
+            ]
+        },
+        {
+            "name": "METRICS",
+            "hosts": [
+                {
+                    "fqdn": "host4.internal"
+                }
+            ]
+        },
+        {
+            "name": "DN",
+            "host_count": 1000,
+            "host_predicate": "Hosts/os_type=centos7"
+        },
+        {
+            "name": "AMBARI",
+            "hosts": [
+                {
+                    "fqdn": "host6.internal"
+                }
+            ]
+        }
+    ]
+}

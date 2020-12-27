@@ -1,0 +1,260 @@
+service: auto-remediate
+
+custom:
+  log_level: INFO # DEBUG for dev | INFO for prod
+  region: ${opt:region, "ap-southeast-2"} # AWS deployment region
+  pythonRequirements:
+    noDeploy:
+      [
+        "docutils",
+        "jmespath",
+        "python-dateutil",
+        "s3transfer",
+        "six",
+        "pip",
+        "setuptools",
+      ]
+    slim: true
+    useStaticCache: true
+    useDownloadCache: true
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: ${opt:stage, "prod"} # Override via CLI "--stage dev"
+  region: ${self:custom.region}
+  profile: ${opt:profile, ""} # Override via CLI "--aws-profile saml"
+
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+
+functions:
+  AutoRemediate:
+    handler: auto_remediate.lambda_handler.lambda_handler
+    name: ${self:service}-${self:provider.stage}
+    description: Auto Remediate instantly remediates common security issues
+    memorySize: 128
+    timeout: 60
+    package:
+      exclude:
+        - auto_remediate/test/**
+        - auto_remediate_dlq/**
+        - auto_remediate_setup/**
+    environment:
+      DEADLETTERQUEUE:
+        Ref: SQSDeadLetterQueue
+      LOGLEVEL: ${self:custom.log_level}
+      LOGTOPIC:
+        Ref: SNSLogTopic
+      MISSINGREMEDIATIONTOPIC:
+        Ref: SNSMissingRemediationTopic
+      PYTHONPATH: "/var/task/auto_remediate:/var/task/dynamodb_json:/var/runtime"
+      RETRYCOUNT: 3
+      SETTINGSTABLE:
+        Ref: DynamoDBSettingsTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cloudtrail:UpdateTrail
+          - dynamodb:GetItem
+          - dynamodb:Scan
+          - ec2:CreateFlowLogs
+          - ec2:DescribeSecurityGroups
+          - ec2:RevokeSecurityGroupEgress
+          - ec2:RevokeSecurityGroupIngress
+          - ec2:RevokeSecurityGroupIngress
+          - iam:CreatePolicyVersion
+          - iam:CreateRole
+          - iam:DeleteAccessKey
+          - iam:DeleteLoginProfile
+          - iam:DeleteRole
+          - iam:DeleteRolePolicy
+          - iam:DetachUserPolicy
+          - iam:GetAccessKeyLastUsed
+          - iam:GetLoginProfile
+          - iam:GetPolicy
+          - iam:GetPolicyVersion
+          - iam:GetRole
+          - iam:ListAccessKeys
+          - iam:ListAttachedUserPolicies
+          - iam:ListPolicies
+          - iam:ListUsers
+          - iam:PassRole
+          - iam:PutRolePolicy
+          - iam:UpdateAccountPasswordPolicy
+          - kms:CreateAlias
+          - kms:CreateKey
+          - kms:DeleteAlias
+          - kms:EnableKeyRotation
+          - kms:ScheduleKeyDeletion
+          - logs:CreateLogGroup
+          - logs:DeleteLogGroup
+          - logs:DescribeLogGroups
+          - rds:DescribeDBInstances
+          - rds:ModifyDBInstance
+          - s3:CreateBucket
+          - s3:GetBucketPolicy
+          - s3:GetBucketPublicAccessBlock
+          - s3:PutBucketAcl
+          - s3:PutBucketLogging
+          - s3:PutBucketPolicy
+          - s3:PutBucketPublicAccessBlock
+          - s3:PutEncryptionConfiguration
+          - sns:Publish
+          - sqs:GetQueueUrl
+          - sqs:SendMessage
+          - sts:GetCallerIdentity
+        Resource: "*"
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - SQSConfigComplianceQueue
+              - Arn
+          batchSize: 1
+  AutoRemediateDLQ:
+    handler: auto_remediate_dlq.lambda_handler.lambda_handler
+    name: ${self:service}-dlq-${self:provider.stage}
+    description: Auto Remediate DLQ retries failed remediation attempts
+    memorySize: 128
+    timeout: 60
+    package:
+      exclude:
+        - auto_remediate_dlq/test/**
+        - auto_remediate/**
+        - auto_remediate_setup/**
+    environment:
+      COMPLIANCEQUEUE:
+        Ref: SQSConfigComplianceQueue
+      DEADLETTERQUEUE:
+        Ref: SQSDeadLetterQueue
+      LOGLEVEL: ${self:custom.log_level}
+      PYTHONPATH: "/var/task/auto_remediate_dlq:/var/runtime"
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sqs:DeleteMessage
+          - sqs:GetQueueUrl
+          - sqs:ReceiveMessage
+          - sqs:SendMessage
+        Resource: "*"
+    events:
+      - schedule:
+          rate: rate(30 minutes)
+          enabled: true
+  AutoRemediateSetup:
+    handler: auto_remediate_setup.lambda_handler.lambda_handler
+    name: ${self:service}-setup-${self:provider.stage}
+    description: Auto Remediate Setup creates CloudFormation Stacks for AWS Config
+    memorySize: 128
+    timeout: 60
+    package:
+      exclude:
+        - auto_remediate_setup/test/**
+        - auto_remediate/**
+        - auto_remediate_dlq/**
+    environment:
+      LOGLEVEL: ${self:custom.log_level}
+      PYTHONPATH: "/var/task/auto_remediate_setup:/var/task/dynamodb_json:/var/runtime"
+      SETTINGSTABLE:
+        Ref: DynamoDBSettingsTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Scan
+          - cloudformation:CreateStack
+          - cloudformation:DeleteStack
+          - cloudformation:ListStacks
+          - cloudformation:UpdateTerminationProtection
+          - config:DeleteConfigRule
+          - config:PutConfigRule
+          - dynamodb:BatchWriteItem
+          - dynamodb:DeleteTable
+          - dynamodb:DescribeTable
+          - dynamodb:GetItem
+          - dynamodb:ListTables
+          - dynamodb:PutItem
+          - dynamodb:Scan
+        Resource: "*"
+
+resources:
+  Resources:
+    CloudWatchComplianceEvent:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: ${self:service}-config-compliance-${self:provider.stage}
+        EventPattern:
+          source:
+            - aws.config
+          detail-type:
+            - Config Rules Compliance Change
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - SQSConfigComplianceQueue
+                - Arn
+            Id:
+              Fn::GetAtt:
+                - SQSConfigComplianceQueue
+                - QueueName
+      DependsOn: SQSConfigComplianceQueue
+    DynamoDBSettingsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-settings-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: key
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    SNSLogTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:service}-log-${self:provider.stage}
+    SNSMissingRemediationTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:service}-missing-remediation-${self:provider.stage}
+    SQSConfigComplianceQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-config-compliance-${self:provider.stage}
+        VisibilityTimeout: 60
+    SQSConfigComplianceQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        PolicyDocument:
+          Version: "2012-10-17"
+          Id: SQSConfigComplianceQueuePolicy
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - events.amazonaws.com
+                  - sqs.amazonaws.com
+              Action: sqs:SendMessage
+              Resource:
+                Fn::GetAtt:
+                  - SQSConfigComplianceQueue
+                  - Arn
+        Queues:
+          - Ref: SQSConfigComplianceQueue
+      DependsOn:
+        - CloudWatchComplianceEvent
+        - SQSConfigComplianceQueue
+    SQSDeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-dlq-${self:provider.stage}
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-python-requirements

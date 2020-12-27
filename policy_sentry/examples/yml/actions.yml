@@ -1,0 +1,8 @@
+# Generate my policy when I know the Actions
+mode: actions
+name: 'RoleNameWithActions'
+actions:
+- kms:CreateGrant
+- kms:CreateCustomKeyStore
+- ec2:AuthorizeSecurityGroupEgress
+- ec2:AuthorizeSecurityGroupIngress

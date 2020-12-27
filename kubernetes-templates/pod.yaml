@@ -1,0 +1,51 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2020-02-15 12:40:07 +0000 (Sat, 15 Feb 2020)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/harisekhon/kubernetes-templates
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/HariSekhon
+#
+
+# ============================================================================ #
+#                          P r i v i l e g e d   P o d
+# ============================================================================ #
+
+# https://kubernetes.io/docs/concepts/security/pod-security-standards/
+
+# https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+
+# https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+
+# https://kubernetes.io/docs/concepts/workloads/pods/
+
+
+# this is for testing pod security policy using this privileged pods
+
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: privileged-pod
+  namespace: NAMESPACE
+spec:
+  containers:
+    - name: privileged-pod
+      image: busybox
+      securityContext:
+        privileged: true
+    # environment variable remapping:
+    # neither $(VAR) nor $VAR will work due to order of evaluation as these are evaluated only at yaml generation time which happens before pod creation, Kubernetes has no way of inferring the current value as this must be generated before the pod is created
+    # instead do it inside the command / script
+    #env:
+    #- name: WORKDIR
+    #  value: $PWD
+    command: ["sh"]
+    args: ["-c", "cd /tmp; WORKDIR=$PWD; echo my workdir is $WORKDIR"]

@@ -1,0 +1,20 @@
+---
+version: '3.7'
+services:
+  sampledata:
+    build:
+      context: ../../
+      dockerfile: docker/compose/mozdef_sampledata/Dockerfile
+    restart: always
+    command: bash -c 'while ! timeout 1 bash -c "echo > /dev/tcp/elasticsearch/9200";do sleep 1;done && /opt/mozdef/envs/mozdef/scripts/demo/populate_sample_events.sh'
+    links:
+      - elasticsearch
+    depends_on:
+      - loginput
+      - elasticsearch
+      - mongodb
+      - bootstrap
+    networks:
+      - default
+    volumes:
+      - ../../scripts/demo:/opt/mozdef/envs/mozdef/scripts/demo

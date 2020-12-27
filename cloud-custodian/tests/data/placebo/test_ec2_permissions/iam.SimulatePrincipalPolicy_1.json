@@ -1,0 +1,28 @@
+{
+  "status_code": 200,
+  "data": {
+    "EvaluationResults": [
+      {
+        "EvalActionName": "lambda:CreateFunction",
+        "EvalResourceName": "*",
+        "EvalDecision": "allowed",
+        "MatchedStatements": [
+          {
+            "SourcePolicyId": "AdministratorAccess",
+            "StartPosition": {
+              "Line": 3,
+              "Column": 17
+            },
+            "EndPosition": {
+              "Line": 8,
+              "Column": 6
+            }
+          }
+        ],
+        "MissingContextValues": []
+      }
+    ],
+    "IsTruncated": false,
+    "ResponseMetadata": {}
+  }
+}

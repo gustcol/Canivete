@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+#
+#  Author: Hari Sekhon
+#  Date: 2015-03-12 21:16:54 +0000 (Thu, 12 Mar 2015)
+#
+#  https://github.com/harisekhon/devops-python-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  vim:ts=4:sts=4:sw=4:et:filetype=python
+
+"""
+
+Jython utility functions for Pig - primarily written to help me do Pig => SolrCloud indexing
+
+Written on Python 2.6 and tested on Pig 0.14 on Tez via Hortonworks HDP 2.2
+
+call from pig:
+
+REGISTER 'pig_udfs.jy' using jython as hari;
+hari.md5('test')
+
+For tonnes more functions that may be useful see the git submodule PyLib
+
+"""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import hashlib
+import os
+import platform
+import random
+import socket
+import string
+import time
+import uuid
+
+__author__ = 'Hari Sekhon'
+__version__ = '0.3'
+
+# using pipe separator because it's common for hostname's host components to have dashes in them
+# this makes it easier to distinguish the components of the returned chararrays
+sep = '|'
+alnum_charset = string.ascii_letters + string.digits
+
+pid = str(os.getpid())
+
+hostname = platform.node()
+if not hostname:
+    hostname = platform.uname()[1]
+if not hostname:
+    hostname = os.uname()[1]
+if not hostname:
+    hostname = socket.getfqdn()
+
+############
+# shamelessly borrowed from the Pig UDF manual's Jython section :)
+@outputSchemaFunction('squareSchema') # pylint: disable=undefined-variable
+def square(num):
+    return (num) * (num)
+
+@schemaFunction('squareSchema') # pylint: disable=undefined-variable
+def squareSchema(input): # pylint: disable=invalid-name,redefined-builtin
+    return input
+
+@outputSchema('percent:double') # pylint: disable=undefined-variable
+def percent(num, total):
+    return num * 100 / total
+############
+
+@outputSchema('time_hostname:chararray') # pylint: disable=undefined-variable
+def time_hostname():
+    # time precision here is a trade off between space and uniqueness, I find 4 decimal places isn't unique but 6 is
+    return '%.6f' % time.time() + sep + hostname
+
+@outputSchema('time_hostname_pid:chararray') # pylint: disable=undefined-variable
+def time_hostname_pid():
+    return time_hostname() + sep + pid
+
+@outputSchema('random_alnum:chararray') # pylint: disable=undefined-variable
+def random_alnum(size):
+    return ''.join(random.choice(alnum_charset) for x in range(size))
+
+@outputSchema('random_uuid:chararray') # pylint: disable=undefined-variable
+def random_uuid(size):
+    return time_hostname_pid() + random_alnum(size)
+
+@outputSchema('md5:chararray') # pylint: disable=undefined-variable
+def md5(my_string):
+    return hashlib.md5(my_string).hexdigest()
+
+@outputSchema('md5_uuid:chararray') # pylint: disable=undefined-variable
+def md5_uuid(my_string):
+    return time_hostname_pid() + sep + md5(my_string)
+
+@outputSchema('sha1:chararray') # pylint: disable=undefined-variable
+def sha1(my_string):
+    return hashlib.sha1(my_string).hexdigest()
+
+@outputSchema('sha1_uuid:chararray') # pylint: disable=undefined-variable
+def sha1_uuid(my_string):
+    return time_hostname_pid() + sep + sha1(my_string)
+
+# uuid module doesn't seem to have uuid4() in Python 2.6, but does on Python 2.7
+@outputSchema('uuid4:chararray') # pylint: disable=undefined-variable
+def uuid4():
+    return uuid.uuid4().get_hex()

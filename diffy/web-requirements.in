@@ -1,0 +1,7 @@
+-r requirements.txt
+flask
+raven[flask]
+flask-restful
+gunicorn
+inflection
+Flask-RQ2

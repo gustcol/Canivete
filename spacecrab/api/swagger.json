@@ -1,0 +1,408 @@
+{
+  "swagger": "2.0",
+  "info": {
+      "description": "[PROJECT SPACECRAB](https://bitbucket.org/asecurityteam/spacecrab), an open source toolset that tips the balance in the right direction by enabling deployments of several thousand AWS honey tokens across your network and on every endpoint you own.",
+      "version": "0.1.0",
+      "title": "Spacecrab",
+      "license": {
+          "name": "Apache 2.0",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+      }
+  },
+  "basePath": "/v0",
+  "host": { "Ref": "SpaceCrabCustomFqdn" },
+  "tags": [
+      {
+          "name": "token",
+          "description": "Spacecrab honey tokens"
+      }
+  ],
+  "schemes": [
+      "https"
+  ],
+  "paths": {
+      "/token/{location}": {
+  "get": {
+              "tags": [
+                  "token"
+              ],
+              "summary": "Get a token for a given environment",
+              "description": "",
+              "operationId": "GetTokenByLocation",
+              "consumes": [
+                  "application/json"
+              ],
+              "produces": [
+                  "application/json"
+              ],
+              "parameters": [
+                  {
+                      "in": "path",
+                      "name": "location",
+                      "description": "Token location",
+                      "required": true,
+                      "type": "string"
+                  },
+                  {
+                      "in": "query",
+                      "name": "owner",
+                      "description": "Token owner",
+                      "type": "string"
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "200 response",
+                      "schema": {
+                          "$ref": "#/definitions/AddTokenResponse"
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "api_key": []
+                  }
+              ],
+              "x-amazon-apigateway-integration": {
+                  "responses": {
+                      "default": {
+                          "statusCode": "200"
+                      }
+                  },
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:GetTokenFunction/invocations"
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws"
+              }
+          }
+      },
+      "/token": {
+          "post": {
+              "tags": [
+                  "token"
+              ],
+              "summary": "Add a new honey token",
+              "description": "",
+              "operationId": "AddToken",
+              "consumes": [
+                  "application/json"
+              ],
+              "produces": [
+                  "application/json"
+              ],
+              "parameters": [
+                  {
+                      "in": "body",
+                      "name": "body",
+                      "description": "Token object to be added.",
+                      "required": true,
+                      "schema": {
+                          "$ref": "#/definitions/AddTokenRequest"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "200 response",
+                      "schema": {
+                          "$ref": "#/definitions/AddTokenResponse"
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "api_key": []
+                  }
+              ],
+              "x-amazon-apigateway-integration": {
+                  "responses": {
+                      "default": {
+                          "statusCode": "200"
+                      }
+                  },
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AddTokenFunction/invocations"
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws"
+              }
+          },
+          "put": {
+              "tags": [
+                  "token"
+              ],
+              "summary": "Update an existing honey token",
+              "description": "",
+              "operationId": "UpdateToken",
+              "consumes": [
+                  "application/json"
+              ],
+              "produces": [
+                  "application/json"
+              ],
+              "parameters": [
+                  {
+                      "in": "body",
+                      "name": "body",
+                      "description": "Token object to be updated.",
+                      "required": true,
+                      "schema": {
+                          "$ref": "#/definitions/UpdateTokenRequest"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "200 response",
+                      "schema": {
+                          "$ref": "#/definitions/UpdateTokenResponse"
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "api_key": []
+                  }
+              ],
+              "x-amazon-apigateway-integration": {
+                  "responses": {
+                      "default": {
+                          "statusCode": "200"
+                      }
+                  },
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:UpdateTokenFunction/invocations"
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws"
+              }
+          },
+          "delete": {
+              "tags": [
+                  "token"
+              ],
+              "summary": "Delete an existing honey token",
+              "description": "",
+              "operationId": "DeleteToken",
+              "consumes": [
+                  "application/json"
+              ],
+              "produces": [
+                  "application/json"
+              ],
+              "parameters": [
+                  {
+                      "in": "body",
+                      "name": "body",
+                      "description": "Token object to be deleted.",
+                      "required": true,
+                      "schema": {
+                          "$ref": "#/definitions/DeleteTokenRequest"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "200 response",
+                      "schema": {
+                          "$ref": "#/definitions/DeleteTokenResponse"
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "api_key": []
+                  }
+              ],
+              "x-amazon-apigateway-integration": {
+                  "responses": {
+                      "default": {
+                          "statusCode": "200"
+                      }
+                  },
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteTokenFunction/invocations"
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws"
+              }
+          }
+      }
+  },
+
+  "securityDefinitions": {
+      "api_key": {
+          "type": "apiKey",
+          "name": "x-api-key",
+          "in": "header",
+          "description": "An AWS API Gateway API Key"
+      }
+  },
+  "definitions": {
+      "Empty": {
+          "type": "object",
+          "title": "Empty Schema"
+      },
+      "AddTokenRequest": {
+          "type": "object",
+          "required": [
+              "Owner",
+              "Location",
+              "ExpiresAt",
+              "Notes"
+          ],
+          "properties": {
+              "Owner": {
+                  "type": "string",
+                  "description": "Example: \"Jane Smith\""
+              },
+              "Location": {
+                  "type": "string",
+                  "description": "Example: \"Production web server\""
+              },
+              "ExpiresAt": {
+                  "type": "string",
+                  "description": "Example: \"2016-01-01 00:00:00\""
+              },
+              "Notes": {
+                  "type": "string",
+                  "description": "Example: \"Generated via REST API\""
+              }
+          }
+      },
+      "AddTokenResponse": {
+          "type": "object",
+          "properties": {
+              "Status": {
+                  "type": "string",
+                  "description": "The status returned by the AddTokenFunction.\nNOTE: Deprecated\nexample:\n- \"FAILED\"\n- \"SUCCESS\"\n"
+              },
+              "AccessKey": {
+                  "type": "object",
+                  "description": "http://docs.aws.amazon.com/IAM/latest/APIReference/API_AccessKey.html",
+                  "properties": {
+                      "UserName": {
+                          "type": "string"
+                      },
+                      "Status": {
+                          "type": "string"
+                      },
+                      "CreateDate": {
+                          "type": "string"
+                      },
+                      "SecretAccessKey": {
+                          "type": "string"
+                      },
+                      "AccessKeyId": {
+                          "type": "string"
+                      }
+                  }
+              },
+              "User": {
+                  "type": "object",
+                  "description": "http://docs.aws.amazon.com/IAM/latest/APIReference/API_User.html",
+                  "properties": {
+                      "UserName": {
+                          "type": "string"
+                      },
+                      "Path": {
+                          "type": "string"
+                      },
+                      "CreateDate": {
+                          "type": "string"
+                      },
+                      "UserId": {
+                          "type": "string"
+                      },
+                      "Arn": {
+                          "type": "string"
+                      }
+                  }
+              }
+          }
+      },
+      "UpdateTokenRequest": {
+          "type": "object",
+          "required": [
+              "AccessKeyId",
+              "Owner",
+              "Location",
+              "ExpiresAt",
+              "Notes"
+          ],
+          "properties": {
+              "AccessKeyId": {
+                  "type": "string",
+                  "description": "Example: \"AKIAGEE0UZ8EEW6AEB4K\""
+              },
+              "Owner": {
+                  "type": "string",
+                  "description": "Example: \"Jane Smith\""
+              },
+              "Location": {
+                  "type": "string",
+                  "description": "Example: \"Production web server\""
+              },
+              "ExpiresAt": {
+                  "type": "string",
+                  "description": "Example: \"2016-01-01 00:00:00\""
+              },
+              "Notes": {
+                  "type": "string",
+                  "description": "Example: \"Generated via REST API\""
+              }
+          }
+      },
+      "UpdateTokenResponse": {
+          "type": "object",
+          "properties": {
+              "Status": {
+                  "type": "string",
+                  "description": "The status returned by the DeleteTokenFunction.\nexample:\n- \"Failure\"\n- \"Success\"\n"
+              },
+              "Message": {
+                  "type": "string",
+                  "description": "The message returned by the DeleteTokenFunction.\nexample:\n- \"Successfully deleted AKIAGEE0UZ8EEW6AEB4K and marked as deactivated in db\"\n"
+              }
+          }
+      },
+      "DeleteTokenRequest": {
+          "type": "object",
+          "required": [
+              "AccessKeyId"
+          ],
+          "properties": {
+              "AccessKeyId": {
+                  "type": "string",
+                  "description": "Example: \"AKIAGEE0UZ8EEW6AEB4K\""
+              }
+          }
+      },
+      "DeleteTokenResponse": {
+          "type": "object",
+          "properties": {
+              "Status": {
+                  "type": "string",
+                  "description": "The status returned by the DeleteTokenFunction.\nexample:\n- \"FAILED\"\n- \"SUCCESS\"\n"
+              },
+              "Reason": {
+                  "type": "string",
+                  "description": "The message returned by the DeleteTokenFunction.\nexample:\n- \"Successfully deleted AKIAGEE0UZ8EEW6AEB4K and marked as deactivated in db\"\n"
+              }
+          }
+      }
+  },
+  "externalDocs": {
+      "description": "Find out more about Spacecrab",
+      "url": "https://developer.atlassian.com/blog/2017/10/project-spacecrab-breach-detection/"
+  }
+}

@@ -1,0 +1,41 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-10-10 17:42:54 +0100 (Thu, 10 Oct 2019)
+#
+#  https://github.com/harisekhon/devops-bash-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                         C I   C o n f i g   F i l e s
+# ============================================================================ #
+
+# Files to sync to adjacent repos, one per line
+
+Jenkinsfile
+.appveyor.yml
+.buildkite/pipeline.yml
+.circleci/config.yml
+.cirrus.yml
+.concourse.yml
+.drone.yml
+.gitlab-ci.yml
+.gocd.yml
+.semaphore/semaphore.yml
+.teamcity.vcs.json
+.teamcity.auth.vcs.json
+#.travis.yml
+azure-pipelines.yml
+bitbucket-pipelines.yml
+buddy.yml
+buildspec.yml
+cloudbuild.yaml
+codefresh.yml
+shippable.yml
+wercker.yml
+setup/gocd_config_repo.json
+setup/jenkins-job.xml
+setup/ci_bootstrap.sh

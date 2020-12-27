@@ -1,0 +1,149 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "BucketName": {
+      "Type": "String",
+      "Description": "Name of the bucket"
+    },
+    "AccelerationStatus": {
+      "Type": "String",
+      "Description": "S3 transfer acceleration status",
+      "Default": "Enabled",
+      "AllowedValues": [
+        "Enabled",
+        "Suspended"
+      ]
+    },
+    "SQSArn": {
+      "Type": "String",
+      "Description": "Queue which would receive SNS notifications"
+    },
+    "TopicName": {
+      "Type": "String",
+      "Description": "SNS topic name"
+    }
+  },
+  "Resources": {
+    "InventoryDestinationBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": {
+          "Ref": "BucketName"
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": "True",
+          "BlockPublicPolicy": "True",
+          "IgnorePublicAcls": "True",
+          "RestrictPublicBuckets": "True"
+        },
+        "AccelerateConfiguration": {
+          "AccelerationStatus": {
+            "Ref": "AccelerationStatus"
+          }
+        },
+        "NotificationConfiguration": {
+          "TopicConfigurations": [
+            {
+              "Event": "s3:ObjectCreated:Put",
+              "Topic": {
+                "Ref": "S3NotificationTopic"
+              }
+            }
+          ]
+        },
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "InventoryDestinationBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "InventoryDestinationBucket"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "InventoryPolicy",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "s3.amazonaws.com"
+              },
+              "Action": "s3:PutObject",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:aws:s3:::${BucketName}/*"
+                }
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3NotificationTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "TopicName": {
+          "Ref": "TopicName"
+        }
+      }
+    },
+    "S3NotificationTopicSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Properties": {
+        "Endpoint": {
+          "Ref": "SQSArn"
+        },
+        "Protocol": "sqs",
+        "RawMessageDelivery": true,
+        "TopicArn": {
+          "Ref": "S3NotificationTopic"
+        }
+      }
+    },
+    "S3NotificationTopicPolicy": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "AllowS3ToPushNotification",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "s3.amazonaws.com"
+              },
+              "Action": "sns:Publish",
+              "Resource": "*",
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": {
+                    "Fn::Sub": "arn:aws:s3:::${BucketName}"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "Topics": [
+          {
+            "Ref": "S3NotificationTopic"
+          }
+        ]
+      }
+    }
+  }
+}

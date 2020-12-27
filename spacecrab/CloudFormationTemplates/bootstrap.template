@@ -1,0 +1,605 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "TemplateCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where cloudformation templates were uploaded"
+    },
+    "MasterDatabaseUser": {
+      "Type": "String",
+      "Description": "The master username for token database",
+      "Default": "master",
+      "NoEcho": "true"
+    },
+    "MasterDatabasePassword": {
+      "Type": "String",
+      "Description": "The master password for token database",
+      "NoEcho": "true"
+    },
+    "FunctionDatabaseUser": {
+      "Type": "String",
+      "Description": "The username lambda functions will use to talk to the token database",
+      "Default": "lambda",
+      "NoEcho": "true"
+    },
+    "FunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The password lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "IamTokenUserPath": {
+      "Type": "String",
+      "Description": "The path to use for token IAM users"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "Default": "/"
+    },
+    "PagerdutyApiToken": {
+      "Type": "String",
+      "Description": "Pagerduty API Token",
+      "NoEcho": "true"
+    },
+    "AlertEmailAddress": {
+      "Type": "String",
+      "Description": "Address to send alert emails to",
+      "NoEcho": "true"
+    },
+    "AlertFromAddress": {
+      "Type": "String",
+      "Description": "Address to send alert emails from",
+      "NoEcho": "true"
+    },
+    "SESRegion": {
+      "Type": "String",
+      "Description": "Region to use for SES API calls."
+    },
+    "OwnerArn": {
+      "Type": "String",
+      "Description": "Arn to use as owner of KMS/Buckets",
+      "Default": ""
+    },
+    "CustomFqdn": {
+      "Type": "String",
+      "Description": "An FQDN for the API gateway custom domain",
+      "Default": ""
+    },
+    "CustomFqdnAcmArn": {
+      "Type": "String",
+      "Description": "An ACM ARN for the API gateway custom domain",
+      "Default": ""
+    }
+  },
+  "Resources": {
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": {
+          "Ref": "IamPath"
+        }
+      }
+    },
+    "SpaceCrabBaseLambdaManagedPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "DependsOn": [
+        "SpaceCrabLambdaExecutionRole"
+      ],
+      "Properties": {
+        "Description": "Policy for lambdas",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ec2:CreateNetworkInterface",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DeleteNetworkInterface"
+              ],
+              "Resource": [
+                "*"
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:logs:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":log-group:/aws/lambda/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "EncryptionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Fn::GetAtt": [
+              "SpaceCrabLambdaExecutionRole",
+              "Arn"
+            ]
+          },
+          "SpaceCrabFunctionSubnet1": { "Fn::ImportValue" : "SpaceCrabFunctionSubnet1" },
+          "SpaceCrabFunctionSubnet2":  { "Fn::ImportValue" : "SpaceCrabFunctionSubnet2" },
+          "SpaceCrabFunctionSecurityGroup":  { "Fn::ImportValue" : "SpaceCrabFunctionSecurityGroup" },
+          "MasterDatabasePassword": {
+            "Ref": "MasterDatabasePassword"
+          },
+          "FunctionDatabasePassword": {
+            "Ref": "FunctionDatabasePassword"
+          },
+          "PagerdutyApiToken": {
+            "Ref": "PagerdutyApiToken"
+          },
+          "AlertEmailAddress": {
+            "Ref": "AlertEmailAddress"
+          },
+          "AlertFromAddress": {
+            "Ref": "AlertEmailAddress"
+          },
+          "OwnerArn": {
+            "Ref": "OwnerArn"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/encrypt-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "ManagementStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "EncryptionStack"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "TemplateCodeBucket": {
+            "Ref": "TemplateCodeBucket"
+          },
+          "MasterDatabaseUser": {
+            "Ref": "MasterDatabaseUser"
+          },
+          "MasterDatabasePassword": {
+            "Ref": "MasterDatabasePassword"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedMasterDatabasePassword": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedMasterDatabasePassword"
+            ]
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedFunctionDatabasePassword"
+            ]
+          },
+          "EncryptedPagerdutyToken": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedPagerdutyToken"
+            ]
+          },
+          "IamTokenUserPath": {
+            "Ref": "IamTokenUserPath"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "SpaceCrabFunctionSubnet1": { "Fn::ImportValue" : "SpaceCrabFunctionSubnet1" },
+          "SpaceCrabFunctionSubnet2": { "Fn::ImportValue" : "SpaceCrabFunctionSubnet2" },
+          "SpaceCrabDatabaseSubnetGroup":  { "Fn::ImportValue" : "SpaceCrabDatabaseSubnetGroup" },
+          "SpaceCrabFunctionSecurityGroup":  { "Fn::ImportValue" : "SpaceCrabFunctionSecurityGroup" },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Fn::GetAtt": [
+              "SpaceCrabLambdaExecutionRole",
+              "Arn"
+            ]
+          },
+          "TokenDatabaseSecurityGroup": { "Fn::ImportValue" : "TokenDatabaseSecurityGroup" }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/management.template"
+            ]
+          ]
+        }
+      }
+    },
+    "AlertingStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "ManagementStack"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "TemplateCodeBucket": {
+            "Ref": "TemplateCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedFunctionDatabasePassword"
+            ]
+          },
+          "EncryptedPagerdutyToken": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedPagerdutyToken"
+            ]
+          },
+          "EncryptedAlertEmailAddress": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedAlertEmailAddress"
+            ]
+          },
+          "EncryptedFromEmailAddress": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedFromEmailAddress"
+            ]
+          },
+          "SESRegion": {
+            "Ref": "SESRegion"
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Fn::GetAtt": [
+              "SpaceCrabLambdaExecutionRole",
+              "Arn"
+            ]
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "IamTokenUserPath": {
+            "Ref": "IamTokenUserPath"
+          },
+          "SpaceCrabFunctionSubnet1": { "Fn::ImportValue" : "SpaceCrabFunctionSubnet1" },
+          "SpaceCrabFunctionSubnet2": { "Fn::ImportValue" : "SpaceCrabFunctionSubnet2" },
+          "SpaceCrabFunctionSecurityGroup": { "Fn::ImportValue" : "SpaceCrabFunctionSecurityGroup" },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "ManagementStack",
+              "Outputs.TokenDatabaseAddress"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "ManagementStack",
+              "Outputs.TokenDatabasePort"
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/alerting.template"
+            ]
+          ]
+        }
+      }
+    },
+    "CleanupStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "ManagementStack",
+        "AlertingStack"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "EncryptedAlertEmailAddress": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedAlertEmailAddress"
+            ]
+          },
+          "EncryptedPagerdutyToken": {
+            "Fn::GetAtt": [
+              "EncryptionStack",
+              "Outputs.EncryptedPagerdutyToken"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Fn::GetAtt": [
+              "SpaceCrabLambdaExecutionRole",
+              "Arn"
+            ]
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "SpaceCrabFunctionSubnet1": { "Fn::ImportValue" : "SpaceCrabFunctionSubnet1" },
+          "SpaceCrabFunctionSubnet2": { "Fn::ImportValue" : "SpaceCrabFunctionSubnet2" },
+          "SpaceCrabFunctionSecurityGroup": { "Fn::ImportValue" : "SpaceCrabFunctionSecurityGroup" },
+          "LambdaAlertPagerdutyFunctionArn": {
+            "Fn::GetAtt": [
+              "AlertingStack",
+              "Outputs.LambdaAlertPagerdutyFunctionArn"
+            ]
+          },
+          "LambdaAlertEmailFunctionArn": {
+            "Fn::GetAtt": [
+              "AlertingStack",
+              "Outputs.LambdaAlertEmailFunctionArn"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Fn::GetAtt": [
+              "SpaceCrabLambdaExecutionRole",
+              "Arn"
+            ]
+          },
+          "AlertingSnsTopicArn": {
+            "Fn::GetAtt": [
+              "AlertingStack",
+              "Outputs.AlertingSnsTopicArn"
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/cleanup.template"
+            ]
+          ]
+        }
+      }
+    },
+    "ApiGatewayStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "ManagementStack",
+        "AlertingStack"
+      ],
+      "Properties": {
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/apigateway.template"
+            ]
+          ]
+        },
+        "Parameters": {
+          "SpaceCrabCustomFqdn": { "Ref": "CustomFqdn" },
+          "SpaceCrabCustomFqdnAcmArn": { "Ref": "CustomFqdnAcmArn" },
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaProcessCloudTrailFunctionArn": {
+      "Description": "The ARN of the lambda function that processes cloudtrails",
+      "Value": {
+        "Fn::GetAtt": [
+          "AlertingStack",
+          "Outputs.LambdaProcessCloudTrailFunctionArn"
+        ]
+      },
+      "Export": {
+        "Name": "LambdaProcessCloudTrailFunctionArn"
+      }
+    },
+    "LambdaGenerateUsernameFunctionArn": {
+      "Description": "The ARN of GenerateUsernameFunction",
+      "Value": {
+        "Fn::GetAtt": [
+          "ManagementStack",
+          "Outputs.LambdaGenerateUsernameFunctionArn"
+        ]
+      },
+      "Export": {
+        "Name": "LambdaGenerateUsernameFunctionArn"
+      }
+    },
+    "LambdaAddTokenFunctionArn": {
+      "Description": "The ARN of AddTokenFunction",
+      "Value": {
+        "Fn::GetAtt": [
+          "ManagementStack",
+          "Outputs.LambdaAddTokenFunctionArn"
+        ]
+      },
+      "Export": {
+        "Name": "LambdaAddTokenFunctionArn"
+      }
+    },
+    "LambdaUpdateTokenFunctionArn": {
+      "Description": "The ARN of UpdateTokenFunction",
+      "Value": {
+        "Fn::GetAtt": [
+          "ManagementStack",
+          "Outputs.LambdaUpdateTokenFunctionArn"
+        ]
+      },
+      "Export": {
+        "Name": "LambdaUpdateTokenFunctionArn"
+      }
+    },
+    "LambdaDeleteTokenFunctionArn": {
+      "Description": "The ARN of DeleteTokenFunction",
+      "Value": {
+        "Fn::GetAtt": [
+          "ManagementStack",
+          "Outputs.LambdaDeleteTokenFunctionArn"
+        ]
+      },
+      "Export": {
+        "Name": "LambdaDeleteTokenFunctionArn"
+      }
+    },
+    "LambdaExpireTokensFunctionArn": {
+      "Description": "The ARN of ExpireTokensFunction",
+      "Value": {
+        "Fn::GetAtt": [
+          "ManagementStack",
+          "Outputs.LambdaExpireTokensFunctionArn"
+        ]
+      },
+      "Export": {
+        "Name": "LambdaExpireTokensFunctionArn"
+      }
+    },
+    "LambdaBackupFunctionArn": {
+      "Description": "The ARN of BackupFunction",
+      "Value": {
+        "Fn::GetAtt": [
+          "ManagementStack",
+          "Outputs.LambdaBackupFunctionArn"
+        ]
+      },
+      "Export": {
+        "Name": "LambdaBackupFunctionArn"
+      }
+    },
+    "KMSKeyArn": {
+      "Description": "The ARN of KMSKey",
+      "Value": {
+        "Fn::GetAtt": [
+          "EncryptionStack",
+          "Outputs.KMSKeyArn"
+        ]
+      },
+      "Export": {
+        "Name": "KMSKeyArn"
+      }
+    },
+    "TokenGroup": {
+      "Description": "TokenGroup for later perusal",
+      "Value": {
+        "Fn::GetAtt": [
+          "ManagementStack",
+          "Outputs.TokenGroup"
+        ]
+      },
+      "Export": {
+        "Name": "TokenGroup"
+      }
+    },
+    "ApiGatewayRootUrl": {
+      "Description": "The root URL for the Spacecrab REST API.",
+      "Value": {
+        "Fn::GetAtt": [
+          "ApiGatewayStack",
+          "Outputs.RootUrl"
+        ]
+      },
+      "Export": {
+        "Name": "ApiGatewayRootUrl"
+      }
+    }
+  }
+}

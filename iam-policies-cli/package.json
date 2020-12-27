@@ -1,0 +1,42 @@
+{
+  "name": "@mhlabs/iam-policies-cli",
+  "version": "0.0.8",
+  "description": "A CLI tool for building simple to complex IAM policies",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "mhlabs",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.619.0",
+    "axios": "^0.19.2",
+    "clipboardy": "^2.2.0",
+    "commander": "^4.1.1",
+    "inquirer": "^7.0.4",
+    "path": "^0.12.7",
+    "yaml-cfn": "^0.2.3"
+  },
+  "bugs": {
+    "url": "https://github.com/mhlabs/iam-policies-cli/issues"
+  },
+  "homepage": "https://github.com/mhlabs/iam-policies-cli#readme",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "jest": "^25.1.0"
+  },
+  "bin": {
+    "iam-pol": "index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "aws",
+    "iam",
+    "policies",
+    "serverless",
+    "cloudformation",
+    "sam"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "account": {
+    "aws_account_id": "AWS_ACCOUNT_ID_GOES_HERE",
+    "prefix": "PREFIX_GOES_HERE",
+    "region": "us-east-1"
+  },
+  "general": {
+    "terraform_files": [],
+    "matcher_locations": [
+      "matchers"
+    ],
+    "rule_locations": [
+      "rules"
+    ],
+    "scheduled_query_locations": [
+      "scheduled_queries"
+    ],
+    "publisher_locations": [
+      "publishers"
+    ],
+    "third_party_libraries": [
+      "pathlib2==2.3.5",
+      "policyuniverse==1.3.2.1"
+    ]
+  },
+  "infrastructure": {
+    "alerts_table": {
+      "read_capacity": 5,
+      "write_capacity": 5
+    },
+    "artifact_extractor": {
+      "enabled": false,
+      "firehose_buffer_size": 128,
+      "firehose_buffer_interval": 900
+    },
+    "firehose": {
+      "use_prefix": true,
+      "buffer_interval": 900,
+      "buffer_size": 128,
+      "enabled": false,
+      "enabled_logs": {}
+    },
+    "monitoring": {},
+    "rule_staging": {
+      "cache_refresh_minutes": 10,
+      "enabled": false,
+      "table": {
+        "read_capacity": 20,
+        "write_capacity": 5
+      }
+    },
+    "classifier_sqs": {
+      "use_prefix": true
+    }
+  }
+}

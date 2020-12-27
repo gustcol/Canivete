@@ -1,0 +1,149 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+
+@(result: models.AppResult)
+
+@*
+* Displays complete info of the job.
+*
+* @param The job result of type AppResult
+*@
+
+<div class="panel panel-default">
+  @if(result != null) {
+    <!--A detailed job header including the job name, the 4 urls, other jobs/executions and the heuristic info-->
+    <div class="panel-heading">
+      <p class="panel-title">
+        @tags.jobHeader(result)
+        <div>
+          <table class="list-group-item-text table-striped table-condensed">
+            <tbody>
+              <tr>
+                <td>Jobtracker:</td>
+                <td><a href="@result.trackingUrl">@result.trackingUrl</a></td>
+              </tr>
+              @if(!result.jobExecUrl.isEmpty){
+                <tr>
+                  <td>Job execution:</td>
+                  <td><a href="@result.jobExecUrl">@result.jobExecUrl</a></td>
+                </tr>
+              }
+              @if(!result.jobDefUrl.isEmpty){
+                <tr>
+                  <td>Job definition:</td>
+                  <td><a href="@result.jobDefUrl">@result.jobDefUrl</a></td>
+                </tr>
+              }
+              @if(!result.flowExecUrl.isEmpty){
+                <tr>
+                  <td>Flow execution:</td>
+                  <td><a href="@result.flowExecUrl">@result.flowExecUrl</a></td>
+                </tr>
+              }
+              @if(!result.flowDefUrl.isEmpty){
+                <tr>
+                  <td>Flow definition:</td>
+                  <td><a href="@result.flowDefUrl">@result.flowDefUrl</a></td>
+                </tr>
+              }
+              @if(!result.jobDefId.isEmpty){
+                @if(result.jobType.equals("Spark")) {
+                  <tr>
+                    <td><a href="./jobhistory?job-def-id=@helper.urlEncode(result.jobDefId)&select-graph-type=heuristics">
+                      Job History</a></td>
+                  </tr>
+                } else {
+                  <tr>
+                    <td><a href="./jobhistory?job-def-id=@helper.urlEncode(result.jobDefId)&select-graph-type=resources">
+                      Job History</a></td>
+                  </tr>
+                }
+              }
+              @if(!result.jobDefId.isEmpty){
+                @if(result.jobType.equals("Spark")) {
+                  <tr>
+                    <td><a href="./flowhistory?flow-def-id=@helper.urlEncode(result.flowDefId)&select-graph-type=heuristics">Flow&nbsp;History</a></td>
+                  </tr>
+                } else {
+                  <tr>
+                    <td><a href="./flowhistory?flow-def-id=@helper.urlEncode(result.flowDefId)">Flow&nbsp;History</a></td>
+                  </tr>
+
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+        <br>
+        <div>
+          @for(yarnAppHeuristicResult <- result.yarnAppHeuristicResults) {
+            <a href="#@yarnAppHeuristicResult.heuristicName.replace(" ", "")" class="label label-@yarnAppHeuristicResult.severity.getBootstrapColor">@yarnAppHeuristicResult.heuristicName</a>
+          }
+        </div>
+      </p>
+      <div float="left">
+        <table width="100%">
+          <tr>
+            <td>@tags.aggregatedMetrics(result)</td>
+            <td align="right"><a href="@routes.Application.oldHelp()?topic=Used Resources">[Explain]</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    </div>
+
+
+    <!--A detailed heuristic info-->
+    <div class="list-group">
+      @for(yarnAppHeuristicResult <- result.yarnAppHeuristicResults) {
+        <a name="@yarnAppHeuristicResult.heuristicName.replace(" ", "")" class="list-group-item list-group-item-@yarnAppHeuristicResult.severity.getBootstrapColor">
+          <h4 class="list-group-item-heading">@yarnAppHeuristicResult.heuristicName</h4>
+          <table class="list-group-item-text table table-condensed left-table" style="table-layout:fixed;">
+            <thead><tr>
+              <th colspan="2">
+                Severity: @yarnAppHeuristicResult.severity.getText
+                @if(yarnAppHeuristicResult.severity.getValue > 1){ <a href="@routes.Application.oldHelp()?topic=@helper.urlEncode(yarnAppHeuristicResult.heuristicName)">[Explain]</a> }
+              </th>
+            </tr></thead>
+            <tbody>
+              @for(yarnAppHeuristicResultDetail <- yarnAppHeuristicResult.yarnAppHeuristicResultDetails) {
+                <tr>
+                  <td>@yarnAppHeuristicResultDetail.name</td>
+                  <td>@yarnAppHeuristicResultDetail.value</td>
+                </tr>
+                @if(yarnAppHeuristicResultDetail.details != null) {
+                  <tr>
+                    <td colspan="2"><div class="stacktrace">@yarnAppHeuristicResultDetail.details</div></td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </a>
+      }
+    </div>
+  } else {
+    <div class="panel-heading">
+      <p class="panel-title">Results</p>
+    </div>
+
+    <div class="list-group">
+      <a class="list-group-item">
+        <h4 class="list-group-item-heading">Job not found</h4>
+      </a>
+    </div>
+  }
+</div>

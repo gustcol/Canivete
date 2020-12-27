@@ -1,0 +1,13 @@
+---
+- name: Build the Cloud Environment
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - ../group_vars/all
+    - ../../inventory/openstack/group_vars/all
+  tasks:
+    - name: Build Openstack Nodes
+      include_tasks: build_openstack_nodes.yml
+      when: item.count > 0
+      with_items: "{{ nodes }}"

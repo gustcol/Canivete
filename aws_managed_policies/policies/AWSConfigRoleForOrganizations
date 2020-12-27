@@ -1,0 +1,22 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "organizations:ListAccounts",
+                        "organizations:DescribeOrganization",
+                        "organizations:ListAWSServiceAccessForOrganization",
+                        "organizations:ListDelegatedAdministrators"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v2",
+        "IsDefaultVersion": true,
+        "CreateDate": "2020-11-24T20:19:13Z"
+    }
+}

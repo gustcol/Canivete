@@ -1,0 +1,38 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/devops-python-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                          RPM Package Requirements
+# ============================================================================ #
+
+java
+
+# for htpasswd for docker registry authenticated checks
+httpd-tools
+
+# needed to build pyhs2
+# libgsasl-devel saslwrapper-devel
+#cyrus-sasl-devel
+
+# =====================================
+# installed by bash-tools submodule now
+
+# needed for tests/test_spark* and ambari_cancel_all_requests.sh
+#curl
+
+# for ping mode of find_active_server.py
+#iputils
+
+# for anonymize_parallel.sh
+#parallel
+
+#unzip
+#zip

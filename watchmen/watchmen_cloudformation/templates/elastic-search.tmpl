@@ -1,0 +1,303 @@
+# Copyright 2017 Insurance Australia Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS stack for ElasticSearch cluster used by Watchmen.
+
+Parameters:
+
+  Prefix:
+    Description: Environment prefix.
+    Type: String
+    AllowedPattern: '[a-z0-9-_]*'
+    ConstraintDescription: "Must be lowercase.Hyphen and numbers allowed.No spaces"
+
+  LambdaS3Bucket:
+    Description: The S3 bucket which stores the lambda functions
+    Type: String
+
+  ElasticSearchInstanceCount:
+    Description: Number of EC2 Instance nodes
+    Type: Number
+    ConstraintDescription: Must be a valid Instance Count
+    Default: 1
+
+  InstanceType: # Using default
+    Description: EC2 Instance Type
+    Type: String
+    ConstraintDescription: Must be a supported EC2 Instance Type
+    Default: "t2.small.elasticsearch"
+
+  EbsVolumeType: # Using default
+    Description: EBS Volume Type
+    Type: String
+    AllowedValues: [ gp2, sc1, st1, standard, io1 ]
+    ConstraintDescription: Must be a valid EBS Volume Type [ gp2, sc1, st1, standard, io1]
+    Default: "gp2"
+
+  EbsVolumeSize: # Using default
+    Description: EBS Volume Size Value
+    Type: Number
+    MinValue: 1
+    MaxValue: 16384
+    ConstraintDescription: Must be a valid Volume size value depending on the selected Volume Type (Max 16384 GiB)
+    Default: 10
+
+  EbsIops: # Using default
+    Description: EBS Iops Value
+    Type: Number
+    ConstraintDescription: Must be a valid EBS Iops Value
+    Default: 0
+
+  ElasticSearchAccess: # Using default
+    Description: The IP address's that can access the Elastic Search Domain
+    Type: String
+    Default: "{{external_cidr}}" # Company's External IP Range to allow access to Kibana Web Console
+
+  RetentionInDays: # Using default
+    Description: The number of days log events are kept in CloudWatch Logs.
+    Type: Number
+    ConstraintDescription: Must be a valid retention in days Value
+    Default: 30
+
+  DeployReporting:
+    Description: Conditional parameter to control if Reporting stack should be run.
+    Type: String
+    Default: false
+
+  DeployCitizenUpdate:
+    Description: Conditional parameter to control if CitizenUpdate stack should be run.
+    Type: String
+    Default: false
+
+  CreateSubscription:
+    Description: Conditional parameter to control if the subscriptions should be created.
+    Type: String
+    Default: true
+
+Conditions:
+
+  ShouldDeployReporting: !Equals [ !Ref DeployReporting, true ]
+  ShouldDeployCitizen: !Equals [ !Ref DeployCitizenUpdate, true ]
+  ShouldCreateSubscription: !Equals [ !Ref CreateSubscription, true ]
+
+Resources:
+
+  ElasticSearch:  # Create Elastic Search Cluster
+    Type: "AWS::Elasticsearch::Domain"
+    Properties:
+      DomainName: !Sub "${Prefix}watchmen-lambda-logs"
+      ElasticsearchVersion: 5.3
+      ElasticsearchClusterConfig:
+        InstanceCount: !Ref ElasticSearchInstanceCount
+        InstanceType: !Ref InstanceType
+      EBSOptions:
+        EBSEnabled: true
+        Iops: !Ref EbsIops
+        VolumeSize: !Ref EbsVolumeSize
+        VolumeType: !Ref EbsVolumeType
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: "0"
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action: "es:*"
+            Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${Prefix}watchmen-lambda-logs/*"
+            Condition:
+              IpAddress:
+                "aws:SourceIp": !Ref ElasticSearchAccess  #IAG's external IP
+          - Effect: "Allow"
+            Principal:
+              "AWS":
+                - !Sub "${AWS::AccountId}"
+            Action: "es:*"
+            Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${Prefix}watchmen-lambda-logs/*"
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: "true"
+
+  ElasticsearchRole: # Role which Lambda will use when executing calls to Amazon ES
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "${Prefix}Watchmen-Elasticsearch"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+
+  ElasticsearchPolicy: # Managed policy for WatchmenElasticsearchRole
+      Type: AWS::IAM::ManagedPolicy
+      DependsOn: ElasticsearchRole
+      Properties:
+        ManagedPolicyName: !Sub "${Prefix}Watchmen-Elasticsearch"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action: "es:*"
+              Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${Prefix}watchmen-lambda-logs/*"
+            - Effect: "Allow"
+              Action: "cloudwatch:SetAlarmState"
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: arn:aws:logs:*:*:*
+        Roles:
+          - !Sub "${Prefix}watchmen-elasticsearch"
+
+# ######################################################################
+# # Function and Permission to stream Cloudwatch logs to ElasticSearch #
+# ######################################################################
+
+  LogsToElasticsearch: # Lambda function used by CloudWatch to filter/parse to ElasticSearch
+    Type: AWS::Lambda::Function
+    DependsOn:
+    - ElasticSearch
+    - ElasticsearchPolicy
+    Properties:
+      FunctionName: !Sub "${Prefix}LogsToElasticsearch"
+      Description: Lambda function used by CloudWatch to stream to ElasticSearch
+      Environment:
+        Variables:
+          ESENDPOINT: !GetAtt ElasticSearch.DomainEndpoint
+      Handler: logs_to_elastic_search.handler
+      Timeout: 180
+      Role: !GetAtt ElasticsearchRole.Arn
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: "{{logs_to_elastic_search}}"
+      Runtime: nodejs4.3
+
+  LogsToElasticsearchLogGroup: # Log group for Lamba function
+    Type: "AWS::Logs::LogGroup"
+    DependsOn: LogsToElasticsearch
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}LogsToElasticsearch"
+      RetentionInDays: !Ref RetentionInDays
+
+  CloudwatchLogsLambdaPermissions: # Provide CloudWatch Logs the permissions to run Lambda function
+    Type: AWS::Lambda::Permission
+    DependsOn: LogsToElasticsearch
+    Properties:
+      FunctionName: !Sub "${Prefix}LogsToElasticsearch"
+      Action: "lambda:InvokeFunction"
+      Principal: !Sub "logs.${AWS::Region}.amazonaws.com"
+      SourceAccount:
+        Ref: "AWS::AccountId"
+      SourceArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*"
+
+# ################################################################################################
+# # Function, Scheduled Rule and Permission to prevent the elasticsearch storage from filling up #
+# ################################################################################################
+
+  RollIndexes: # Lambda function check for low diskspace in Elasticsearch and remove old indexes if needed
+    Type: AWS::Lambda::Function
+    DependsOn:
+    - ElasticSearch
+    - ElasticsearchPolicy
+    Properties:
+      FunctionName: !Sub "${Prefix}RollIndexes"
+      Description: Check for low diskspace in elasticsearch and remove old indexes if needed
+      Environment:
+        Variables:
+          elasticsearch_host: !GetAtt ElasticSearch.DomainEndpoint
+          index_prefix: 'cwl-*'
+          min_free_bytes: '1073741824' # 1 gigabyte
+      Handler: roll_indexes.lambda_handler
+      Timeout: 180
+      Role: !GetAtt ElasticsearchRole.Arn
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: "{{roll_indexes}}"
+      Runtime: python2.7
+
+  RollIndexesPermissions: # Provide CloudWatch rule the permissions to run Lambda function
+    Type: "AWS::Lambda::Permission"
+    DependsOn: RollIndexes
+    Properties:
+      FunctionName: !Sub "${Prefix}RollIndexes"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt RollIndexesScheduledRule.Arn
+
+  RollIndexesLogGroup: # Log group for Lamba function
+    Type: "AWS::Logs::LogGroup"
+    DependsOn: RollIndexes
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}RollIndexes"
+      RetentionInDays: !Ref RetentionInDays
+
+  RollIndexesScheduledRule: # CloudWatch rule scheduled to run every 10 minutes
+    Type: "AWS::Events::Rule"
+    DependsOn: RollIndexes
+    Properties:
+      Description: "RollIndexesScheduledRule"
+      ScheduleExpression: "rate(10 minutes)"
+      State: "ENABLED"
+      Targets:
+      - Arn: !GetAtt RollIndexes.Arn
+        Id: "RollIndexes"
+
+########################################
+# Subscriptions
+########################################
+
+  RollIndexesSubscription: # Log subscription to feed logs to ElasticSearch
+    Type: "AWS::Logs::SubscriptionFilter"
+    DependsOn: CloudwatchLogsLambdaPermissions
+    Condition: ShouldCreateSubscription
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}RollIndexes"
+      FilterPattern: ""
+      DestinationArn: !GetAtt LogsToElasticsearch.Arn
+
+  ImportConfigRuleStatusSubscriptionFilter:
+    Type: "AWS::Logs::SubscriptionFilter"
+    DependsOn: CloudwatchLogsLambdaPermissions
+    Condition: ShouldDeployReporting
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}ImportConfigRuleStatus"
+      FilterPattern: ""
+      DestinationArn: !GetAtt LogsToElasticsearch.Arn
+
+  CitizenUpdateSubscription: # Subscription to upload CitizenUpdate logs to ElasticSearch. Requires LogsToElasticsearch Lambda in ElasticSearch Stack to be created.
+    Type: "AWS::Logs::SubscriptionFilter"
+    DependsOn: CloudwatchLogsLambdaPermissions
+    Condition: ShouldDeployCitizen
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}CitizenUpdate"
+      FilterPattern: ""
+      DestinationArn: !GetAtt LogsToElasticsearch.Arn
+
+  ProxyLambdaSubscription:
+    Type: "AWS::Logs::SubscriptionFilter"
+    DependsOn: CloudwatchLogsLambdaPermissions
+    Condition: ShouldCreateSubscription
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}ProxyLambda"
+      FilterPattern: ""
+      DestinationArn: !GetAtt LogsToElasticsearch.Arn
+
+{{rules-subscriptions}}

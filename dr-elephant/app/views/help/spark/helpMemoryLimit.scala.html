@@ -1,0 +1,121 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+<p>The current Spark applications lacks elasticity while allocating resources. Unlike Mapreduce jobs that allocates
+  resources only for one map-reduce process and releases resources gradually during runtime, Spark allocates all the
+  resources needed for the entire application, and does not release unused ones during the life cycle. Too much meomory
+  allocation is dangerous for the entire cluster health. As a result, we are setting limits for both the total memory
+  allowed memory utilization ratio for Spark applications.
+</p>
+
+<h5>Example</h5>
+
+<div name="SparkMemoryLimit" class="list-group-item list-group-item-severe">
+  <h4 class="list-group-item-heading">Spark Memory Limit</h4>
+  <table class="list-group-item-text table table-condensed left-table">
+    <thead><tr>
+      <th colspan="2">
+        Severity: Severe
+      </th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td>Total executor memory allocated</td>
+        <td>1.95 TB</td>
+      </tr>
+      <tr>
+        <td>Total driver memory allocated</td>
+        <td>3.2 GB</td>
+      </tr>
+      <tr>
+        <td>Total memory allocated for storage</td>
+        <td>743.01 GB</td>
+      </tr>
+      <tr>
+        <td>Total memory used at peak</td>
+        <td>287.63 GB</td>
+      </tr>
+      <tr>
+        <td>Memory utilization rate</td>
+        <td>0.387</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>Suggestions</h3>
+<h5><strong>1. If memory utilization rate is too low (< 0.6) </strong></h5>
+<p>
+  <strong> memory utilization rate = [Peak memory used for storage] / [Total memory allocated for storage] </strong>
+  <br/>
+  A low memory utilization typically suggests that an application does not need the total amount of memory that it
+  currently needs. Users could choose to tune down <strong>--executor-memory/spark.executor.memory</strong> settings
+  proportional to the expected utilization rate needed.
+</p>
+<br/>
+
+<h5><strong>2. If total memory allocated is too large</strong></h5>
+<p>
+  There are different levels of RDD persistence (quoting <a href="https://spark.apache.org/docs/1.2.0/programming-guide.html#rdd-persistence" target="_blank"> Spark Programming Guide </a>):
+</p>
+<table class="table">
+  <tbody><tr><th style="width:23%">Storage Level</th> <th>Meaning</th></tr>
+    <tr>
+      <td> MEMORY_ONLY </td>
+      <td> Store RDD as deserialized Java objects in the JVM. If the RDD does not fit in memory, some partitions will
+        not be cached and will be recomputed on the fly each time they're needed. This is the default level. </td>
+    </tr>
+    <tr>
+      <td> MEMORY_AND_DISK </td>
+      <td> Store RDD as deserialized Java objects in the JVM. If the RDD does not fit in memory, store the
+        partitions that don't fit on disk, and read them from there when they're needed. </td>
+    </tr>
+    <tr>
+      <td> MEMORY_ONLY_SER </td>
+      <td> Store RDD as <i>serialized</i> Java objects (one byte array per partition).
+        This is generally more space-efficient than deserialized objects, especially when using a
+        fast serializer, but more CPU-intensive to read.
+  </td>
+    </tr>
+    <tr>
+      <td> MEMORY_AND_DISK_SER </td>
+      <td> Similar to MEMORY_ONLY_SER, but spill partitions that don't fit in memory to disk instead of
+        recomputing them on the fly each time they're needed. </td>
+    </tr>
+    <tr>
+      <td> DISK_ONLY </td>
+      <td> Store the RDD partitions only on disk. </td>
+    </tr>
+    <tr>
+      <td> MEMORY_ONLY_2, MEMORY_AND_DISK_2, etc.  </td>
+      <td> Same as the levels above, but replicate each partition on two cluster nodes. </td>
+    </tr>
+    <tr>
+      <td> OFF_HEAP (experimental, <strong>not available in LinkedIn</strong>) </td>
+      <td> Store RDD in serialized format in Tachyon.
+        Compared to MEMORY_ONLY_SER, OFF_HEAP reduces garbage collection overhead and allows executors
+        to be smaller and to share a pool of memory, making it attractive in environments with
+        large heaps or multiple concurrent applications. Furthermore, as the RDDs reside in Tachyon,
+        the crash of an executor does not lead to losing the in-memory cache. In this mode, the memory
+        in Tachyon is discardable. Thus, Tachyon does not attempt to reconstruct a block that it evicts
+        from memory.
+  </td>
+    </tr>
+  </tbody></table>
+<p>
+<strong>Caching RDDs into memories is not the only benefits of Spark framework. In fact, even caching RDDs into disk and access it will still be
+much faster compared to accessing them in Mapreduce framwork. </strong> Spark disk persistence is using the local disk instead of HDFS which is
+pretty efficient. Users are encouraged to switch from MEMORY_ONLY to MEMORY_ONLY_SER and even to DISK_ONLY to reduce the total memory needed.
+</p>

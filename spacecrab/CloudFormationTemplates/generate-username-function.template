@@ -1,0 +1,82 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    }
+  },
+  "Resources": {
+    "LambdaGenerateUsernameFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "GenerateUsernameFunction",
+        "Description": "Generates a username for a new token user",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "GenerateUsernameFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Timeout": 15,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaGenerateUsernameFunctionArn": {
+      "Description": "The ARN of the lambda function that generates usernames",
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaGenerateUsernameFunction",
+          "Arn"
+        ]
+      }
+    }
+  }
+}

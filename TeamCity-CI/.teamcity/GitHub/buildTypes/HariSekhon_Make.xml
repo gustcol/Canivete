@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="6772834c-5c5a-4839-a1e5-ef02de94f568" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Make</name>
+  <description>Standard 'make' build</description>
+  <settings>
+    <options>
+      <option name="allowExternalStatus" value="true" />
+      <option name="branchFilter" value="+:refs/origin/master" />
+      <option name="executionTimeoutMin" value="120" />
+      <option name="publishArtifactCondition" value="SUCCESSFUL" />
+    </options>
+    <parameters />
+    <build-runners>
+      <runner id="RUNNER_0" name="CI Bootstrap" type="simpleRunner">
+        <parameters>
+          <param name="script.content" value="setup/ci_bootstrap.sh" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_1" name="Make" type="simpleRunner">
+        <parameters>
+          <param name="plugin.docker.imagePlatform" value="linux" />
+          <param name="script.content" value="make" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_2" name="Make Test" type="simpleRunner">
+        <parameters>
+          <param name="script.content" value="make test" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings />
+    <requirements />
+    <build-triggers>
+      <build-trigger id="vcsTrigger" type="vcsTrigger">
+        <parameters>
+          <param name="branchFilter" value="+:refs/heads/master" />
+          <param name="enableQueueOptimization" value="true" />
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <cleanup />
+  </settings>
+</template>
+

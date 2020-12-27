@@ -1,0 +1,59 @@
+#
+#  Author: Hari Sekhon
+#  Date: Tue Feb 4 09:53:28 2020 +0000
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/harisekhon/bash-tools
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+name: DockerHub Ubuntu
+
+#env:
+#  DEBUG: 1
+
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 7 * * *'
+
+jobs:
+  bash_tools_ubuntu:
+    name: check
+    timeout-minutes: 1
+    runs-on: ubuntu-latest
+    container: harisekhon/nagios-plugins
+    steps:
+    - name: check
+      run: check_dockerhub_repo_build_status.py --repo harisekhon/bash-tools --tag ubuntu
+  tools_ubuntu:
+    name: check
+    timeout-minutes: 1
+    runs-on: ubuntu-latest
+    container: harisekhon/nagios-plugins
+    steps:
+    - name: check
+      run: check_dockerhub_repo_build_status.py --repo harisekhon/tools --tag ubuntu
+  ubuntu-github:
+    name: check
+    timeout-minutes: 1
+    runs-on: ubuntu-latest
+    container: harisekhon/nagios-plugins
+    steps:
+    - name: check
+      run: check_dockerhub_repo_build_status.py --repo harisekhon/ubuntu-github
+  github_ubuntu:
+    name: check
+    timeout-minutes: 1
+    runs-on: ubuntu-latest
+    container: harisekhon/nagios-plugins
+    steps:
+    - name: check
+      run: check_dockerhub_repo_build_status.py --repo harisekhon/github --tag ubuntu

@@ -1,0 +1,14 @@
+dateutils/__init__.py,sha256=ODE1BXzwjXwmOHhZY3LE3otSo-kft5ytQL1Ej7pR-W4,4175
+dateutils/dateadd.py,sha256=EL1qubDRT_2cazfyLuJXmfibJiV2m8trvDs5liGOXFM,2807
+dateutils/datediff.py,sha256=IPsXpAVzA3rV24_XlcodVDxdjERxD_pppJBJDN6_cDU,2194
+dateutils-0.6.6.dist-info/DESCRIPTION.rst,sha256=OCTuuN6LcWulhHS3d5rfjdsQtW22n7HENFRh6jC6ego,10
+dateutils-0.6.6.dist-info/METADATA,sha256=b6tuMVE80Sd6M42FCw46ZGCGoBN1H8Vzb0SK5ocfNUE,590
+dateutils-0.6.6.dist-info/RECORD,,
+dateutils-0.6.6.dist-info/WHEEL,sha256=UMxW5ad6zjudXe4jPWTM-wnTIGreEj2qx-IkE2LS1Rk,93
+dateutils-0.6.6.dist-info/entry_points.txt,sha256=9ZybXUtQvOl-8u0K3ickvRX_NxcGJXFkd_l4wS3mEYw,87
+dateutils-0.6.6.dist-info/metadata.json,sha256=ke6LCBncQCYxtDAc-wbA1DKJaaupYofXulS-N5Rbc9o,914
+dateutils-0.6.6.dist-info/top_level.txt,sha256=4jYakOn_8fN0RAeoD5ma0io8DU26H1PzsANbaWOLG5A,10
+../../bin/dateadd,sha256=tpGe39TPkth9V4aqtor6fb1QBzkJjNjbJmT3VrlCnCA,263
+../../bin/datediff,sha256=8ii740bxVNlTBkhuxFC2E1g6lVEH3gczSSm7W0Fvqk0,264
+dateutils-0.6.6.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+dateutils/__pycache__/__init__.cpython-36.pyc,,

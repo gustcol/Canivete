@@ -1,0 +1,78 @@
+//
+//  Author: Hari Sekhon
+//  Date: 2016-07-24 09:40:20 +0100 (Sun, 24 Jul 2016)
+//
+//  vim:ts=4:sts=4:sw=4:et:filetype=groovy
+//
+//  https://github.com/harisekhon/nagios-plugin-kafka
+//
+//  License: see accompanying Hari Sekhon LICENSE file
+//
+//  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
+//
+//  http://www.linkedin.com/in/harisekhon
+//
+
+plugins {
+    id "org.sonarqube" version "2.7"
+    id "com.github.johnrengelman.shadow" version "5.1.0"
+    id "org.standardout.versioneye" version "1.5.0"
+}
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'maven'
+apply plugin: 'application'
+
+//group = 'com.linkedin.harisekhon'
+//version = '0.1.0'
+
+description = """Hari Sekhon's Kafka 0.9 API Tester / Nagios Plugin with Kerberos support"""
+
+mainClassName = 'com.linkedin.harisekhon.kafka.CheckKafka'
+
+def scalaVersion = '2.12'
+
+//def target_java_version = '7'
+//
+//sourceCompatibility = "1.$target_java_version"
+//targetCompatibility = "1.$target_java_version"
+//
+//def java_home_env = "JAVA${target_java_version}_HOME"
+//def java_home = System.getenv("$java_home_env")
+//if(java_home){
+//    //println "found \$$java_home_env = $java_home"
+//    //println "will use this for bootstrap classpath for cross-compile"
+//    project.tasks.withType(AbstractCompile, { AbstractCompile ac ->
+//        ac.options.bootClasspath = "$java_home/jre/lib/rt.jar"
+//    })
+//} else if(System.getProperty('java.specification.version') != target_java_version){
+//    //System.err.println("WARNING: couldn't find $java_home_env environment variable to set bootstrap classpath for cross compiling " +
+//    //                   "(may generate code that isn't actually compatible with the target version)")
+//}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+run {
+    if(project.hasProperty("ARGS")){
+        //args Eval.me(ARGS)
+        args ARGS.split()
+    }
+}
+
+dependencies {
+    compile group: 'com.linkedin.harisekhon', name: 'harisekhon-utils', version:'1.17.6'
+    // Kafka 0.10 API bug:
+    // Cannot auto-commit offsets for group ... since the coordinator is unknown
+    compile group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version:'2.2.2'
+    testCompile group: 'org.scalatest', name: "scalatest_${scalaVersion}", version:'3.0.4'
+    testCompile group: 'junit', name: 'junit', version:'4.12'
+}
+
+run {
+    if (project.hasProperty('args')) {
+        args project.args.split('\\s+')
+    }
+}

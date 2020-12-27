@@ -1,0 +1,300 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "FunctionDatabaseUser": {
+      "Type": "String",
+      "Description": "The username lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The password lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "TokenDatabaseAddress": {
+      "Type": "String",
+      "Description": "The address of the database where token metadata is stored"
+    },
+    "TokenDatabasePort": {
+      "Type": "Number",
+      "Description": "The port of the database where token metadata is stored"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    }
+  },
+  "Resources": {
+    "BackupBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AccessControl": "BucketOwnerFullControl"
+      }
+    },
+    "BackupBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "DependsOn": [
+        "BackupBucket"
+      ],
+      "Properties": {
+        "Bucket": {
+          "Ref": "BackupBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutObject"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "BackupBucket"
+                    },
+                    "/*"
+                  ]
+                ]
+              },
+              "Principal": {
+                "AWS": {
+                  "Ref": "SpaceCrabLambdaExecutionRoleArn"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BackupExecutionPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "DependsOn": [
+        "BackupBucket"
+      ],
+      "Properties": {
+        "Description": "Policy for lambda function that backs up data",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject"
+              ],
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "BackupBucket"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BackupKmsKey": {
+      "Type": "AWS::KMS::Key",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "Description": "The KMS key used to encrypt honey token database backups",
+        "KeyPolicy": {
+          "Statement": [
+            {
+              "Sid": "Enable IAM User Permissions",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "kms:*",
+              "Resource": "*"
+            },
+            {
+              "Sid": "Allow use of the key",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": [
+                  {
+                    "Ref": "SpaceCrabLambdaExecutionRoleArn"
+                  }
+                ]
+              },
+              "Action": [
+                "kms:Encrypt",
+                "kms:DescribeKey"
+              ],
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17",
+          "Id": "DefaultKmsPolicy"
+        }
+      }
+    },
+    "LambdaBackupFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "BackupExecutionPolicy",
+        "BackupKmsKey"
+      ],
+      "Properties": {
+        "FunctionName": "BackupFunction",
+        "Description": "Backups token and alert data",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "BackupFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {
+            "FUNCTION_DATABASE_USER": {
+              "Ref": "FunctionDatabaseUser"
+            },
+            "ENCRYPTED_DATABASE_PASSWORD": {
+              "Ref": "EncryptedFunctionDatabasePassword"
+            },
+            "TOKEN_DATABASE_ADDRESS": {
+              "Ref": "TokenDatabaseAddress"
+            },
+            "TOKEN_DATABASE_PORT": {
+              "Ref": "TokenDatabasePort"
+            },
+            "BACKUP_BUCKET": {
+              "Ref": "BackupBucket"
+            },
+            "BACKUP_KMS_KEY_ID": {
+              "Ref": "BackupKmsKey"
+            }
+          }
+        },
+        "Timeout": 150,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    },
+    "BackupEventRule": {
+      "Type": "AWS::Events::Rule",
+      "DependsOn": [
+        "LambdaBackupFunction"
+      ],
+      "Description": "Regularly invokes lambda to backup token and alert data",
+      "Properties": {
+        "ScheduleExpression": "rate(24 hours)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Id": "BackupScheduler",
+            "Arn": {
+              "Fn::GetAtt": [
+                "LambdaBackupFunction",
+                "Arn"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "BackupLambdaPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "LambdaBackupFunction",
+        "BackupEventRule"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "BackupEventRule",
+            "Arn"
+          ]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaBackupFunction",
+            "Arn"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "BackupBucketName": {
+      "Value": {
+        "Ref": "BackupBucket"
+      },
+      "Description": "Backup bucket name"
+    },
+    "LambdaBackupFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaBackupFunction",
+          "Arn"
+        ]
+      },
+      "Description": "LambdaBackupFunction ARN"
+    }
+  }
+}

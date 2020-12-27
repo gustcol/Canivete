@@ -1,0 +1,21 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Resource": "*",
+                    "Action": [
+                        "sqs:SendMessage",
+                        "sqs:GetQueueUrl",
+                        "sns:Publish"
+                    ]
+                }
+            ]
+        },
+        "VersionId": "v1",
+        "IsDefaultVersion": true,
+        "CreateDate": "2015-02-06T18:41:22Z"
+    }
+}

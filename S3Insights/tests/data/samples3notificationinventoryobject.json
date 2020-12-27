@@ -1,0 +1,20 @@
+{
+    "Records": [
+        {
+            "messageId": "NA",
+            "receiptHandle": "NA",
+            "body": "{ \"Records\": [ { \"eventName\":\"ObjectCreated:Put\", \"s3\": { \"s3SchemaVersion\": \"1.0\", \"configurationId\": \"0\", \"bucket\": { \"name\": \"{BUCKET_NAME}\", \"ownerIdentity\": { \"principalId\": \"AV1TPJLZODJ5O\" }, \"arn\": \"arn:aws:s3:::s3insights-1-dest-123456789012-us-west-2\" }, \"object\": { \"key\": \"{KEY}\", \"size\": 3, \"eTag\": \"NA\", \"sequencer\": \"NA\" } } } ]}",
+            "attributes": {
+                "ApproximateReceiveCount": "1",
+                "SentTimestamp": "NA",
+                "SenderId": "NA",
+                "ApproximateFirstReceiveTimestamp": "NA"
+            },
+            "messageAttributes": {},
+            "md5OfBody": "NA",
+            "eventSource": "NA",
+            "eventSourceARN": "NA",
+            "awsRegion": "us-west-2"
+        }
+    ]
+}

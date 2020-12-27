@@ -1,0 +1,43 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-03-16 20:35:14 +0000 (Sat, 16 Mar 2019)
+#
+#  https://github.com/harisekhon/devops-bash-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                       Optional RPM Package Requirements
+# ============================================================================ #
+
+# no longer available on RHEL8 :-(
+ShellCheck
+
+# only available on Fedora for now
+direnv
+
+# RHEL7 only - kubernetes meta packages pulls in kubernetes-client, kubernetes-master, kubernetes-node, docker, python etc..
+kubernetes-client
+
+# not available on RHEL6
+perl-App-cpanminus
+perl-CPAN  # needed in RHEL6 to build cpanm to build rest
+
+python
+python-pip
+python2
+python2-pip
+python3
+python3-pip
+
+# required in Fedora, but not available in RHEL6
+hostname
+
+# not available in RHEL 6 repos
+parallel
+
+procps     # RHEL <= 7 (RHEL 7 maps procps to procps-ng)
+procps-ng  # RHEL 8

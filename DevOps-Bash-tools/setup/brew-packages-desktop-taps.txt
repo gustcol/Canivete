@@ -1,0 +1,21 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-12-19 15:08:01 +0000 (Thu, 19 Dec 2019)
+#
+
+# run: TAP=1 ../brew_install_packages.sh brew-packages-desktop-taps.txt
+
+# tap                   package
+
+# do via install script to load token
+#buildkite/buildkite     buildkite
+
+# BuildKite CLI - for running builds locally
+buildkite/cli           bk
+dbcli/tap               athenacli
+wallix/awless           awless
+wercker/wercker         wercker-cli
+golangci/tap            golangci-lint
+
+#codefresh-io/cli        codefresh
+#sambadevi/powerlevel9k  powerlevel9k

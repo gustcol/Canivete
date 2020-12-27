@@ -1,0 +1,60 @@
+<!--
+ *Copyright 2018 T Mobile, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); You may not use
+ * this file except in compliance with the License. A copy of the License is located at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * or in the "license" file accompanying this file. This file is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or
+ * implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+ <div class="asset-details-wrapper relative" [class.height100]='assetDetailsState<1'>
+    <section class="details-section-content" *ngIf='detailsVal && assetDetailsState > 0'>
+        <article class="basic-desc">
+            <div class='name-title flex flex-row flex-align-center'>
+                <div>{{detailsVal.displayname}}</div>
+                <div class='flex flex-align-center' *ngIf='provider.length > 1'><img class='each-cloud' alt='Multi-Cloud' width="22px" src="/assets/icons/multi-cloud.svg"></div>
+                <div class='flex flex-align-center' *ngIf='provider.length == 1'><img class='each-cloud' alt='{{provider}}' width="22px" src="/assets/icons/{{provider}}-color.svg"></div>
+            </div>
+            <div *ngIf='detailsVal.description' class="desc-title">{{detailsVal.description}}</div>
+            <div *ngIf='!detailsVal.description' class="description desc-title">Select this asset group to fetch data under this asset group</div>
+        </article>
+        <article class="detail-desc">
+            <div class="desc-detail flex flex-between">
+                <div class="keyword">Applications</div>
+                <div class="dotted-line"></div>
+                <div class="key-value">{{detailsVal.appcount | number}}</div>
+            </div>
+            <div class="desc-detail flex flex-between">
+                <div class="keyword">Type</div>
+                <div class="dotted-line"></div>
+                <div class="key-value">{{detailsVal.type}}</div>
+            </div>
+            <div class="desc-detail flex flex-between">
+                <div class="keyword">Created By</div>
+                <div class="dotted-line"></div>
+                <div class="key-value">{{detailsVal.createdby}}</div>
+            </div>
+            <div class="desc-detail flex flex-between">
+                <div class="keyword">Asset Count</div>
+                <div class="dotted-line"></div>
+                <div class="key-value pointer" [class.link-text-secondary]='detailsVal.assetcount > 0' (click)="detailsVal.assetcount > 0 && instructParentToNavigate('total asset', detailsVal)">{{detailsVal.assetcount | number}}</div>
+            </div>
+            <div class="desc-detail flex flex-between">
+                <div class="keyword">Cloud Types</div>
+                <div class="dotted-line"></div>
+                <div class="key-value uppercase">
+                    <span *ngFor='let val of provider; let i = index; '>{{val}}
+                        <span *ngIf='i !== (provider.length - 1) '>, </span>
+                    </span>
+                </div>
+            </div>
+        </article>
+    </section>
+    <div class='loader' *ngIf='assetDetailsState == 0'></div>
+    <div class='error-msg absolute' *ngIf='assetDetailsState < 0'>Unable to fetch asset group details! </div>
+</div>

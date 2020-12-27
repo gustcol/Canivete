@@ -1,0 +1,8 @@
+*.gem
+/.bundle/
+/.vscode/
+/Gemfile.lock
+/spec/reports/
+/tmp/
+.rspec_status
+.DS_Store

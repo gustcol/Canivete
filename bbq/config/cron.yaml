@@ -1,0 +1,16 @@
+# Dates are set in UTC
+cron:
+- description: daily backup job
+  url: /cron/backup
+  schedule: every day 02:00
+  retry_parameters:
+    job_retry_limit: 5
+- description: execute retention policy
+  url: /cron/retention
+  schedule: every day 14:07
+- description: cloud datastore export
+  # set the kind fields to specify datastore kinds to be exported to Big Query
+  url: /cron/export-datastore-to-big-query?kind=Table&kind=Backup
+  schedule: every 6 hours
+  retry_parameters:
+    job_retry_limit: 5

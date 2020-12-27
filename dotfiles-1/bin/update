@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+magenta='\e[1;35m'
+white='\e[0;37m'
+
+# Since some programs are installed in non-root directories,
+# don't run this script as root to avoid permission conflict.
+if [[ $EUID -eq 0 ]]; then
+    echo "Don't run this script as root"
+    exit 1
+fi
+
+# Print usage message.
+usage() {
+    local program_name
+    program_name=${0##*/}
+    cat <<EOF
+Usage: $program_name [-option]
+
+Options:
+    --help    Print this message
+    -a        Update all packages
+EOF
+}
+
+# Installer.
+update_apt() {
+    echo -e "$magenta\n Updating List System Packages... \n$white"
+    sudo apt-get update
+
+    echo -e "$magenta\n List System Packages... \n$white"
+    sudo apt-get dist-upgrade
+}
+
+update_composer() {
+    echo -e "$magenta\n Updating Composer Installer... \n$white"
+    composer self-update --stable
+
+    echo -e "$magenta\n Updating Composer Packages... \n$white"
+    composer global update
+}
+
+update_npm() {
+    echo -e "$magenta\n Updating npm... \n$white"
+    npm install npm -g
+
+    echo -e "$magenta\n Updating npm Packages... \n$white"
+    npm update -g
+}
+
+update_rustup() {
+    echo -e "$magenta\n Updating rustup... \n$white"
+    rustup self update
+
+    echo -e "$magenta\n Updating Rust... \n$white"
+    rustup update
+}
+
+update_gem() {
+    echo -e "$magenta\n Updating Gem System... \n$white"
+    sudo gem update --system
+
+    echo -e "$magenta\n Updating Gems... \n$white"
+    gem update
+}
+
+update_vim() {
+    echo -e "$magenta\n Updating Vim Plugins... \n$white"
+    nvim +PlugUpdate +qall
+}
+
+update_one_by_one() {
+    declare -a arr=("update_apt" "update_composer" "update_npm"
+                    "update_rustup" "update_gem" "update_vim")
+
+    for update_command in "${arr[@]}"; do
+        echo
+        read -r -p "Do you want to ${update_command//_/ } packages? [y/n] " response
+        case $response in
+            [yY][eE][sS]|[yY])
+                $update_command
+                ;;
+            *)
+                echo "Cancelled."
+                ;;
+        esac
+    done
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        '')
+            update_one_by_one
+            ;;
+        -a)
+            update_apt
+            update_composer
+            update_npm
+            update_rustup
+            update_gem
+            update_vim
+            ;;
+        *)
+            echo "Command not found"
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

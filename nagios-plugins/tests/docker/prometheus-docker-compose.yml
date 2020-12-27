@@ -1,0 +1,69 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-01-29 19:51:53 +0000 (Mon, 29 Jan 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  prometheus:
+    extends:
+      file: common.yml
+      service: common
+    image: prom/prometheus:${VERSION:-latest}
+    ports:
+      - 9090
+    volumes:
+      - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    links:
+      - prometheus-collectd:collectd
+      - prometheus-node-exporter:node-exporter
+      - prometheus-telegraf:telegraf
+    networks:
+      - prometheus
+
+  prometheus-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/prometheus.cfg -d
+    ports:
+      - 9090:9090
+    networks:
+      - prometheus
+    volumes:
+      - ../../haproxy-configs:/conf:ro
+
+  prometheus-collectd:
+    image: harisekhon/collectd
+    ports:
+      - 9103
+    networks:
+      - prometheus
+    volumes:
+      - ../conf/collectd.d/write_prometheus.conf:/etc/collectd.d/write_prometheus.conf:ro
+
+  prometheus-node-exporter:
+    image: prom/node-exporter:${NODE_EXPORTER_VERSION:-latest}
+    ports:
+      - 9100
+    networks:
+      - prometheus
+
+  prometheus-telegraf:
+    image: telegraf:${TELEGRAF_VERSION:-alpine}
+    ports:
+      - 9273
+    networks:
+      - prometheus
+    volumes:
+      - ../conf/telegraf-prometheus.conf:/etc/telegraf/telegraf.conf:ro
+
+networks:
+  prometheus:

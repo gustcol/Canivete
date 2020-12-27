@@ -1,0 +1,4 @@
+.*swp
+dump.rdb
+appendonly.aof
+*.env

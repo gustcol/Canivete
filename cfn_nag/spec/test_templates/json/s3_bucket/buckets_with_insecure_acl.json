@@ -1,0 +1,43 @@
+{
+  "Resources": {
+    "S3BucketRead" : {
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+        "BucketName" : "fakebucketfakebucket",
+        "AccessControl": "PublicRead",
+        "LoggingConfiguration": {
+          "DestinationBucketName": "moocow"
+        },
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration" : [
+            {
+              "ServerSideEncryptionByDefault" : {
+                "SSEAlgorithm" : "AES256"
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "S3BucketReadWrite" : {
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+        "BucketName" : "fakebucketfakebucket2",
+        "AccessControl": "PublicReadWrite",
+        "LoggingConfiguration": {
+          "DestinationBucketName": "moocow"
+        },
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration" : [
+            {
+              "ServerSideEncryptionByDefault" : {
+                "SSEAlgorithm" : "AES256"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

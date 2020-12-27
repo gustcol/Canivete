@@ -1,0 +1,96 @@
+{% extends "bbq-menu.html" %}
+{% block main %}
+{% from "macros/restore-target-information.html" import build_target_information with context %}
+{% from "macros/restore-options.html" import build_options with context %}
+
+<h2>Restore dataset</h2>
+<script type="text/javascript">
+  function OnSubmitForm() {
+    var params = {
+      'isRestoreToSourceProject': document.getElementById('isRestoreToSourceProject').value ==='true',
+      'targetDatasetId': document.getElementById('targetDatasetId').value === ''
+          ? null : document.restoreDatasetForm.targetDatasetId.value,
+      'createDisposition': document.restoreDatasetForm.createDisposition.value,
+      'writeDisposition': document.restoreDatasetForm.writeDisposition.value,
+      'maxPartitionDays': document.restoreDatasetForm.maxPartitionDays.value
+    };
+
+    let url = '/restore/project/' + document.restoreDatasetForm.projectId.value + '/dataset/'
+        + document.restoreDatasetForm.datasetId.value + '?' + encodeQueryData(params);
+
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("POST", url, true);
+    xhttp.timeout = 1000 * 3600;
+
+    xhttp.onload = function () {
+      document.getElementById("response").innerHTML = JSON.stringify(JSON.parse(xhttp.responseText),
+          undefined, 2);
+      makeUrlsClickable();
+    };
+    xhttp.ontimeout = function (e) {
+      document.getElementById("response").innerHTML = "Request timeout: " + e;
+    };
+
+    xhttp.send();
+    return false;
+  }
+</script>
+
+
+<form name="restoreDatasetForm" onsubmit="return OnSubmitForm();">
+  <div class="form-group row">
+      <div class="col">
+          <h4>Source dataset information</h4>
+      </div>
+  </div>
+  <div class="form-group row">
+    <label for="sourceProjectId" class="col-sm-2 col-form-label">Source project id</label>
+
+    <div class="col-sm-8">
+      <input type="text" class="form-control" id="sourceProjectId" name="projectId"
+             placeholder="project id" required/>
+
+      <small id="sourceProjectIdHelp" class="form-text text-muted">Project id where dataset is
+        placed originally
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="sourceDatasetId" class="col-sm-2 col-form-label">Source dataset id</label>
+    <div class="col-sm-8">
+      <input type="text" class="form-control" id="sourceDatasetId" name="datasetId"
+             placeholder="dataset id" required>
+      <small id="sourceDatasetIdHelp" class="form-text text-muted">Dataset id where tables were
+        placed originally
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col">
+      <h4>Target dataset information</h4>
+    </div>
+  </div>
+  {{ build_target_information() }}
+
+  {{ build_options() }}
+  <div class="form-group row">
+    <label for="maxPartitionsDays" class="col-sm-2 col-form-label">Max partition days</label>
+    <div class="col-sm-4">
+      <input type="number" class="form-control" id="maxPartitionsDays" name="maxPartitionDays">
+      <small id="maxPartitionsDaysHelp" class="form-text text-muted">Optional. Number of days from
+        partitioned tables will be restored (eg. 30 means that partitions from last 30 days from now
+        will be restored)
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-sm-4">
+      <button type="submit" class="btn btn-primary">Restore dataset</button>
+    </div>
+  </div>
+</form>
+<br><strong>Response:</strong> <br>
+<pre id="response"></pre>
+
+{% endblock %}

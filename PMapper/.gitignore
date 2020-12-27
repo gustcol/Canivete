@@ -1,0 +1,18 @@
+# Ignore Python artifacts
+*.swp
+*.pyc
+
+# Ignore image artifacts
+*.png
+*.svg
+*.dot
+
+# Ignore temp files created by gedit
+
+*~
+
+# Ignore .idea files
+*.idea*
+
+# Ignore venv
+/venv/*

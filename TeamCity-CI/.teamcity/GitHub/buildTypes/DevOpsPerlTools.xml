@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="5ddbebf9-71f4-46de-ba15-c125395d1642" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>DevOps Perl tools</name>
+  <description>25+ DevOps CLI Tools - Kubernetes &amp; Code templates, Log Anonymizer, SQL ReCaser (MySQL, PostgreSQL, AWS Redshift, Snowflake, Apache Drill, Hive, Impala, Cassandra CQL, Microsoft SQL Server, Oracle, Couchbase N1QL, Dockerfiles), Hadoop HDFS &amp; Hive tools, Solr/SolrCloud CLI, Nginx stats &amp; HTTP(S) URL watchers for load-balanced web farms, Linux tools etc.</description>
+  <settings ref="HariSekhon_Make">
+    <options>
+      <option name="branchFilter" value="" />
+    </options>
+    <parameters />
+    <build-runners order="RUNNER_0, RUNNER_1, RUNNER_2" />
+    <vcs-settings>
+      <vcs-entry-ref root-id="DevOpsPerlTools" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers />
+    <cleanup />
+  </settings>
+</build-type>
+

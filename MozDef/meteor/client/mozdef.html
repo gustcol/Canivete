@@ -1,0 +1,43 @@
+<!--
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+Copyright (c) 2014 Mozilla Corporation
+-->
+
+<head>
+    <meta name="viewport" content="width=1024">
+    <link rel="shortcut icon" type="image/svg" href="/images/favicon.ico" />
+    <title>mozdef::mozilla enterprise defense platform</title>
+</head>
+
+<body>
+
+</body>
+<!--begin layout templates-->
+<!--the main, simple layout for the router to target-->
+<template name="layout">
+    {{#if loggingIn}}
+        <div class="row center">
+            <div class="col-xs-5 col-xs-offset-3 alert alert-info" role="alert">
+                <strong>loading</strong>
+            </div>
+        </div>
+    {{else}}
+        {{#if currentUser}}
+            {{> Template.dynamic template=menuName }}
+            {{> yield }}
+            {{> whoismodal}}
+            {{> dshieldmodal}}
+            {{> blockIPModal}}
+            {{> blockFQDNModal}}
+            {{> watchItemModal}}
+            <div id="footer">
+                {{> footer}}
+            </div>
+        {{else}}
+            {{> loginmenu}}
+        {{/if}}
+    {{/if}}
+
+</template>

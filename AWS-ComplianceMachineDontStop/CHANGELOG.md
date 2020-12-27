@@ -1,0 +1,43 @@
+# Change Log
+- 22 FEB 2019: Basic Reference .tf Files Uploaded for Security Hub, GuardDuty and Inspector
+- 6 MAR 2019: Released version 0.9 - Combined Files, Many Bugs
+- 7 APR 2019: Released version 1.0 - Major Refactor & Break-Fixes for IAM Roles, Incorrect Interpolation Syntax; Added Support for data.tf and variables.tf
+- 8 APR 2019: Update for version 1.0.1 - Added Support for Inspector Finding Remediation via Lambda/IAM Role/SNS; Refer to Readme for Manual Steps that must be Accomplished to use this Remediation Automation. 
+- 9 APR 2019: Fixed Issue where Config could not access Encrypted SNS Topic & Refactored Policy to include AWS Managed Config Read-Only Role Policy. Added KMS Permissions to Lambdda Execution Role. Added Lambda, SNS, Config-specific IAM Entities to SNS Customer Manager CMK. Troubleshooting Security Hub CIS Compliance & Insights failing. Added template for Provider.TF w/ VAR for Access Key & Secret Key interpolated through a Sample Terraform.tfvars file
+- 15 APR 2019: Added Support for AWS WAF, placed files into their own sub-directory to be used as a Module, or deployed from within. Currently has an IP Set Blacklist based on the Author's own Threat Intelligence findings, as well as reccomendations for Match Sets from the Whitepaper "Use AWS WAF to Mitigate OWASP’s Top 10 Web Application Vulnerabilities" Whitepaper (link way below) for XSS, SQLi, and Size Constraint.
+- 16 APR 2019: Removed SNS Encryption for Remediation SNS Topic for Inspector, Added 2 Terraform Resources to attach subscribe Lambda to SNS & Add SNS as an event source for Lambda function
+- 17 APR 2019: Added WAF Logging support via Kinesis Data Firehose
+- 18 APR 2019: Added AWS Glue Crawler & Associated IAM Policy / Roles to create visualizations against WAF Logs using Athena & QuickSight. Added more AWS Security Blog posts regarding visualizations into Readme
+- 19 APR 2019: 
+    - Added serverless visualization capabilities for GuardDuty via Kinesis / Glue / Athena -- refer to Readme for information on manual setups. 
+    - Module / Sub-Directory added into Repo for VPC; uses a Private & Public design plus VPC Endpoints for private connectivity to S3, DynamoDB, and Systems Manager endpoints.
+    - Additional CloudTrail Alarms for CIS Compliance for Security Hub added (sorry, it's another nested CFN Stack) but also uses SNS for Email
+- 2 MAY 2019:
+    - Removed both CloudFormation Stacks for Security Hub Related Alerts & Consolidated Them into Proper Terraform Metric Filters & Alarms
+    - Changed / Removed Variables related to SNS Topic that CIS Compliance alerts will go to
+    - Updated ReadMe to reflect that you MUST have a subscriber in the SNS Topic for CIS to measure as compliant
+    - Added Support for Lambda Data Events (All Current & Future) to be logged via CloudTrail
+- 3 MAY 2019:
+    - Broke apart Global WAF Web ACLs into 4 seperate for Blacklist, SQLI, XSS and Size Constraints
+- 9 MAY 2019:
+    - Added support for AWS X-Ray by adding Tracing capabilities to Lambda Functions
+        - Added Full Active tracing parameter into Lambda functions
+        - Modified Lambda Execution Policies to include XRay Write Permissions
+- 11 MAY 2019:
+    - Overhauled VPC Module
+        - CIDR Block calculations take advantage of "cidrsubnet" resource to support automatic calculations off of the VPC CIDR
+        - Subnets, NAT Gateways and NAT Gateway EIPs are defined via Count
+        - Dynamic Tagging of count.index defined Resources
+        - Added Cloudwatch Logs VPC Interface Endpoint
+        - Cleaner Formatting & Variable Naming Conventions
+- 14 MAY 2019:
+    - Added support for ElasticSearch Service - AWS' managed ELK Stack
+        - Includes Cognito Support to provide authentication & authroization into Kibana
+    - Cleaned up formatting of main.tf files, Removed terraform.tfvars and references to Access Keys & Secret Access Keys in favor of using STS
+- 28 MAY 2019:
+    - Greatly cleaned up the primary Main.tf and Variables.tf
+        - Clearer Named Variable Titles are now present (underscore galore)
+        - Removed extraneous Variables for thing such as Descriptions, Policy Names, Roles names, etc to promote consistent naming from the main resource
+        - Added Comments within Main.tf to add rationale and descriptions of Terraformed resources to greatly expand upon the context
+        - Re-Organized some content to try as much as possible to group like resources together
+        - Added statically defined arguments where adding Variables added too much end-user burden

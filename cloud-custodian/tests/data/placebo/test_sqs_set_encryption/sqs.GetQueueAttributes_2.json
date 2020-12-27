@@ -1,0 +1,21 @@
+{
+    "status_code": 200,
+    "data": {
+        "Attributes": {
+            "QueueArn": "arn:aws:sqs:us-west-2:644160558196:4f300077-bffd-f1ce-7930-fc21b29cbf49",
+            "ApproximateNumberOfMessages": "0",
+            "ApproximateNumberOfMessagesNotVisible": "0",
+            "ApproximateNumberOfMessagesDelayed": "0",
+            "CreatedTimestamp": "1599099207",
+            "LastModifiedTimestamp": "1599099242",
+            "VisibilityTimeout": "30",
+            "MaximumMessageSize": "262144",
+            "MessageRetentionPeriod": "345600",
+            "DelaySeconds": "0",
+            "ReceiveMessageWaitTimeSeconds": "0",
+            "KmsMasterKeyId": "73d5da2e-80ec-46be-8fd8-d9a50b4b2191",
+            "KmsDataKeyReusePeriodSeconds": "300"
+        },
+        "ResponseMetadata": {}
+    }
+}

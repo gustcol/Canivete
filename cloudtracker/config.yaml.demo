@@ -1,0 +1,14 @@
+# Config
+elasticsearch:
+  host: localhost
+  port: 9200
+  index: "cloudtrail"
+  key_prefix: ""
+  timestamp_field: "eventTime"
+accounts:
+  - name: demo
+    id: 111111111111
+    iam: account-data/demo_iam.json
+  - name: demo2
+    id: 222222222222
+    iam: account-data/demo2_iam.json 

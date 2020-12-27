@@ -1,0 +1,329 @@
+[
+  {
+    "key": {
+      "S": "version"
+    },
+    "value": {
+      "N": "1.0"
+    }
+  },
+  {
+    "key": {
+      "S": "general"
+    },
+    "value": {
+      "M": {
+        "dry_run": {
+          "BOOL": true
+        }
+      }
+    }
+  },
+  {
+    "key": {
+      "S": "rules"
+    },
+    "value": {
+      "M": {
+        "cloudtrail-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "db-instance-backup-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "dynamodb-table-encryption-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "ec2-instances-in-vpc": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "encrypted-volumes": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "guardduty-enabled-centralized": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "lambda-function-public-access-prohibited": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "rds-instance-public-access-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "rds-multi-az-support": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "rds-snapshots-public-prohibited": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "rds-storage-encrypted": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "s3-bucket-server-side-encryption-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "s3-bucket-ssl-requests-only": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            },
+            "deploy": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-access-keys-rotated": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-cloud-trail-cloud-watch-logs-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-cloud-trail-encryption-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-cloud-trail-log-file-validation-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-cmk-backing-key-rotation-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-password-policy-ensure-expires": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-password-policy-lowercase-letter-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-password-policy-minimum-length-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-password-policy-number-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-password-policy-prevent-reuse-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-password-policy-symbol-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-password-policy-uppercase-letter-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-policy-no-statements-with-admin-access": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-user-no-policies-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-iam-user-unused-credentials-check": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-mfa-enabled-for-iam-console-access": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-multi-region-cloud-trail-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-restricted-rdp": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-restricted-ssh": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-s3-bucket-logging-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-s3-bucket-public-read-prohibited": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-s3-bucket-public-write-prohibited": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-vpc-default-security-group-closed": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        },
+        "securityhub-vpc-flow-logs-enabled": {
+          "M": {
+            "remediate": {
+              "BOOL": true
+            }
+          }
+        }
+      }
+    }
+  }
+]

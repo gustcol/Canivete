@@ -1,0 +1,50 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                            RPM Packages Optional
+# ============================================================================ #
+
+# Packages that may or may not be present in a given version of RHEL / CentOS
+
+# Ignore Failures for these packages
+
+# for check_whois.pl - no longer available on CentOS 8
+jwhois
+
+# CentOS <= 7
+snappy-devel
+# CentOS 8
+csnappy-devel
+
+# postgres pg_config
+# CentOS 8
+libpq-devel
+# CentOS 7
+postgresql-devel
+
+cyrus-sasl-devel
+yum-security
+yum-plugin-security
+
+# CentOS 8 workaround to
+# gcc: error: /usr/lib/rpm/redhat/redhat-hardened-cc1: No such file or directory
+redhat-rpm-config
+
+# ====================
+# CentOS 8 workaround:
+
+# if available choose to install this rather than mysql-devel and let setup/install_mysql_python.sh patch mysql.h to be compatible
+mariadb-devel
+
+# to build DBD::mysql if building from CPAN
+mysql-devel
+# ====================

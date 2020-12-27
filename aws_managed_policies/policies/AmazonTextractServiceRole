@@ -1,0 +1,19 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "sns:Publish"
+                    ],
+                    "Resource": "arn:aws:sns:*:*:AmazonTextract*"
+                }
+            ]
+        },
+        "VersionId": "v1",
+        "IsDefaultVersion": true,
+        "CreateDate": "2018-11-28T19:12:16Z"
+    }
+}

@@ -1,0 +1,12 @@
+---
+openjdk_path: /usr/lib/jvm/java-7-openjdk-amd64
+
+postgres_packages:
+  - postgresql-client
+  - libpostgresql-jdbc-java
+postgres_jdbc_location: /usr/share/java/postgresql.jar
+
+mysql_packages:
+  - python-mysqldb
+  - libmysql-java
+mysql_jdbc_location: /usr/share/java/mysql-connector-java.jar

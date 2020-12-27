@@ -1,0 +1,21 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action": [
+                        "chime:List*",
+                        "chime:Get*",
+                        "chime:SearchAvailablePhoneNumbers"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v9",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-11-18T18:49:37Z"
+    }
+}

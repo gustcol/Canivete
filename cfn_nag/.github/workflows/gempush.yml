@@ -1,0 +1,92 @@
+name: cfn_nag
+
+on:
+  push:
+    branches:
+      - master
+env:
+  docker_org: stelligent
+
+jobs:
+  commit:
+    name: Commit
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Set up Ruby 2.5
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.5.x
+    - name: Install Bundler
+      run: gem install bundler
+    - name: Which bundler?
+      run: bundle -v
+    - name: Bundle install
+      run: bundle check || bundle install
+    - name: Rubocop lint
+      run: bundle exec rubocop -D
+    - name: Rspec tests
+      run: bundle exec rspec --require spec_helper spec
+    - name: Duplicate rule check
+      run: bundle exec ./bin/cfn_nag_rules
+
+  acceptance:
+    name: Acceptance
+    runs-on: ubuntu-latest
+
+    steps:
+    # is this the same commit hash we saw in commit?
+    - uses: actions/checkout@master
+    - name: Set up Ruby 2.5
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.5.x
+    - name: Install Bundler
+      run: gem install bundler
+    - name: e2e
+      run: bash ./scripts/setup_and_run_end_to_end_tests.sh
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [commit, acceptance]
+    steps:
+      # is this the same commit hash we saw in commit?
+      - uses: actions/checkout@v2
+      - run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          git fetch --prune --unshallow
+      - name: Publish to RubyGems and DockerHub
+        id: publish
+        run: bash ./scripts/publish.sh
+        env:
+          rubygems_api_key: ${{secrets.rubygems_api_key}}
+          docker_user: ${{secrets.docker_user}}
+          docker_password: ${{secrets.docker_password}}
+      - name: Create release with changelog
+        id: gh_release
+        uses: release-drafter/release-drafter@f677696
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          publish: true
+          version: ${{ steps.publish.outputs.cfn_nag_version }}
+      - name: Trigger cfn_nag for CodePipeline SAR publish
+        run: |
+          curl -s \
+               -XPOST \
+               -u "cfn_nag-bot:${{secrets.homebrew_tap_bot}}" \
+               -H "Accept: application/vnd.github.everest-preview+json" \
+               -H "Content-Type: application/json" \
+               https://api.github.com/repos/${{ env.docker_org }}/cfn-nag-pipeline/dispatches \
+               --data '{"event_type": "build_application"}'
+      - name: Trigger homebrew-tap repo workflow
+        run: |
+          curl -s \
+               -XPOST \
+               -u "cfn_nag-bot:${{secrets.homebrew_tap_bot}}" \
+               -H "Accept: application/vnd.github.everest-preview+json" \
+               -H "Content-Type: application/json" \
+               https://api.github.com/repos/${{ env.docker_org }}/homebrew-tap/dispatches \
+               --data '{"event_type": "build_application"}'

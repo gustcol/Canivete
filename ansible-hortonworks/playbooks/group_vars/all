@@ -1,0 +1,45 @@
+---
+cluster_name: 'mytestcluster'
+
+ambari_version: '2.6.2.2'                                 # must be the 4-part full version number
+hdp_version: '2.6.5.0'                                    # must be the 4-part full version number
+hdf_version: '3.1.2.0'                                    # must be the 4-part full version number
+
+repo_base_url: 'http://public-repo-1.hortonworks.com'     # change this if using a Local Repository
+
+java: 'embedded'                                          # can be set to 'embedded', 'openjdk' or 'oraclejdk'
+oraclejdk_options:                                        # only used when java is set to 'oraclejdk'
+  base_folder: '/usr/java'                                # the folder where the Java package should be unpacked to
+  tarball_location: '/tmp/jdk-8u171-linux-x64.tar.gz'     # the location of the tarball on the remote system or on the Ansible controller
+  jce_location: '/tmp/jce_policy-8.zip'                   # the location of the JCE package on the remote system or on the Ansible controller
+  remote_files: no                                        # set to yes to indicate the files are already on the remote systems, otherwise they will be copied by Ansible from the Ansible controller
+
+external_dns: yes                                         # set to yes to use the existing DNS (when no, it will update the /etc/hosts file - must be set to 'no' when using Azure)
+disable_firewall: no                                      # set to yes to disable the existing local firewall service (iptables, firewalld, ufw)
+accept_gpl: yes                                           # set to yes to allow Ambari to install GPL licensed libraries
+
+############################
+## security configuration ##                              # only useful if blueprint is dynamic
+############################
+
+security: 'none'                                          # can be set to 'none', 'mit-kdc' or 'active-directory'
+security_options:
+  external_hostname: ''                                   # if this is empty, Ansible will install and prepare the MIT KDC on the Ambari node
+  realm: 'EXAMPLE.COM'
+  admin_principal: 'admin'                                # the Kerberos principal that has the permissions to create new users (don't append the realm)
+  admin_password: 'AsdQwe123'
+  kdc_master_key: 'AsdQwe123'                             # only used when security is set to 'mit-kdc'
+  ldap_url: 'ldaps://ad.example.com:636'                  # only used when security is set to 'active-directory'
+  container_dn: 'OU=hadoop,DC=example,DC=com'             # only used when security is set to 'active-directory'
+  http_authentication: no                                 # set to yes to enable HTTP authentication (SPNEGO)
+
+
+############################
+## helper variables       ##                              # don't change these unless there is a reason
+############################
+
+hdp_minor_version: "{{ hdp_version | regex_replace('.[0-9]+.[0-9]+[0-9_-]*$','') }}"
+hdp_major_version: "{{ hdp_minor_version.split('.').0 }}"
+hdf_minor_version: "{{ hdf_version | regex_replace('.[0-9]+.[0-9]+[0-9_-]*$','') }}"
+hdf_major_version: "{{ hdf_minor_version.split('.').0 }}"
+utils_version: "{{ '1.1.0.20' if hdp_minor_version is version_compare('2.5', '<') else ('1.1.0.21' if hdp_version is version_compare('2.6.4', '<') else '1.1.0.22' ) }}"

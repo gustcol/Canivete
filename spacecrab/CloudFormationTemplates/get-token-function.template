@@ -1,0 +1,152 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "FunctionDatabaseUser": {
+      "Type": "String",
+      "Description": "The username lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The encrypted password lambda functions will use to talk to the token database"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "TokenDatabaseAddress": {
+      "Type": "String",
+      "Description": "The address of the database where token metadata is stored"
+    },
+    "TokenDatabasePort": {
+      "Type": "Number",
+      "Description": "The port of the database where token metadata is stored"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "LambdaAddTokenFunctionArn": {
+      "Type": "String",
+      "Description": "ARN of AddTokenFunction"
+    }
+  },
+  "Resources": {
+    "GetTokenExecutionPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "Policy for lambda function that gets or adds tokens",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "lambda:InvokeFunction"
+              ],
+              "Resource": [
+                {
+                  "Ref": "LambdaAddTokenFunctionArn"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "LambdaGetTokenFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "GetTokenExecutionPolicy"
+      ],
+      "Properties": {
+        "FunctionName": "GetTokenFunction",
+        "Description": "Gets a honey token (existing, or a new one)",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "GetTokenFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {
+            "FUNCTION_DATABASE_USER": {
+              "Ref": "FunctionDatabaseUser"
+            },
+            "ENCRYPTED_DATABASE_PASSWORD": {
+              "Ref": "EncryptedFunctionDatabasePassword"
+            },
+            "TOKEN_DATABASE_ADDRESS": {
+              "Ref": "TokenDatabaseAddress"
+            },
+            "TOKEN_DATABASE_PORT": {
+              "Ref": "TokenDatabasePort"
+            }
+          }
+        },
+        "Timeout": 15,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaGetTokenFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaGetTokenFunction",
+          "Arn"
+        ]
+      },
+      "Description": "LambdaGetTokenFunction ARN"
+    }
+  }
+}

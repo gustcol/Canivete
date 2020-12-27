@@ -1,0 +1,79 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2020-08-12 12:31:25 +0100 (Wed, 12 Aug 2020)
+#
+#  https://github.com/harisekhon/sql
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#  to help improve or steer this or other code I publish
+#
+#  http://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                               T r a v i s   C I
+# ============================================================================ #
+
+# https://docs.travis-ci.com/user/customizing-the-build/
+
+version: ~> 1.0
+
+# ==============================================================
+# https://docs.travis-ci.com/user/languages/minimal-and-generic/
+language: bash
+os:
+  - linux
+  # needs docker and osx on Travis CI doesn't have docker
+  #- osx
+
+# ======================================================
+# https://docs.travis-ci.com/user/environment-variables/
+env:
+  - PYTHONUNBUFFERED=1
+
+# ==============================================
+# https://docs.travis-ci.com/user/notifications/
+notifications:
+  email: false
+
+# =================================================================================
+# https://docs.travis-ci.com/user/customizing-the-build/#building-specific-branches
+# https://docs.travis-ci.com/user/conditional-builds-stages-jobs
+#branches:
+#  only:
+#    - master
+
+# ========================================
+# https://docs.travis-ci.com/user/caching/
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+cache:
+  - pip
+  - directories:
+    - $HOME/.cache
+    - $HOME/.cpan
+    - $HOME/.cpanm
+    - $HOME/.gem
+    # bash-tools is not a submodule, but downloaded via Make so ok to cache whole
+    - bash-tools
+
+# ==============================================
+# https://docs.travis-ci.com/user/job-lifecycle/
+
+# avoid package checksum mismatches when installing packages
+before_install:
+  - sudo rm -f "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
+  - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
+
+install:
+  - travis_retry make
+
+script:
+  # would breach the max log length anyway and just obscure the real error
+  #- travis_retry make test
+  - make test

@@ -1,0 +1,22 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "AllowsIotToAccessGreengrassOTAUpdateArtifacts",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetObject"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::*-greengrass-updates/*"
+                    ]
+                }
+            ]
+        },
+        "VersionId": "v2",
+        "IsDefaultVersion": true,
+        "CreateDate": "2018-12-18T00:59:43Z"
+    }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="4a56dded-b4d2-460b-9e8b-7fea3036b19b" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Dockerfiles</name>
+  <description>50+ DockerHub public images for Docker &amp; Kubernetes - Hadoop, Kafka, ZooKeeper, HBase, Cassandra, Solr, SolrCloud, Presto, Apache Drill, Nifi, Spark, Consul, Riak, and DevOps tools built various distros: Alpine, CentOS, Debian, Fedora, Ubuntu</description>
+  <settings ref="HariSekhon_Make">
+    <options>
+      <option name="branchFilter" value="" />
+    </options>
+    <parameters />
+    <build-runners order="RUNNER_0, RUNNER_1, RUNNER_2" />
+    <vcs-settings>
+      <vcs-entry-ref root-id="Dockerfiles" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers />
+    <cleanup />
+  </settings>
+</build-type>
+

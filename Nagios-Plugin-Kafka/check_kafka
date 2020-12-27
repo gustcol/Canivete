@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#  vim:ts=4:sts=4:sw=4:et
+#
+#  Author: Hari Sekhon
+#  Date: 2016-06-09 16:51:50 +0100 (Thu, 09 Jun 2016)
+#
+#  https://github.com/harisekhon/nagios-plugin-kafka
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+[ -n "${DEBUG:-}" ] && set -x
+
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ ! -f "$srcdir/check_kafka.jar" ]; then
+    echo "UNKNOWN: check_kafka.jar is missing, did you forget to build the project?"
+    exit 3
+fi
+
+exec java -jar "$srcdir/check_kafka.jar" $@

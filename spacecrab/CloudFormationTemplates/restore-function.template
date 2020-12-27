@@ -1,0 +1,164 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "MasterDatabaseUser": {
+      "Type": "String",
+      "Description": "The master username for token database",
+      "NoEcho": "true"
+    },
+    "EncryptedMasterDatabasePassword": {
+      "Type": "String",
+      "Description": "The master password for token database",
+      "NoEcho": "true"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "TokenDatabaseAddress": {
+      "Type": "String",
+      "Description": "The address of the database where token metadata is stored"
+    },
+    "TokenDatabasePort": {
+      "Type": "Number",
+      "Description": "The port of the database where token metadata is stored"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "BackupBucketName": {
+      "Type": "String",
+      "Description": "The s3 bucket where backups are located"
+    }
+  },
+  "Resources": {
+    "RestoreExecutionPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "Policy for lambda function that backs up data",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+              ],
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "BackupBucketName"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LambdaRestoreFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "RestoreExecutionPolicy"
+      ],
+      "Properties": {
+        "FunctionName": "RestoreFunction",
+        "Description": "Restores token and alert data from a backup",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "RestoreFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {
+            "MASTER_DATABASE_USER": {
+              "Ref": "MasterDatabaseUser"
+            },
+            "ENCRYPTED_MASTER_DATABASE_PASSWORD": {
+              "Ref": "EncryptedMasterDatabasePassword"
+            },
+            "TOKEN_DATABASE_ADDRESS": {
+              "Ref": "TokenDatabaseAddress"
+            },
+            "TOKEN_DATABASE_PORT": {
+              "Ref": "TokenDatabasePort"
+            },
+            "BACKUP_BUCKET": {
+              "Ref": "BackupBucketName"
+            }
+          }
+        },
+        "Timeout": 300,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaRestoreFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaRestoreFunction",
+          "Arn"
+        ]
+      },
+      "Description": "LambdaRestoreFunction ARN"
+    }
+  }
+}

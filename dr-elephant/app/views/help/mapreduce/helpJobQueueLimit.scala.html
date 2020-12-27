@@ -1,0 +1,71 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+
+<p>The task execution limit on the Default queue is 15 minutes (900 seconds). You really, really want to be clear of
+that limit or your job may fail as data grows or if you get assigned some slow nodes. So while running a job on the
+default queue make sure each task runs between 5 to 15 minutes.</p>
+<p>This analysis shows an indication of how long your tasks have taken to run on the Default Queue.</p>
+<h5>Example</h5>
+<p>
+<div class="list-group">
+  <a class="list-group-item list-group-item-danger" href="">
+    <h4 class="list-group-item-heading">Job Queue Limit</h4>
+    <table class="list-group-item-text table table-condensed left-table">
+      <thead>
+        <tr>
+          <th colspan="2">Severity: Critical</th>
+        </tr>
+      </thead>
+      <tbody>
+       <tr>
+          <td>Queue: </td>
+          <td>default</td>
+        </tr>
+        <tr>
+          <td>Number of Map tasks</td>
+          <td>50</td>
+        </tr>
+        <tr>
+          <td>Number of Reduce tasks</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>Number of Map tasks that are in severe state (14 to 14.5 min)</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td>Number of Map tasks that are in critical state (over 14.5 min)</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Number of Reduce tasks that are in severe state (14 to 14.5 min)</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td>Number of Reduce tasks that are in critical state (over 14.5 min)</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+    </table>
+  </a>
+</div>
+</p>
+<h3>Suggestions</h3>
+<p>
+  If a Job has task times approaching 15 minutes then you must tune down your task runtimes(usually by increasing the
+  number of tasks) or by moving it to the marathon queue. The marathon queue is built for long running jobs so that
+  faster jobs can finish in a reasonable time without having to worry about resources being available.
+</p>

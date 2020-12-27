@@ -1,0 +1,136 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "EncryptedAlertEmailAddress": {
+      "Type": "String",
+      "Description": "encrypted target email address"
+    },
+    "EncryptedFromEmailAddress": {
+      "Type": "String",
+      "Description": "encrypted sending email address"
+    },
+    "SESRegion": {
+      "Type": "String",
+      "Description": "SES API Endpoint Region"
+    }
+  },
+  "Resources": {
+    "AlertEmailExecutionPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "Policy for lambda function alerts to email",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ses:SendEmail"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    },
+    "LambdaAlertEmailFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "AlertEmailExecutionPolicy"
+      ],
+      "Properties": {
+        "FunctionName": "AlertEmailFunction",
+        "Description": "listen to sns. fire alert.",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "AlertEmailFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {
+            "ENCRYPTED_EMAIL": {
+              "Ref": "EncryptedAlertEmailAddress"
+            },
+            "ENCRYPTED_FROM_EMAIL": {
+              "Ref": "EncryptedFromEmailAddress"
+            },
+            "SES_REGION": {
+              "Ref": "SESRegion"
+            }
+          }
+        },
+        "Timeout": 15,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaAlertEmailFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaAlertEmailFunction",
+          "Arn"
+        ]
+      },
+      "Description": "LambdaAlertEmailFunction ARN"
+    }
+  }
+}

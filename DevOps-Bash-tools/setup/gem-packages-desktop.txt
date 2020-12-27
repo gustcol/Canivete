@@ -1,0 +1,24 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-18 10:47:57 +0000 (Mon, 18 Feb 2013)
+#
+#  vim:ts=4:sw=4:et
+
+gitlab
+gist
+jgrep
+lolcat
+
+# installed via homebrew now, can't find gem any more
+#rbenv
+
+# mdl needs ruby >= 2.4.0 whereas older Macs may have 2.3.0 - if so install manually via:
+#
+#       brew install ruby
+#
+#       GEM=/usr/local/Cellar/ruby/*/bin/gem  ./ruby_gem_install.sh mdl
+#
+# will be picked up by new shells via .bash.d/paths.sh automatically detecting and adding ~/.gem/ruby/*/bin
+#
+# on macOS Catalina I now have Ruby 2.6 so this can install normally
+mdl

@@ -1,0 +1,247 @@
+<style>
+    #cloudreportdatetime {
+        color: #33acdd;
+    }
+
+    .status {
+        font-weight: bold;
+    }
+
+    .info {
+        background-color: #3773b3;
+    }
+
+    .good {
+        background-color: #40a977;
+    }
+
+    .warning {
+        background-color: #FFC300;
+    }
+
+    .failure {
+        background-color: #FF3933;
+    }
+
+    .detailed.danger,
+    .detailed.warning {
+        font-weight: bold;
+    }
+
+    .header {
+        margin-bottom: 2px;
+    }
+
+    h3,
+    h4,
+    .header-body {
+        color: #33acdd;
+    }
+
+    .service {
+        text-transform: uppercase;
+    }
+
+    .capitalize {
+        text-transform: capitalize;
+    }
+
+    .normal {
+        text-transform: none !important;
+    }
+
+    .service h4 {
+        text-align: center;
+    }
+
+    .header-body strong {
+        width: 80%;
+    }
+
+    .header-body img {
+        float: right;
+        width: 20%;
+    }
+
+    hr {
+        clear: both;
+    }
+
+    .checkDetails {
+        margin: 3px;
+        page-break-inside: avoid;
+    }
+
+    .checkTable {
+        display: table;
+        width: 100%;
+
+    }
+
+    .checkTableRow {
+        display: table-row;
+        font-family: sans-serif;
+
+    }
+
+    .checkTableCell.desc {
+        min-width: 196px;
+    }
+
+    .checkTableCell,
+    .checkTableHead {
+        border: 1px solid #999999;
+        display: table-cell;
+        padding: 2px;
+    }
+
+    .resourceName {
+        max-width: 200px;
+    }
+
+    .checkTableHeading {
+        display: table-caption;
+        font-weight: bold;
+        font-family: 'Montserrat' !important;
+        padding: 2px;
+        page-break-inside: avoid;
+        color: #33acdd;
+    }
+
+    .checkTableBody {
+        display: table-row-group;
+        font-family: sans-serif;
+    }
+
+    html {
+        -webkit-print-color-adjust: exact;
+    }
+
+    .page-break {
+        clear: both;
+        page-break-after: always;
+        page-break-inside: avoid;
+
+    }
+
+    .page-break-before {
+        clear: both;
+        page-break-before: always;
+        page-break-inside: avoid;
+
+    }
+
+    .cloudreportdatetime {
+        font: 10pt sans-serif;
+        color: black;
+        text-align: center;
+        font-weight: bolder;
+        font-size: 150%;
+        padding-top: 50px;
+    }
+
+
+    .checkTablesummary {
+        display: table;
+        width: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .goodsummary {
+        color: #40a977;
+    }
+
+    .warningsummary {
+        color: #FFC300;
+    }
+
+    .failuresummary {
+        color: #FF3933;
+    }
+
+    .checkTableservice {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        background-color: #33acdd;
+        color: white;
+        border: 1px solid #999999;
+        display: table-cell;
+        padding: 2px;
+        width: auto;
+    }
+
+    .checkTableHeadsummary {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        background-color: #33acdd;
+        color: white;
+        border: 1px solid #999999;
+        display: table-cell;
+        padding: 2px;
+    }
+
+
+    .checkTableRowsummary {
+        display: table-row;
+        font-family: sans-serif;
+    }
+
+
+    .checkTableRowsummary:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .toc_title {
+        font-weight: 700;
+        text-align: center;
+        font-weight: bolder;
+        font-size: x-large;
+        color: #33acdd;
+    }
+
+    ul.leaders {
+        max-width: 40em;
+        padding: 0;
+        overflow-x: hidden;
+        list-style: none;
+        color: #33acdd;
+        font-family: sans-serif
+    }
+
+    ul.leaders li:before {
+        float: left;
+        width: 0;
+        white-space: nowrap;
+        color: #33acdd;
+        content:
+
+            ". . . . . . . . . . . . . . . . . . . . "
+            ". . . . . . . . . . . . . . . . . . . . "
+            ". . . . . . . . . . . . . . . . . . . . "
+            ". . . . . . . . . . . . . . . . . . . . "
+    }
+
+
+
+    ul.leaders span:first-child {
+        padding-right: 0.33em;
+        background: white
+    }
+
+    ul.leaders span+span {
+        float: right;
+        padding-left: 0.33em;
+        background: white
+    }
+
+    .alink {
+        text-decoration: none;
+        color: #33acdd;
+    }
+
+    .overallSnapshot {
+        margin: auto;
+        width: 60%;
+    }
+</style>

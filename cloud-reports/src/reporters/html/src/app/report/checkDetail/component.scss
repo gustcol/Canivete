@@ -1,0 +1,39 @@
+.example-spacer {
+    flex: 1 1 auto;
+}
+
+.filter-selection {
+    margin-top: 10px
+}
+
+table {
+    width: 100%;
+}
+
+td {
+    width: 115px;
+}
+
+.good {
+    background-color: rgb(6, 165, 32)
+}
+
+.warning {
+    background-color: rgb(202, 202, 0);
+}
+
+.failure {
+    background-color: rgb(221, 31, 6)
+}
+
+.mat-form-field {
+    font-size: 14px;
+    width: 100%;
+  }
+
+.no-data {
+    text-align: center;
+    font-style: italic;
+    font-weight: bold;
+    padding-top: 20px;
+}

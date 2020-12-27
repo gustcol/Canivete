@@ -1,0 +1,24 @@
+color=#f3f4f5
+separator_block_width=15
+markup=none
+
+[volume-pulseaudio]
+command=~/.local/src/i3blocks-contrib/volume-pulseaudio/volume-pulseaudio
+interval=1
+signal=10
+LONG_FORMAT="${SYMB}${VOL}%"
+SHORT_FORMAT="${SYMB}${VOL}%"
+DEFAULT_COLOR="#f3f4f5"
+USE_ALSA_NAME=1
+
+[ram]
+command=echo -n '  '; ~/.local/src/i3blocks-contrib/memory/memory | grep -E -o '^[0-9]+.[0-9]G'
+interval=30
+
+[disk-home]
+command=echo -n '  '; df -h -l --output='used' "$HOME" | grep -E -o '[0-9]+G'
+interval=30
+
+[rofi-calendar]
+command=~/.local/bin/rofi-calendar
+interval=5

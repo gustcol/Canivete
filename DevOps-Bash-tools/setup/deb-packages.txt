@@ -1,0 +1,40 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-03-16 20:35:14 +0000 (Sat, 16 Mar 2019)
+#
+#  https://github.com/harisekhon/devops-bash-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                          Deb Package Requirements
+# ============================================================================ #
+
+bash
+bc
+build-essential
+ca-certificates
+cpanminus
+curl
+#direnv
+git
+golang
+iputils-ping
+jq
+libperl-dev    # needed for PAR:Packer
+libxml2-utils  # needed for xmllint
+make
+parallel
+perl
+procps
+psmisc  # for fuser for apt_wait.sh
+ruby-dev  # to build Travis CI gem
+time
+wget
+# included in distro
+#which
+zip
+unzip

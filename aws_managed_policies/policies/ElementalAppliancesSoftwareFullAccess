@@ -1,0 +1,19 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "elemental-appliances-software:*"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v3",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-12-02T18:50:28Z"
+    }
+}

@@ -1,0 +1,194 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "EncryptedPagerdutyToken": {
+      "Type": "String",
+      "Description": "encrypted token"
+    },
+    "EncryptedAlertEmailAddress": {
+      "Type": "String",
+      "Description": "encrypted email"
+    },
+    "AlertingSnsTopicArn": {
+      "Type": "String",
+      "Description": "SNS ARN"
+    },
+    "LambdaAlertPagerdutyFunctionArn": {
+      "Type": "String",
+      "Default": "DONTUSE"
+    },
+    "LambdaAlertEmailFunctionArn": {
+      "Type": "String",
+      "Default": "DONTUSE"
+    }
+  },
+  "Resources": {
+    "PostSetupConfigurationExecutionPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "Policy for lambda function that updates configurations",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "sns:ListSubscriptionsByTopic",
+                "sns:CreateTopic",
+                "sns:SetTopicAttributes",
+                "sns:Subscribe",
+                "sns:Publish"
+              ],
+              "Resource": {
+                "Ref": "AlertingSnsTopicArn"
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "lambda:AddPermission"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:lambda:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":function:*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "LambdaPostSetupConfigurationFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "PostSetupConfigurationExecutionPolicy"
+      ],
+      "Properties": {
+        "FunctionName": "PostSetupConfigurationFunction",
+        "Description": "Configure various post-hoc policies that need to go",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "PostSetupConfigurationFunction.zip"
+        },
+        "Role": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+        "Environment": {
+          "Variables": {
+            "ENCRYPTED_PAGERDUTY_TOKEN": {
+              "Ref": "EncryptedPagerdutyToken"
+            },
+            "ENCRYPTED_EMAIL": {
+              "Ref": "EncryptedAlertEmailAddress"
+            },
+            "SNS_TOPIC_ARN": {
+              "Ref": "AlertingSnsTopicArn"
+            },
+            "PAGERDUTY_LAMBDA": {
+              "Ref": "LambdaAlertPagerdutyFunctionArn"
+            },
+            "EMAIL_LAMBDA": {
+              "Ref": "LambdaAlertEmailFunctionArn"
+            }
+          }
+        },
+        "Timeout": 15,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    },
+    "PostSetupConfigurationAction": {
+      "Type": "Custom::PostSetupConfigurationAction",
+      "DependsOn": [
+        "LambdaPostSetupConfigurationFunction"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LambdaPostSetupConfigurationFunction",
+            "Arn"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaPostSetupConfigurationFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaPostSetupConfigurationFunction",
+          "Arn"
+        ]
+      },
+      "Description": "LambdaPostSetupConfigurationFunction ARN"
+    }
+  }
+}

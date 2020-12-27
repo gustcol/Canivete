@@ -1,0 +1,38 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2020-08-19 14:14:11 +0100 (Wed, 19 Aug 2020)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#  run: kubectl --namespace test create -f namespace_limits.yaml
+#
+#  https://github.com/harisekhon/kubernetes-templates
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/HariSekhon
+#
+
+# ============================================================================ #
+#                    N a m e s p a c e   L i m i t R a n g e
+# ============================================================================ #
+
+# https://kubernetes.io/docs/concepts/policy/limit-range/
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+  limits:
+  - default:
+      cpu: 1
+      memory: 4Gi
+    defaultRequest:
+      cpu: 0.5
+      memory: 100Mi
+    type: Container

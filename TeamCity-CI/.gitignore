@@ -1,0 +1,8 @@
+# TeamCity export extracts
+
+charset
+
+# this one contains configs with actual secrets unlike the VCS sync ones / JSON API exports / Kotlin export projectSettings.zip
+config/
+
+version.txt

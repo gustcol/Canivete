@@ -1,0 +1,99 @@
+/*
+ *Copyright 2018 T Mobile, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); You may not use
+ * this file except in compliance with the License. A copy of the License is located at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * or in the "license" file accompanying this file. This file is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or
+ * implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.asset-details-wrapper {
+    /* padding: 2.3em; */
+    min-width: 10em;
+}
+
+.desc-detail {
+    margin-bottom: 1.5em;
+    font-size: 1.1em;
+}
+
+.keyword {
+    font-family: ex2-regular;
+    padding-right: 0.3em;
+    animation: fadein 0.3s;
+    color: #333;
+}
+
+.key-value {
+    font-family: ex2-bold;
+    padding-left: 0.3em;
+    animation: fadein 0.5s;
+}
+
+.dotted-line {
+    flex-grow: 2;
+    border-bottom: 1px dotted #d9d9d9;
+    animation: fadein 0.3s;
+}
+
+.name-title {
+    /*white-space: nowrap;*/
+    font-family: ex2-bold;
+    font-size: 1.4em;
+    margin-bottom: 1em;
+    line-height: 1.3;
+    animation: fadein 0.3s;
+    text-transform: capitalize;
+}
+
+.desc-title {
+    white-space: normal;
+    font-size: 1.05em;
+    padding-bottom: 2.4em;
+    line-height: 1.25;
+    border-bottom: 1px solid #aaa;
+    animation: fadein 0.3s;
+    font-family: ex2-light;
+    color: #111;
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+article.detail-desc {
+    padding: 2em 6px 1.3em;
+    text-transform: capitalize;
+    max-width: 55%;
+    min-width: 20em;
+    border-bottom: 1px solid #aaa;
+}
+
+.error-msg {
+    /* color: #fff; */
+    text-transform: initial;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.link-text-secondary {
+    text-decoration: underline;
+}
+
+.height100 {
+    height: 100%;
+}
+
+.each-cloud {
+    margin: 0 1em;
+}

@@ -1,0 +1,223 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2012-01-31 14:08:42 +0000 (Tue, 31 Jan 2012)
+#
+#  vim:ts=4:sts=4:sw=4:et
+
+# configure your user name and email in ~/.gitconfig.local
+#[user]
+#    name = Hari Sekhon
+#    email = harisekhon@gmail.com
+
+[include]
+  path = .gitconfig.local
+
+[core]
+    # detects filemode changes
+    filemode = true
+    # defaults to $VISUAL or $EDITOR which is set in .bash.d/env.sh
+    #editor = vim
+    # global .gitignore
+    excludesfile = ~/.gitignore
+    # stops unicode chars coming out as \xxx and double quoted filenames in git status (used in .bash.d/git.sh git_rm_untracked function)
+    quotePath = false
+
+    #whitespace = trailing-space,space-before-tab
+
+[push]
+#   default = current
+    default = simple
+
+[alias]
+    name = config --get user.name
+    email = config --get user.email
+    who = !git config -l | grep -E '^user\\.(name|email)'
+    whoami = who
+    co  = checkout
+    ci  = commit
+    p   = push
+    st  = status
+    stq = !git_foreach_repo.sh git status | grep --color=no -e "=======" -e branch -e GitHub
+    br  = branch
+    ba  = branch -a
+    bav = branch -a -vvv
+    cp  = cherry-pick
+    ls  = ls-files
+    root = rev-parse --show-toplevel
+
+    rem      = remote -v
+    remotes  = remote -v
+    tags     = tag -l
+    branches = branch -a
+    prune-branches = ! git remote prune origin && git branch -vv | cut -c 3- | awk '$4 ~ /gone\\]/ {print $1}' | xargs git branch -d
+
+    in      = log HEAD..FETCH_HEAD
+    out     = log FETCH_HEAD..HEAD
+    inp     = log -p HEAD..FETCH_HEAD
+    outp    = log -p FETCH_HEAD..HEAD
+    ind     = diff HEAD..FETCH_HEAD
+    outd    = diff FETCH_HEAD..HEAD
+    age     = for-each-ref --format '%(authordate:iso) %(refname:short)' --sort=-authordate refs/remotes refs/heads
+
+    unstage = reset HEAD --
+    last = log -1 HEAD
+
+    # Show files ignored by git:
+    ign = ls-files -o -i --exclude-standard
+    ignored = !git clean -ndX | sed -e 's/^Would remove //' | sed 's/^Would skip repository //'
+    untracked = ls-files --others --exclude-standard
+
+    # how to use commands inside git aliases
+    visual = !gitk
+
+    df = diff
+    dc = diff --cached
+    lg = log -p
+    lol = log --graph --decorate --pretty=oneline --abbrev-commit
+    lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+
+    # avoid diff-so-fancy so we can create patches
+    patch = !git --no-pager diff --no-color
+
+    #ffm     = merge --ff-only
+    #ffp     = pull --ff-only
+    #fp      = fetch --prune
+
+    #mp      = merge --no-commit --no-ff
+    #ma      = merge --abort
+    #dno     = diff --name-only
+    #gone    = !git branch -vv | grep ': gone'
+    #gd      = !git branch -vv | awk '/: gone/ {print $1}' | xargs --no-run-if-empty -n1 git branch -D
+
+[help]
+    # autocorrects git commands and executes the inferred command
+    # dangerous this just autocorrected my git rename to git rebase, lucky it errored out...
+    autocorrect = 0
+
+[homebrew]
+    donationmessage = false
+
+# ============================================================================ #
+#                               G i t   C o l o r
+# ============================================================================ #
+
+# colors: normal, black, red, green, yellow, blue, magenta, cyan, white
+# effects: bold, dim, ul, blink and reverse
+
+# if 2 colours given - 1st is foreground, 2nd is background
+
+[color]
+    ui     = auto
+    diff   = auto
+    grep   = auto
+    # do not set always here, use:
+    # -c color.status=always
+    # for specific overrides, otherwise may break gitci and related functions
+    status = auto
+    branch = auto
+
+[color "branch"]
+    current     = green ul
+    local       = yellow
+    remote      = red        # default
+    plain       = white
+
+[color "diff"]
+    new         = green
+    old         = red        # default
+    plain       = white
+    whitespace  = yellow reverse
+    func        = yellow
+    #frag        = cyan       # default
+    #meta        = green bold # default
+    # from diff-so-fancy
+    meta = 11
+    frag = magenta bold
+
+[color "grep"]
+    context     = white
+    filename    = cyan
+    function    = yellow
+    linenumber  = green
+    match       = red
+    selected    = yellow
+    separator   = white
+
+[color "status"]
+    added       = magenta
+    changed     = red
+    untracked   = cyan
+    branch      = magenta blink
+    nobranch    = red blink
+
+# diff-so-fancy but I prefer most of my old preferences
+#[color "diff"]
+#  meta = 11
+#  frag = magenta bold
+#  commit = yellow bold
+#  old = red bold
+#  new = green bold
+#  whitespace = red reverse
+
+# ============================================================================ #
+#                           D i f f - s o - f a n c y
+# ============================================================================ #
+
+# detected if installed and set via $GIT_PAGER in .bash.d/git.sh
+#[core]
+#   pager = diff-so-fancy | less --tabs=4 -RFX
+#[pager]
+    # don't set --pattern, overrides -F and doesn't quit less automatically for short diffs
+    #diff = diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified): '
+    #diff = diff-so-fancy | less --tabs=4 -RFX
+
+    # truncate lines in less, only for 'git blame'
+    #blame = less -S
+
+
+[color "diff-highlight"]
+  #oldNormal = red bold
+  #oldHighlight = red bold 52
+  #oldHighlight = normal red
+  #newNormal = green bold
+  #newHighlight = normal green
+
+[diff-so-fancy]
+  stripLeadingSymbols = false
+
+# ============================================================================ #
+
+#[difftool "sourcetree"]
+#    cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+#    path =
+#
+#[mergetool "sourcetree"]
+#    cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+#    trustExitCode = true
+
+#[filter "media"]
+#   clean = git media clean %f
+#   smudge = git media smudge %f
+#   required = true
+
+# ============================================================================ #
+#                             A W S   S e c r e t s
+# ============================================================================ #
+
+# AWS Secrets prevents committing secrets in to Git
+
+# install git-secrets hooks in any repo initialized or cloned to prevent credential leak
+[init]
+    templateDir = ~/.git-templates/git-secrets
+
+[secrets]
+    providers = git secrets --aws-provider
+    patterns = (A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}
+    patterns = (\"|')?(AWS|aws|Aws)?_?(SECRET|secret|Secret)?_?(ACCESS|access|Access)?_?(KEY|key|Key)(\"|')?\\s*(:|=>|=)\\s*(\"|')?[A-Za-z0-9/\\+=]{40}(\"|')?
+    patterns = (\"|')?(AWS|aws|Aws)?_?(ACCOUNT|account|Account)_?(ID|id|Id)?(\"|')?\\s*(:|=>|=)\\s*(\"|')?[0-9]{4}\\-?[0-9]{4}\\-?[0-9]{4}(\"|')?
+    # doesn't work, doesn't support (?! ) negative lookahead regex
+    #patterns = (\bhari|sekhon\b)(!.*@gmail.com)
+    # only applies to contents, not metadata to prevent wrong author commits
+    #patterns = hari|sekhon
+    allowed = AKIAIOSFODNN7EXAMPLE
+    allowed = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY

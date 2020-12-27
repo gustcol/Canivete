@@ -1,0 +1,12 @@
+{
+  "indicesToSearch": [
+    "events-weekly"
+  ],
+  "maxConnections": 32,
+  "matchTags": [
+    "portscan"
+  ],
+  "searchWindow": {
+    "hours": 24
+  }
+}

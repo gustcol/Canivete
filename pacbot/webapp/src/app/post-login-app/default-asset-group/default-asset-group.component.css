@@ -1,0 +1,64 @@
+/*
+ *Copyright 2018 T Mobile, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); You may not use
+ * this file except in compliance with the License. A copy of the License is located at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * or in the "license" file accompanying this file. This file is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or
+ * implied. See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* CSS styles of default asset group starts here */
+
+.default-asset-group-wrapper {
+    display: flex;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    padding: .4em 1em;
+    font-size: 1em;
+    cursor: pointer;
+    align-items: center;
+    max-width: 30em;
+}
+
+.default-asset-group-icon {
+    vertical-align: middle;
+    transition: 0.5s ease;
+    transform: scale(0);
+    transform-origin: center;
+}
+
+.default-asset-group-icon.after-load {
+    transform: scale(1);
+}
+
+.default-asset-group-text {
+    color: #fff;
+    display: inline-block;
+    padding: 0 .9em 0 .4em;
+    vertical-align: middle;
+    padding-bottom: 2px;
+    text-transform: capitalize;
+    overflow: hidden;
+    user-select: none;
+    text-overflow: ellipsis;
+}
+
+.mr-right-arrow {
+    color: #fff;
+    font-size: 2em;
+    padding-block-end: 1px;
+    vertical-align: middle;
+}
+
+.asset-group-overlay {
+    transition: 0.3s ease;
+}
+
+
+
+/* CSS styles of default asset group ends here */

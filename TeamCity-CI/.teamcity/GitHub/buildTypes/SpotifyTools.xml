@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="3054519b-53b6-4d2a-a6fb-0df5842b1cb0" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Spotify tools</name>
+  <description>Spotify Tools - Playlists Backups, Spotify CLI, URI translator, duplication detection / removal, API search queries, API automation etc.</description>
+  <settings ref="HariSekhon_Make">
+    <options>
+      <option name="branchFilter" value="" />
+    </options>
+    <parameters />
+    <build-runners order="RUNNER_0, RUNNER_1, RUNNER_2" />
+    <vcs-settings>
+      <vcs-entry-ref root-id="SpotifyTools" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers />
+    <cleanup />
+  </settings>
+</build-type>
+

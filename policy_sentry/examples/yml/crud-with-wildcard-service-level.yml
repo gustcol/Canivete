@@ -1,0 +1,11 @@
+mode: crud
+name: 'RoleNameWithCRUD'
+permissions-management:
+- arn:aws:s3:::example-org-s3-access-logs
+wildcard-only:
+    single-actions:
+    - ram:enablesharingwithawsorganization
+    - ram:getresourcepolicies
+    service-read:
+    - ecr # GetAuthorizationToken
+    - s3 # GetAccessPoint, GetAccountPublicAccessBlock, ListAccessPoints

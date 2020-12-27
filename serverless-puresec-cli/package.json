@@ -1,0 +1,38 @@
+{
+  "name": "serverless-puresec-cli",
+  "version": "1.2.1",
+  "description": "Serverless plugin, utilizes PureSec CLI tools for improving the security of your serverless applications.",
+  "main": "src/index.js",
+  "scripts": {
+    "nopy": "nopy",
+    "install": "npip install"
+  },
+  "keywords": [
+    "Serverless",
+    "Amazon Web Services",
+    "AWS",
+    "Lambda",
+    "Configuration",
+    "Security"
+  ],
+  "homepage": "https://github.com/puresec/serverless-puresec-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puresec/serverless-puresec-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/puresec/serverless-puresec-cli/issues"
+  },
+  "author": "PureSec <support@puresec.io>",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "nopy": "^0.2.3"
+  },
+  "python": {
+    "execPath": "python3",
+    "dependencies": {
+      "puresec-cli": "==1.2.1"
+    }
+  }
+}

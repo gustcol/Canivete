@@ -1,0 +1,15 @@
+{
+  "mozdef": {
+    "url": "http://localhost:8080/events"
+  },
+  // Url should be in the form of https://auth.{mozilla.}auth0.com
+  "auth0": {
+    "reqnr": 100,
+    "client_id": "<add_client_id>",
+    "client_secret": "<add_client_secret>",
+    "url": "<add_url>"
+  },
+  "state_file": "/opt/mozdef/envs/mozdef/cron/auth02mozdef.state",
+  // Sends msgs to syslog instead of MozDef mainly
+  "DEBUG": False
+}

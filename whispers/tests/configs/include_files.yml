@@ -1,0 +1,6 @@
+include:
+  files:
+    - "**/*.pypirc"
+exclude:
+  keys:
+    - ^file$

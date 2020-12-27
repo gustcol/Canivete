@@ -1,0 +1,52 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+
+@(results: java.util.Map[IdUrlPair, java.util.Map[IdUrlPair, java.util.List[models.AppResult]]])
+
+@*
+* The layout of the comparison results.
+*
+* @param results A map from job def url to a map of
+*@
+
+@tags.panel(){ Comparison Results} {
+  <div>
+    <ul class="list-group">
+    @if(results != null){
+      @for( (pair, flowexecmap) <- results) {
+        <div class="list-group-item-alternate">
+          <p><strong>Job Definition URL: </strong><a href=@pair.getUrl>@pair.getUrl</a></p>
+          <div class="list-group well-lg">
+          <!-- flowexecmap has two entries corresponding to the two flow execution urls and cannot be null. -->
+          @for((pair, jobs) <- flowexecmap) {
+            <div class="list-group">Flow Execution URL: <a href=@pair.getUrl>@pair.getUrl</a>
+              @if(jobs != null) {
+                @for(result <- jobs) {
+                  <a class="list-group-item list-group-item-@result.severity.getBootstrapColor"
+                  href="@routes.Application.search()?id=@result.id">
+                  @tags.jobSummary(result)
+                  </a>
+                }
+              }
+              </div>
+          }
+          </div>
+        </div>
+      }
+    }
+    </ul>
+  </div>
+}

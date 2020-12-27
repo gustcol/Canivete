@@ -1,0 +1,43 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "ec2:DescribeSpotFleetRequests",
+                        "ec2:ModifySpotFleetRequest"
+                    ],
+                    "Resource": [
+                        "*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "cloudwatch:DescribeAlarms",
+                        "cloudwatch:PutMetricAlarm",
+                        "cloudwatch:DeleteAlarms"
+                    ],
+                    "Resource": [
+                        "*"
+                    ]
+                },
+                {
+                    "Action": "iam:CreateServiceLinkedRole",
+                    "Effect": "Allow",
+                    "Resource": "arn:aws:iam::*:role/aws-service-role/ec2.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_EC2SpotFleetRequest",
+                    "Condition": {
+                        "StringLike": {
+                            "iam:AWSServiceName": "ec2.application-autoscaling.amazonaws.com"
+                        }
+                    }
+                }
+            ]
+        },
+        "VersionId": "v3",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-02-18T19:17:03Z"
+    }
+}

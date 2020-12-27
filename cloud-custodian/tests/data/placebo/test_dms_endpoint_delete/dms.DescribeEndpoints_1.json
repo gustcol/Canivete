@@ -1,0 +1,21 @@
+{
+    "status_code": 200,
+    "data": {
+        "Endpoints": [
+            {
+                "EndpointIdentifier": "c7n-test",
+                "EndpointType": "SOURCE",
+                "EngineName": "aurora",
+                "EngineDisplayName": "Amazon Aurora MySQL",
+                "Username": "1234",
+                "ServerName": "test",
+                "Port": 1234,
+                "Status": "active",
+                "KmsKeyId": "arn:aws:kms:us-east-1:1112223334445:key/219c196b-3893-4778-b277-a05322f0ea0d",
+                "EndpointArn": "arn:aws:dms:us-east-1:1112223334445:endpoint:TS4PNUPPMTS3VDXUFUUGLKM2FQ",
+                "SslMode": "none"
+            }
+        ],
+        "ResponseMetadata": {}
+    }
+}

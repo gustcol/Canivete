@@ -1,0 +1,111 @@
+{
+    "Monitoring": {
+        "State": "disabled"
+    }, 
+    "PublicDnsName": "ec2-52-37-189-36.us-west-2.compute.amazonaws.com", 
+    "State": {
+        "Code": 16, 
+        "Name": "running"
+    }, 
+    "EbsOptimized": false, 
+    "LaunchTime": "2016-04-14T05:17:29.000Z", 
+    "PublicIpAddress": "52.37.189.36", 
+    "PrivateIpAddress": "172.31.8.154", 
+    "ProductCodes": [], 
+    "VpcId": "vpc-399e3d52", 
+    "StateTransitionReason": "", 
+    "InstanceId": "i-1aebf7c0", 
+    "ImageId": "ami-c229c0a2", 
+    "PrivateDnsName": "ip-172-31-8-154.us-west-2.compute.internal", 
+    "KeyName": "HazmatGreenField", 
+    "SecurityGroups": [
+        {
+            "GroupName": "jlxc", 
+            "GroupId": "sg-47b76f22"
+        }, 
+        {
+            "GroupName": "default", 
+            "GroupId": "sg-0a08e365"
+        }
+    ], 
+    "ClientToken": "JlRpx1460611049040", 
+    "SubnetId": "subnet-389e3d53", 
+    "InstanceType": "m3.medium", 
+    "NetworkInterfaces": [
+        {
+            "Status": "in-use", 
+            "MacAddress": "0a:d4:67:1f:58:03", 
+            "SourceDestCheck": true, 
+            "VpcId": "vpc-399e3d52", 
+            "Description": "", 
+            "Association": {
+                "PublicIp": "52.37.189.36", 
+                "PublicDnsName": "ec2-52-37-189-36.us-west-2.compute.amazonaws.com", 
+                "IpOwnerId": "amazon"
+            }, 
+            "NetworkInterfaceId": "eni-68d48235", 
+            "PrivateIpAddresses": [
+                {
+                    "PrivateDnsName": "ip-172-31-8-154.us-west-2.compute.internal", 
+                    "Association": {
+                        "PublicIp": "52.37.189.36", 
+                        "PublicDnsName": "ec2-52-37-189-36.us-west-2.compute.amazonaws.com", 
+                        "IpOwnerId": "amazon"
+                    }, 
+                    "Primary": true, 
+                    "PrivateIpAddress": "172.31.8.154"
+                }
+            ], 
+            "PrivateDnsName": "ip-172-31-8-154.us-west-2.compute.internal", 
+            "Attachment": {
+                "Status": "attached", 
+                "DeviceIndex": 0, 
+                "DeleteOnTermination": true, 
+                "AttachmentId": "eni-attach-f1c55f38", 
+                "AttachTime": "2016-04-14T05:17:29.000Z"
+            }, 
+            "Groups": [
+                {
+                    "GroupName": "jlxc", 
+                    "GroupId": "sg-47b76f22"
+                }, 
+                {
+                    "GroupName": "default", 
+                    "GroupId": "sg-0a08e365"
+                }
+            ], 
+            "SubnetId": "subnet-389e3d53", 
+            "OwnerId": "619193117841", 
+            "PrivateIpAddress": "172.31.8.154"
+        }
+    ], 
+    "SourceDestCheck": true, 
+    "Placement": {
+        "Tenancy": "default", 
+        "GroupName": "", 
+        "AvailabilityZone": "us-west-2c"
+    }, 
+    "Hypervisor": "xen", 
+    "BlockDeviceMappings": [
+        {
+            "DeviceName": "/dev/xvda", 
+            "Ebs": {
+                "Status": "attached", 
+                "DeleteOnTermination": true, 
+                "VolumeId": "vol-2b047792", 
+                "AttachTime": "2016-04-14T05:17:29.000Z"
+            }
+        }
+    ], 
+    "Architecture": "x86_64", 
+    "RootDeviceType": "ebs", 
+    "RootDeviceName": "/dev/xvda", 
+    "VirtualizationType": "hvm", 
+    "Tags": [
+        {
+            "Value": "CompileLambda", 
+            "Key": "Name"
+        }
+    ], 
+    "AmiLaunchIndex": 0
+}

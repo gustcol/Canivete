@@ -1,0 +1,46 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "cloudtrail:DescribeTrails",
+                "cloudtrail:GetTrailStatus",
+                "cloudtrail:StartLogging"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "iam:PutUserPolicy"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Action": [
+                "dynamodb:CreateTable",
+                "dynamodb:DescribeTable",
+                "dynamodb:GetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem",
+                "dynamodb:UpdateTable",
+                "dynamodb:PutItem"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:dynamodb:us-east-1:account-id:table/cweCloudTrailLog"
+        }
+    ]
+}

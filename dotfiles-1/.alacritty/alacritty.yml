@@ -1,0 +1,147 @@
+env:
+  TERM: xterm-256color
+  WINIT_X11_SCALE_FACTOR: "1"
+
+window:
+  dimensions:
+    columns: 80
+    lines: 24
+
+  padding:
+    x: 10
+    y: 10
+
+  dynamic_padding: false
+
+  decorations: full
+
+  startup_mode: Windowed
+
+scrolling:
+  history: 2500
+  multiplier: 3
+
+font:
+  normal:
+    family: Hack
+    style: Regular
+
+  bold:
+    family: Hack
+    style: Bold
+
+  italic:
+    family: Hack
+    style: Italic
+
+  bold_italic:
+    family: Hack
+    style: Bold Italic
+
+  size: 9.5
+
+  offset:
+    x: 0
+    y: 0
+
+  glyph_offset:
+    x: 0
+    y: 0
+
+draw_bold_text_with_bright_colors: true
+
+# Oxide colors
+colors:
+  primary:
+    background: '#212121'
+    foreground: '#c0c5ce'
+    bright_foreground: '#f3f4f5'
+
+  cursor:
+    text: '#212121'
+    cursor: '#c0c5ce'
+
+  normal:
+    black:   '#212121'
+    red:     '#e57373'
+    green:   '#a6bc69'
+    yellow:  '#fac863'
+    blue:    '#6699cc'
+    magenta: '#c594c5'
+    cyan:    '#5fb3b3'
+    white:   '#c0c5ce'
+
+  bright:
+    black:   '#5c5c5c'
+    red:     '#e57373'
+    green:   '#a6bc69'
+    yellow:  '#fac863'
+    blue:    '#6699cc'
+    magenta: '#c594c5'
+    cyan:    '#5fb3b3'
+    white:   '#f3f4f5'
+
+  indexed_colors: []
+
+visual_bell:
+  animation: EaseOutExpo
+  duration: 0
+  color: '#ffffff'
+
+background_opacity: 1.0
+
+selection:
+  semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
+  save_to_clipboard: false
+
+dynamic_title: true
+
+cursor:
+  style: Block
+  unfocused_hollow: true
+
+live_config_reload: false
+
+working_directory: None
+
+alt_send_esc: true
+
+mouse:
+  double_click: { threshold: 300 }
+  triple_click: { threshold: 300 }
+
+  hide_when_typing: false
+
+  url:
+    launcher:
+      program: xdg-open
+
+    modifiers: None
+
+mouse_bindings:
+  - { mouse: Middle, action: PasteSelection }
+
+key_bindings:
+  - { key: V,        mods: Control|Shift, action: Paste            }
+  - { key: C,        mods: Control|Shift, action: Copy             }
+  - { key: Insert,   mods: Shift,         action: PasteSelection   }
+  - { key: Key0,     mods: Control,       action: ResetFontSize    }
+  - { key: Equals,   mods: Control,       action: IncreaseFontSize }
+  - { key: Add,      mods: Control,       action: IncreaseFontSize }
+  - { key: Subtract, mods: Control,       action: DecreaseFontSize }
+  - { key: Minus,    mods: Control,       action: DecreaseFontSize }
+  - { key: Return,   mods: Alt,           action: ToggleFullscreen }
+  - { key: Paste,                         action: Paste            }
+  - { key: Copy,                          action: Copy             }
+  - { key: L,        mods: Control,       action: ClearLogNotice   }
+  - { key: L,        mods: Control,       chars: "\x0c"            }
+  - { key: PageUp,   mods: Shift,         action: ScrollPageUp,   mode: ~Alt }
+  - { key: PageDown, mods: Shift,         action: ScrollPageDown, mode: ~Alt }
+  - { key: Home,     mods: Shift,         action: ScrollToTop,    mode: ~Alt }
+  - { key: End,      mods: Shift,         action: ScrollToBottom, mode: ~Alt }
+
+debug:
+  render_timer: false
+  persistent_logging: false
+  log_level: Warn
+  print_events: false

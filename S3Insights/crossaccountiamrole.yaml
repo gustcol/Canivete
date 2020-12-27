@@ -1,0 +1,38 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: S3Insights crossaccount IAM role stack
+Parameters:
+  DeploymentName:
+      Type: String
+      Default: s3-insights
+  HostAccountID:
+    Type: String
+    MinLength: '12'
+
+Resources:
+  S3InsightsCrossAccountRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${DeploymentName}-cross-account-iam-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${HostAccountID}:root
+          Action: sts:AssumeRole
+      Path: "/"
+      Policies: 
+        - PolicyName: 'CorePermissions'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Action:
+              - s3:ListAllMyBuckets
+              - s3:ListBucket
+              - s3:GetBucketLocation
+              - s3:PutInventoryConfiguration
+              - s3:GetInventoryConfiguration
+              Effect: Allow
+              Resource: "*"
+

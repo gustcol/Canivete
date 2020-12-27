@@ -1,0 +1,42 @@
+##### 3rd party app / OS generated files #####
+.DS_Store
+.Spotlight*
+.idea
+.vagrant
+*.db
+*.pid
+*.swp
+
+##### Build / Cache / Dependencies #####
+.pytest_cache/**
+*.egg
+*.egg-info
+*.py[cod]
+*.so
+AUTHORS
+ChangeLog
+dist
+node_modules/**
+
+##### IDE / Text Editor related files #####
+.idea
+.vagrant
+.#*
+*~
+\#*
+
+##### Private Plugins #####
+plugins/private/**
+!plugins/private/README.rst
+
+##### Docs #####
+docs/build/**
+frontend/docs/**
+
+##### Logs #####
+*.log
+
+##### Certificates #####
+*.crt
+*.pem
+*.key

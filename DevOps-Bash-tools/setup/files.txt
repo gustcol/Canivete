@@ -1,0 +1,49 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-10-10 17:42:54 +0100 (Thu, 10 Oct 2019)
+#
+#  https://github.com/harisekhon/devops-bash-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                            C o n f i g   F i l e s
+# ============================================================================ #
+
+# Files to link to $HOME, one per line
+
+.ansible.cfg
+.athenacli/athenaclirc
+.aws/shell/awsshellrc
+.aws_customize_environment
+.Codefresh/cli-config/config.yaml
+.config/flake8
+.config/htop/htoprc
+.config/pycodestyle
+.customize_environment
+.editorconfig
+.gemrc
+.git-templates/git-secrets/hooks/*
+.gitconfig
+.gitignore
+.inputrc
+.mdlrc
+.my.cnf
+.perlcriticrc
+.perlcritic_forbidden_modules
+.psqlrc
+.pylintrc
+.rabbitmqadmin.conf
+.sawsrc
+.screenrc
+.sdkman/etc/config
+.sqliterc
+.tmux.conf
+.toprc
+.vimrc
+.Xdefaults
+.Xmodmap
+scalastyle_config.xml

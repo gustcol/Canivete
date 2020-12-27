@@ -1,0 +1,197 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "OwnerArn": {
+      "Type": "String",
+      "Description": "The arn of the owner for buckets etc"
+    }
+  },
+  "Resources": {
+    "FunctionCodeBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "DependsOn": [
+        "FunctionCodeBucket"
+      ],
+      "Properties": {
+        "Bucket": {
+          "Ref": "FunctionCodeBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "*",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "FunctionCodeBucket"
+                    }
+                  ]
+                ]
+              },
+              "Principal": {
+                "AWS": [
+                  {
+                    "Ref": "OwnerArn"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "TemplateCodeBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "DependsOn": [
+        "TemplateCodeBucket"
+      ],
+      "Properties": {
+        "Bucket": {
+          "Ref": "TemplateCodeBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "*",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "TemplateCodeBucket"
+                    }
+                  ]
+                ]
+              },
+              "Principal": {
+                "AWS": [
+                  {
+                    "Ref": "OwnerArn"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ApiCodeBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "DependsOn": [
+        "ApiCodeBucket"
+      ],
+      "Properties": {
+        "Bucket": {
+          "Ref": "ApiCodeBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "*",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "ApiCodeBucket"
+                    }
+                  ]
+                ]
+              },
+              "Principal": {
+                "AWS": [
+                  {
+                    "Ref": "OwnerArn"
+                  }
+                ]
+              }
+            },
+            {
+              "Sid":"PublicApiAccess",
+              "Effect":"Allow",
+              "Principal": "*",
+              "Action":["s3:GetObject"],
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "ApiCodeBucket"
+                    },
+                    "/*",
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FunctionCodeBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "BucketOwnerFullControl"
+      }
+    },
+    "TemplateCodeBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "BucketOwnerFullControl"
+      }
+    },
+    "ApiCodeBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties" : {
+         "AccessControl" : "PublicRead",
+         "WebsiteConfiguration" : {
+            "IndexDocument" : "swagger.json"
+         }
+      }
+    }
+  },
+  "Outputs": {
+    "SpaceCrabFunctionCodeBucket": {
+      "Description": "The name of the s3 bucket to upload code to",
+      "Value": {
+        "Ref": "FunctionCodeBucket"
+      },
+      "Export": {
+        "Name": "SpaceCrabFunctionCodeBucket"
+      }
+    },
+    "SpaceCrabTemplateCodeBucket": {
+      "Description": "The name of the s3 bucket to upload cloudformation templates to",
+      "Value": {
+        "Ref": "TemplateCodeBucket"
+      },
+      "Export": {
+        "Name": "SpaceCrabTemplateCodeBucket"
+      }
+    },
+    "SpaceCrabApiCodeBucket": {
+      "Description": "The name of the s3 bucket to upload swagger JSON to",
+      "Value": {
+        "Ref": "ApiCodeBucket"
+      },
+      "Export": {
+        "Name": "SpaceCrabApiCodeBucket"
+      }
+    },
+    "SpaceCrabApiCodeBucketUrl": {
+      "Description": "The website URL for the API bucket",
+      "Value": { "Fn::GetAtt" : [ "ApiCodeBucket", "WebsiteURL" ] },
+      "Export": {
+        "Name": "SpaceCrabApiUrl"
+      }
+    },
+  }
+}

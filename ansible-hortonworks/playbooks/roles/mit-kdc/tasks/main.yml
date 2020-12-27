@@ -1,0 +1,79 @@
+---
+- name: Load variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_os_family|lower }}-{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_os_family|lower }}-{{ ansible_distribution|lower }}.yml"
+        - "{{ ansible_os_family|lower }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_os_family|lower }}.yml"
+        - defaults.yml
+      paths:
+        - ../vars
+
+- name: Install MIT KDC packages
+  package:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items: "{{ kdc_packages }}"
+
+- name: Create the KDC database for realm {{ security_options.realm | upper }}
+  shell: "{{ kdc_init_command }} -r {{ security_options.realm | upper }} -P {{ security_options.kdc_master_key }}"
+  args:
+    creates: "{{ kdc_database_file }}"
+  notify: Restart krb5
+
+- name: Upload the KDC configuration file
+  template:
+    src: kdc.conf.j2
+    dest: "{{ kdc_config_file }}"
+    mode: 0600
+    force: yes
+  notify: Restart krb5
+
+- meta: flush_handlers
+
+- name: Add the admin principal for realm {{ security_options.realm | upper }}
+  shell: "{{ kadmin_command }} -q \"add_principal -pw {{ security_options.admin_password }} {{ security_options.admin_principal }}/admin@{{ security_options.realm | upper }}\""
+  register: addprinc_result
+
+- name: Fail if the admin principal could not be created
+  fail:
+    msg: The admin principal could not be created. Error is {{ addprinc_result.stderr }}
+  when: addprinc_result is failed or not (addprinc_result.stdout is search("Principal .* created") or addprinc_result.stderr is search("Principal or policy already exists while creating"))
+
+- name: Set the ACL for the admin user
+  lineinfile:
+    path: "{{ kdc_acl_file }}"
+    regexp: "^\\*/admin@{{ security_options.realm | upper }}.*"
+    line: "*/admin@{{ security_options.realm | upper }}  *"
+    insertbefore: EOF
+    state: present
+    create: yes
+    mode: 0600
+  notify: Restart kadmin
+
+- meta: flush_handlers
+
+- name: Make sure the kdc service is started
+  service:
+    name: "{{ kdc_service_name }}"
+    state: started
+
+- name: Make sure the kdc service is enabled
+  service:
+    name: "{{ kdc_service_name }}"
+    enabled: yes
+  ignore_errors: true
+
+- name: Make sure the kadmin service is started
+  service:
+    name: "{{ kadmin_service_name }}"
+    state: started
+
+- name: Make sure the kadmin service is enabled
+  service:
+    name: "{{ kadmin_service_name }}"
+    enabled: yes
+  ignore_errors: true

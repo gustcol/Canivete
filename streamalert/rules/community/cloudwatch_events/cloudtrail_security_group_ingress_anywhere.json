@@ -1,0 +1,146 @@
+[
+  {
+    "data": {
+      "account": 12345,
+      "detail": {
+        "awsRegion": "...",
+        "eventID": "...",
+        "eventName": "AuthorizeSecurityGroupIngress",
+        "eventSource": "ec2.amazonaws.com",
+        "eventTime": "2017-10-11T17:02:32Z",
+        "eventType": "AwsApiCall",
+        "eventVersion": "1.05",
+        "recipientAccountId": "12345",
+        "requestID": "...",
+        "requestParameters": {
+          "groupId": "...",
+          "ipPermissions": {
+            "items": [
+              {
+                "groups": {},
+                "ipProtocol": "-1",
+                "ipRanges": {
+                  "items": [
+                    {
+                      "cidrIp": "0.0.0.0/0",
+                      "description": "..."
+                    }
+                  ]
+                },
+                "ipv6Ranges": {
+                  "items": [
+                    {
+                      "cidrIpv6": "::/0",
+                      "description": "..."
+                    }
+                  ]
+                },
+                "prefixListIds": {}
+              }
+            ]
+          }
+        },
+        "responseElements": {
+          "_return": true
+        },
+        "sourceIPAddress": "...",
+        "userAgent": "console.ec2.amazonaws.com",
+        "userIdentity": {
+          "accessKeyId": "...",
+          "accountId": "12345",
+          "arn": "...",
+          "principalId": "...",
+          "sessionContext": {
+            "attributes": {
+              "creationDate": "2017-10-11T16:57:31Z",
+              "mfaAuthenticated": "false"
+            }
+          },
+          "type": "IAMUser",
+          "userName": "..."
+        }
+      },
+      "detail-type": "...",
+      "id": "12345",
+      "region": "...",
+      "resources": [],
+      "source": "...",
+      "time": "...",
+      "version": "1.05"
+    },
+    "description": "A Security Group that allows ingress from anywhere on the internet should create an alert.",
+    "log": "cloudwatch:events",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "trigger_rules": [
+      "cloudtrail_security_group_ingress_anywhere"
+    ]
+  },
+  {
+    "data": {
+      "account": 12345,
+      "detail": {
+        "awsRegion": "...",
+        "eventID": "...",
+        "eventName": "AuthorizeSecurityGroupIngress",
+        "eventSource": "ec2.amazonaws.com",
+        "eventTime": "2017-10-11T17:02:32Z",
+        "eventType": "AwsApiCall",
+        "eventVersion": "1.05",
+        "recipientAccountId": "12345",
+        "requestID": "...",
+        "requestParameters": {
+          "groupId": "...",
+          "ipPermissions": {
+            "items": [
+              {
+                "groups": {},
+                "ipProtocol": "-1",
+                "ipRanges": {
+                  "items": [
+                    {
+                      "cidrIp": "10.0.0.0/8",
+                      "description": "..."
+                    }
+                  ]
+                },
+                "prefixListIds": {}
+              }
+            ]
+          }
+        },
+        "responseElements": {
+          "_return": true
+        },
+        "sourceIPAddress": "...",
+        "userAgent": "console.ec2.amazonaws.com",
+        "userIdentity": {
+          "accessKeyId": "...",
+          "accountId": "12345",
+          "arn": "...",
+          "principalId": "...",
+          "sessionContext": {
+            "attributes": {
+              "creationDate": "2017-10-11T16:57:31Z",
+              "mfaAuthenticated": "false"
+            }
+          },
+          "type": "IAMUser",
+          "userName": "..."
+        }
+      },
+      "detail-type": "...",
+      "id": "12345",
+      "region": "...",
+      "resources": [],
+      "source": "...",
+      "time": "...",
+      "version": "1.05"
+    },
+    "description": "A Security Group that allows ingress from an RFC1918 IP should not create an alert.",
+    "log": "cloudwatch:events",
+    "service": "kinesis",
+    "source": "prefix_cluster1_streamalert",
+    "trigger_rules": []
+  }
+]

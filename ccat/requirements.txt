@@ -1,0 +1,6 @@
+boto3
+docker
+PyInquirer
+pyfiglet
+fire
+tabulate

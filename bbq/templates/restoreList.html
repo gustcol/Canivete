@@ -1,0 +1,93 @@
+{% extends "bbq-menu.html" %}
+{% block main %}
+{% from "macros/restore-target-information.html" import build_target_information with context %}
+{% from "macros/restore-options.html" import build_options with context %}
+
+    <h2>Restore custom backup list</h2>
+    <script type="text/javascript">
+        function OnSubmitForm() {
+            let params = {
+                'isRestoreToSourceProject': document.getElementById('isRestoreToSourceProject').value ==='true',
+                'targetDatasetId': document.getElementById('targetDatasetId').value === ''
+                    ? null : document.restoreListForm.targetDatasetId.value,
+                'createDisposition': document.restoreListForm.createDisposition.value,
+                'writeDisposition': document.restoreListForm.writeDisposition.value
+            };
+            let url = '/restore/list?' + encodeQueryData(params);
+            let xhttp = new XMLHttpRequest();
+
+            xhttp.open("POST", url, true);
+            xhttp.timeout = 1000 * 3600;
+            xhttp.onload = function () {
+                document.getElementById("response").innerHTML = JSON.stringify(
+                    JSON.parse(xhttp.responseText), undefined, 2);
+                makeUrlsClickable();
+
+            };
+            xhttp.ontimeout = function (e) {
+                document.getElementById("response").innerHTML = "Request timeout: " + e;
+            };
+
+            xhttp.send(document.restoreListForm.requestBody.value);
+
+            return false;
+        }
+    </script>
+
+    <form name="restoreListForm" onsubmit="return OnSubmitForm();">
+
+        <div class="form-group row">
+            <div class="col">
+                <h4>Target table information</h4>
+            </div>
+        </div>
+        {{ build_target_information() }}
+
+        {{ build_options() }}
+        <div class="form-group row">
+            <div class="col">
+                <h4>Body</h4>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="requestBody" class="col-sm-2 col-form-label">
+                Backups list
+            </label>
+            <div class="input-group col-sm-8">
+                <textarea class="form-control" id="requestBody" name="requestBody"
+                        rows="12" cols="100" required>[
+  {
+    "backupUrlSafeKey" : "ahFlfmRldi1wcm9qZWN0LPPicXIlCxIFVGFibGUYgICAkOaLgAgMCxIGQmFja3VwGICAgICAgJJJJA"
+  },
+  {
+    "backupUrlSafeKey" : "ahFlfmRldi1wcm9qZWN0LWJicXIlCxIFVGFibGUYgICAkJOlgAgMCxIGQmFja3VwGICAgICAgIAKDA"
+  }
+]</textarea>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label"></label>
+            <div class="input-group col-sm-8">
+                <small id="requestBodyHelp" class="form-text text-muted">
+                    backupUrlSafeKey is a "URL-safe key" value taken from
+                    <a
+                    href="https://console.cloud.google.com/datastore/entities/query?kind=Backup">
+                    Cloud Datastore Backup entities</a>
+                </small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary">
+                    Restore list of backups
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <br><strong>Response:</strong> <br>
+    <pre id="response"></pre>
+
+{% endblock %}

@@ -1,0 +1,150 @@
+{
+  "eventVersion": "1.03", 
+  "eventID": "5b2076f2-0868-4645-996f-c5b9ca083f92", 
+  "eventTime": "2016-02-11T19:22:59Z", 
+  "requestParameters": {
+    "policyName": "SSLNegotiationPolicy", 
+    "loadBalancerName": "capione-test", 
+    "policyAttributes": [
+      {
+        "attributeName": "Protocol-TLSv1", 
+        "attributeValue": "True"
+      }, 
+      {
+        "attributeName": "Protocol-SSLv2", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "Protocol-SSLv3", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "Protocol-TLSv1.1", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "Protocol-TLSv1.2", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "Server-Defined-Cipher-Order", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-ECDSA-AES128-GCM-SHA256", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-RSA-AES128-GCM-SHA256", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-ECDSA-AES128-SHA256", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-RSA-AES128-SHA256", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-ECDSA-AES128-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-RSA-AES128-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "DHE-RSA-AES128-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-ECDSA-AES256-GCM-SHA384", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-RSA-AES256-GCM-SHA384", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-ECDSA-AES256-SHA384", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-RSA-AES256-SHA384", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-RSA-AES256-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "ECDHE-ECDSA-AES256-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "AES128-GCM-SHA256", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "AES128-SHA256", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "AES128-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "AES256-GCM-SHA384", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "AES256-SHA256", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "AES256-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "DHE-DSS-AES128-SHA", 
+        "attributeValue": "true"
+      }, 
+      {
+        "attributeName": "DES-CBC3-SHA", 
+        "attributeValue": "true"
+      }
+    ], 
+    "policyTypeName": "SSLNegotiationPolicyType"
+  }, 
+  "eventType": "AwsApiCall", 
+  "responseElements": null, 
+  "awsRegion": "us-east-1", 
+  "eventName": "CreateLoadBalancerPolicy", 
+  "userIdentity": {
+    "principalId": "globalgook:userid", 
+    "accessKeyId": "notasecret", 
+    "invokedBy": "cloudformation.amazonaws.com", 
+    "sessionContext": {
+      "sessionIssuer": {
+        "userName": "DeveloperRole", 
+        "type": "Role", 
+        "arn": "arn:aws::sts:101010101111:assumed-role/UserRole/userid", 
+        "principalId": "AROAIERCO4YMBWJY27BKU", 
+        "accountId": "101010101111"
+      }, 
+      "attributes": {
+        "creationDate": "2016-02-11T18:43:46Z", 
+        "mfaAuthenticated": "false"
+      }
+    }, 
+    "type": "AssumedRole", 
+    "arn": "arn:aws::sts:101010101111:assumed-role/UserRole/userid", 
+    "accountId": "101010101111"
+  }, 
+  "eventSource": "elasticloadbalancing.amazonaws.com", 
+  "requestID": "dc60b17e-d0f4-11e5-bcba-335fd35ccb38", 
+  "userAgent": "cloudformation.amazonaws.com", 
+  "sourceIPAddress": "192.168.1.2", 
+  "recipientAccountId": "101010101111"
+}

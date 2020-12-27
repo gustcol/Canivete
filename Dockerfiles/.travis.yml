@@ -1,0 +1,97 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2014-11-29 01:02:47 +0000 (Sat, 29 Nov 2014)
+#
+#  https://github.com/harisekhon/Dockerfiles
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#  to help improve or steer this or other code I publish
+#
+#  http://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                               T r a v i s   C I
+# ============================================================================ #
+
+# https://docs.travis-ci.com/user/customizing-the-build/
+
+version: ~> 1.0
+
+# =============================================
+# https://docs.travis-ci.com/user/build-matrix/
+# https://docs.travis-ci.com/user/build-stages/matrix-expansion/
+matrix:
+  include:
+
+    # https://docs.travis-ci.com/user/multi-os/
+    - os: linux
+      # https://docs.travis-ci.com/user/languages/python/
+      language: python
+      python: "2.7"
+
+    - os: linux
+      language: python
+      python: "3.7"
+
+    # GitHub Workflows has better badged stratification at a glance
+    #- os: linux
+    #  dist: trusty
+    #  language: python
+    #  python: "2.7"
+
+    # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
+    - os: osx
+      language: generic
+      # https://docs.travis-ci.com/user/reference/osx/
+      # macOS 10.15.7 - otherwise defaults to Mac macOS 10.13 with xcode9.4 otherwise - and HomeBrew update takes 50 minutes until the build times out :-/
+      osx_image: xcode12.2
+
+# ======================================================
+# https://docs.travis-ci.com/user/environment-variables/
+#env:
+#  - DEBUG=1
+
+# ==============================================
+# https://docs.travis-ci.com/user/notifications/
+notifications:
+  email: false
+
+# =================================================================================
+# https://docs.travis-ci.com/user/customizing-the-build/#building-specific-branches
+# https://docs.travis-ci.com/user/conditional-builds-stages-jobs
+#branches:
+#  only:
+#    - master
+
+# ========================================
+# https://docs.travis-ci.com/user/caching/
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+cache:
+  - pip
+  - directories:
+    - $HOME/.cache
+    - $HOME/.cpan
+    - $HOME/.cpanm
+    - $HOME/.gem
+    - bash-tools/pytools_checks
+
+# ==============================================
+# https://docs.travis-ci.com/user/job-lifecycle/
+
+# avoid package checksum mismatches when installing packages
+before_install:
+  - sudo rm -f "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
+  - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
+
+install:
+  - echo nothing to install
+
+script:
+  - travis_retry make test

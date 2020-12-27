@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="e5abcae2-bee5-41c8-9e43-33ccfd28178c" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>DevOps Bash tools</name>
+  <description>550+ DevOps Bash Scripts - AWS, GCP, Kubernetes, Kafka, Docker, APIs, Hadoop, SQL, PostgreSQL, MySQL, Hive, Impala, Travis CI, Jenkins, Concourse, GitHub, GitLab, BitBucket, Azure DevOps, Spotify, MP3, LDAP, Code/Build Linting, package management for Linux, Mac, Python, Perl, Ruby, NodeJS, Golang, Advanced Config dotfiles: .bashrc, .vimrc, .gitconfig, .screenrc, .tmux.conf, .psqlrc ...</description>
+  <settings ref="HariSekhon_Make">
+    <options>
+      <option name="branchFilter" value="" />
+    </options>
+    <parameters />
+    <build-runners order="RUNNER_0, RUNNER_1, RUNNER_2" />
+    <vcs-settings>
+      <vcs-entry-ref root-id="DevOpsBashTools" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers />
+    <cleanup />
+  </settings>
+</build-type>
+

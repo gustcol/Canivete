@@ -1,0 +1,29 @@
+# Sphinx build directory
+docs/build
+
+# Compiled Python files
+*.pyc
+__pycache__
+
+# Terraform files
+streamalert_cli/_infrastructure/.terraform/
+streamalert_cli/_infrastructure/terraform.tfvars
+streamalert_cli/_infrastructure/terraform.tfstate*
+streamalert_cli/_infrastructure/*.zip
+streamalert_cli/_infrastructure/*.tf.json
+
+# Coveralls repo token
+.coveralls.yml
+
+# nose coverage file
+.coverage
+
+# virtualenv files in root of repo
+/venv
+
+# Vagrant VM artifacts
+ubuntu*.log
+/.vagrant
+
+# Coverage artifacts
+/htmlcov

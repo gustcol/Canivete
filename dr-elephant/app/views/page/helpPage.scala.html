@@ -1,0 +1,43 @@
+@(title: String)(content: Html)
+  @import com.linkedin.drelephant.analysis.Metrics;
+
+  @newmain("Dr Elephant", "help") {
+
+    <div class="history-top">
+      <table width="100%">
+        <tr>
+          <td style="width:23%" valign="top">
+            <div class="box shadow details-container help-menu">
+              <h4>Topics</h4>
+              <hr class="horizontal-line">
+              <div class="list-group-item-heading">METRICS</div>
+              <a href="@routes.Application.help()?topic=@Metrics.USED_RESOURCES.getText()">Used Resources</a><br>
+              <a href="@routes.Application.help()?topic=@Metrics.WASTED_RESOURCES.getText()">Wasted Resources</a><br>
+              <a href="@routes.Application.help()?topic=@Metrics.RUNTIME.getText()">Run Time</a><br>
+              <a href="@routes.Application.help()?topic=@Metrics.WAIT_TIME.getText()">Wait Time</a><br>
+            </br>
+              @for((appTypeName, heuristicList) <- com.linkedin.drelephant.ElephantContext.instance().getAllHeuristicNames()) {
+                <div class="list-group-item-heading">@appTypeName</div>
+                @for(heuristic <- heuristicList) {
+                  <a href="@routes.Application.help()?topic=@helper.urlEncode(heuristic)">@heuristic</a> <br>
+                  }
+              </br>
+              }
+
+              <a href="@routes.Application.help()?topic=@helper.urlEncode(com.linkedin.drelephant.analysis.HeuristicResult.NO_DATA.getHeuristicName)">@com.linkedin.drelephant.analysis.HeuristicResult.NO_DATA.getHeuristicName</a><br>
+            </div>
+          </td>
+          <td style="width:77%" valign="top">
+            <div class="box shadow details-container help-details">
+              <h4>@title</h4>
+              <hr class="horizontal-line">
+              @if(content == null) {
+                <p style="width:100%">Please select a topic</p>
+              }
+              @content
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  }

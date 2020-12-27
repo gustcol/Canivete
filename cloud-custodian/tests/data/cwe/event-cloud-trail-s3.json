@@ -1,0 +1,44 @@
+{
+  "source": "aws.s3", 
+  "account": "101010101111", 
+  "time": "2015-11-23T07:45:25Z", 
+  "id": "3603e3ef-985e-487a-a85b-f4144102544b", 
+  "region": "us-east-1", 
+  "detail": {
+    "eventVersion": "1.03", 
+    "eventID": "80486b96-9f31-441e-b4e2-b85a4e520a07", 
+    "responseElements": null, 
+    "eventType": "AwsApiCall", 
+    "eventSource": "s3.amazonaws.com", 
+    "requestID": "018A74440EEDDFE4", 
+    "userAgent": "[S3Console/0.4]", 
+    "eventTime": "2015-11-23T07:45:25Z", 
+    "requestParameters": {
+      "bucketName": "cwe-test"
+    }, 
+    "awsRegion": "us-east-1", 
+    "eventName": "CreateBucket", 
+    "userIdentity": {
+      "sessionContext": {
+        "sessionIssuer": {
+          "userName": "Sandbox_Dev", 
+          "type": "Role", 
+          "principalId": "AROAJCZT7HI7JILHGR6JS", 
+          "arn": "arn:aws:iam::101010101111:role/Sandbox_Dev", 
+          "accountId": "101010101111"
+        }, 
+        "attributes": {
+          "creationDate": "2015-11-23T07:41:28Z", 
+          "mfaAuthenticated": "false"
+        }
+      }, 
+      "type": "AssumedRole", 
+      "principalId": "AROAJCZT7HI7JILHGR6JS:user", 
+      "arn": "arn:aws:sts::101010101111:assumed-role/Sandbox_Dev/user", 
+      "accountId": "101010101111"
+    }, 
+    "sourceIPAddress": "101.244.214.105"
+  }, 
+  "resources": [], 
+  "detail-type": "AWS API Call via CloudTrail"
+}

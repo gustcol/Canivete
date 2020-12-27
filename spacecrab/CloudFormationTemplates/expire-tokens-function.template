@@ -1,0 +1,179 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "FunctionDatabaseUser": {
+      "Type": "String",
+      "Description": "The username lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The password lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "IamTokenUserPath": {
+      "Type": "String",
+      "Description": "The path to use for token IAM users",
+      "NoEcho": "true"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "TokenDatabaseAddress": {
+      "Type": "String",
+      "Description": "The address of the database where token metadata is stored"
+    },
+    "TokenDatabasePort": {
+      "Type": "Number",
+      "Description": "The port of the database where token metadata is stored"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "TokenGroup": {
+      "Type": "String",
+      "Description": "The group token users belong to"
+    }
+  },
+  "Resources": {
+    "LambdaExpireTokensFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "ExpireTokensFunction",
+        "Description": "Deletes all users and tokens that outlive their expiry timestamp",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "ExpireTokensFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {
+            "HONEY_TOKEN_USER_PATH": {
+              "Ref": "IamTokenUserPath"
+            },
+            "HONEY_PATH": {
+              "Ref": "IamPath"
+            },
+            "FUNCTION_DATABASE_USER": {
+              "Ref": "FunctionDatabaseUser"
+            },
+            "ENCRYPTED_DATABASE_PASSWORD": {
+              "Ref": "EncryptedFunctionDatabasePassword"
+            },
+            "TOKEN_DATABASE_ADDRESS": {
+              "Ref": "TokenDatabaseAddress"
+            },
+            "TOKEN_DATABASE_PORT": {
+              "Ref": "TokenDatabasePort"
+            },
+            "TOKEN_GROUP": {
+              "Ref": "TokenGroup"
+            }
+          }
+        },
+        "Timeout": 30,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    },
+    "ExpireTokensEventRule": {
+      "Type": "AWS::Events::Rule",
+      "DependsOn": [
+        "LambdaExpireTokensFunction"
+      ],
+      "Description": "Regularly invokes lambda to deactive expired honey tokens",
+      "Properties": {
+        "ScheduleExpression": "rate(6 hours)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Id": "ExpireTokensScheduler",
+            "Arn": {
+              "Fn::GetAtt": [
+                "LambdaExpireTokensFunction",
+                "Arn"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "ExpireTokensLambdaPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "LambdaExpireTokensFunction",
+        "ExpireTokensEventRule"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "ExpireTokensEventRule",
+            "Arn"
+          ]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaExpireTokensFunction",
+            "Arn"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaExpireTokensFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaExpireTokensFunction",
+          "Arn"
+        ]
+      },
+      "Description": "LambdaExpireTokensFunction ARN"
+    }
+  }
+}

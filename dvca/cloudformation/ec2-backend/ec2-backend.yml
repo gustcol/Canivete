@@ -1,0 +1,134 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Provision the Damn Vulnerable Cloud Application's EC2 Backend
+
+Parameters:
+  DomainName:
+    Type: String
+  Certificate:
+    Type: String
+  HostedZoneId:
+    Type: String
+
+Resources:
+  Ec2Backend:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+          - yum:
+              docker: []
+    Properties:
+      ImageId: ami-04681a1dbd79675a5
+      InstanceType: t2.nano
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeSize: 8
+          VolumeType: gp2
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      SecurityGroupIds:
+      - !Ref Ec2BackendSecurityGroup
+      SubnetId: !ImportValue DVCA-SubnetNatAZ0
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+      UserData:
+        "Fn::Base64": !Sub |
+          #!/bin/bash
+
+          yum install -y docker
+          service docker start
+
+          export CONTAINER_NAME=dvca-backent
+
+          #Use AWS IAM to pull the ECR container
+          $(aws ecr get-login --no-include-email --region ${AWS::Region})
+
+          docker pull ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dvca-fargate-backend
+          docker rm $CONTAINER_NAME || true
+          docker run --name $CONTAINER_NAME -p 80:80 -d --restart=always ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dvca-fargate-backend
+
+          docker rm $CONTAINER_NAME
+
+  Ec2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+      - !Ref DVCAExecutionRole
+
+  DVCAExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: "Allow"
+          Principal:
+            Service: ec2.amazonaws.com
+          Action:
+          - "sts:AssumeRole"
+      Policies:
+      - PolicyName: !Sub ${AWS::StackName}-DVCAExecutionPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - ecr:GetAuthorizationToken
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchGetImage
+            - logs:Create*
+            - logs:Put*
+            Resource: '*'
+
+  APIDomain:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub ec2-api.${DomainName}
+      Type: CNAME
+      TTL: '300'
+      ResourceRecords:
+      - !ImportValue DVCA-ApplicationLoadBalancerDns
+
+  Ec2BackendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !ImportValue DVCA-VPC
+      GroupDescription: Access to the EC2 Backend only from the ALB
+      SecurityGroupIngress:
+      - SourceSecurityGroupId: !ImportValue DVCA-ApplicationLoadBalancerSecurityGroup
+        IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+
+  DVCATargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !ImportValue DVCA-VPC
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      Targets:
+      - Id: !Ref Ec2Backend
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+
+  HttpListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !ImportValue DVCA-DVCALoadBalancerListenerArn
+      Priority: 1
+      Conditions:
+      - Field: host-header
+        Values:
+        - !Sub ec2-api.${DomainName}
+      Actions:
+      - TargetGroupArn: !Ref DVCATargetGroup
+        Type: forward

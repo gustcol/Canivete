@@ -1,0 +1,9 @@
+---
+- block:
+    - name: Set correct permissions to the http secret key
+      file:
+        path: /etc/security/http_secret
+        owner: hdfs
+        group: hadoop
+        mode: 0440
+  when: security != "none" and security_options.http_authentication|default(false)

@@ -1,0 +1,5 @@
+{
+    "sourcemustmatch":"[10.0.0.0 TO 10.255.255.255]",
+    "sourcemustnotmatch":"10.54.65.234",
+    "destinationmustnotmatch": "*192.168*"
+}

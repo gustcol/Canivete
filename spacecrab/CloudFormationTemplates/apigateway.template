@@ -1,0 +1,593 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "SpaceCrabApiVersion": {
+            "Type": "String",
+            "Default": "v0",
+            "Description": "The path prefix used to construct the API gateway endpoint, used for API versioning. eg http://FQDN/v0/api"
+        },
+        "SpaceCrabCustomFqdn": {
+            "Description": "A custom FQDN for the API gateway. eg spacecrab.example.org",
+            "Default": "",
+            "Type": "String"
+        },
+        "SpaceCrabCustomFqdnAcmArn": {
+            "Description": "An ARN pointing to your Certificate Manager certificate for the SpaceCrab API",
+            "Default": "",
+            "Type": "String"
+        }
+    },
+    "Conditions": {
+      "UseCustomFqdn": {"Fn::Not": [{"Fn::Equals" : [{"Ref" : "SpaceCrabCustomFqdn"}, ""]}]}
+    },
+    "Outputs": {
+        "RootUrl": {
+            "Description": "Root URL of the API gateway",
+            "Value": {
+                "Fn::Sub": "https://${SpaceCrabApi}.execute-api.${AWS::Region}.amazonaws.com/${SpaceCrabApi}/"
+            }
+        }
+    },
+    "Resources": {
+        "LambdaPermissionAddToken": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "FunctionName": {
+                    "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AddTokenFunction"
+                },
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SpaceCrabApi}/*"
+                }
+            }
+        },
+        "LambdaPermissionGetToken": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "FunctionName": {
+                    "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:GetTokenFunction"
+                },
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SpaceCrabApi}/*"
+                }
+            }
+        },
+        "LambdaPermissionUpdateToken": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "FunctionName": {
+                    "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:UpdateTokenFunction"
+                },
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SpaceCrabApi}/*"
+                }
+            }
+        },
+        "LambdaPermissionDeleteToken": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "FunctionName": {
+                    "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteTokenFunction"
+                },
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SpaceCrabApi}/*"
+                }
+            }
+        },
+        "SpaceCrabApiStage": {
+            "DependsOn": [
+                "ApiDeployment"
+            ],
+            "Type": "AWS::ApiGateway::Stage",
+            "Properties": {
+                "DeploymentId": {
+                    "Ref": "ApiDeployment"
+                },
+                "RestApiId": {
+                    "Ref": "SpaceCrabApi"
+                },
+                "StageName": {
+                    "Ref": "SpaceCrabApiVersion"
+                }
+            }
+        },
+        "SpaceCrabCustomDomainBasePathMap": {
+          "Type": "AWS::ApiGateway::BasePathMapping",
+          "DependsOn": [
+              "ApiDeployment"
+          ],
+          "Condition": "UseCustomFqdn",
+          "Properties": {
+            "BasePath": {
+                "Ref": "SpaceCrabApiVersion"
+            },
+            "DomainName": {
+                "Ref": "SpaceCrabCustomDomain"
+            },
+            "RestApiId": {
+                "Ref": "SpaceCrabApi"
+            },
+            "Stage": {
+                "Ref": "SpaceCrabApiStage"
+            }
+          }
+        },
+        "SpaceCrabCustomDomain": {
+          "Type": "AWS::ApiGateway::DomainName",
+          "Condition": "UseCustomFqdn",
+          "Properties": {
+            "DomainName": {
+                "Ref": "SpaceCrabCustomFqdn"
+            },
+            "CertificateArn": {
+                "Ref" : "SpaceCrabCustomFqdnAcmArn"
+            }
+          }
+        },
+        "ApiDeployment": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+                "RestApiId": {
+                    "Ref": "SpaceCrabApi"
+                },
+                "StageName": "DummyStage"
+            }
+        },
+        "ApiUsagePlan": {
+            "Type": "AWS::ApiGateway::UsagePlan",
+            "DependsOn": [
+                "SpaceCrabApi"
+            ],
+            "Properties": {
+                "ApiStages": [
+                    {
+                        "ApiId": {
+                            "Ref": "SpaceCrabApi"
+                        },
+                        "Stage": {
+                            "Ref": "SpaceCrabApiStage"
+                        }
+                    }
+                ],
+                "UsagePlanName": "SpaceCrab_Unlimited"
+            }
+        },
+        "SpaceCrabApi": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+                "Name": "SpaceCrab API",
+                "Description": "API used for SpaceCrab token requests.",
+                "FailOnWarnings": true,
+                "Body" : {
+                  "swagger": "2.0",
+                  "info": {
+                      "description": "[PROJECT SPACECRAB](https://bitbucket.org/asecurityteam/spacecrab), an open source toolset that tips the balance in the right direction by enabling deployments of several thousand AWS honey tokens across your network and on every endpoint you own.",
+                      "version": "0.1.0",
+                      "title": "Spacecrab",
+                      "license": {
+                          "name": "Apache 2.0",
+                          "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+                      }
+                  },
+                  "basePath": "/v0",
+                  "host": { "Ref": "SpaceCrabCustomFqdn" },
+                  "tags": [
+                      {
+                          "name": "token",
+                          "description": "Spacecrab honey tokens"
+                      }
+                  ],
+                  "schemes": [
+                      "https"
+                  ],
+                  "paths": {
+                      "/token/{Location}": {
+                            "get": {
+                              "tags": [
+                                  "token"
+                              ],
+                              "summary": "Get a token for a given environment",
+                              "description": "",
+                              "operationId": "GetTokenByLocation",
+                              "consumes": [
+                                  "application/json"
+                              ],
+                              "produces": [
+                                  "application/json"
+                              ],
+                              "parameters": [
+                                  {
+                                      "in": "path",
+                                      "name": "Location",
+                                      "description": "Token location",
+                                      "required": true,
+                                      "type": "string"
+                                  },
+                                  {
+                                      "in": "query",
+                                      "name": "Owner",
+                                      "description": "Token owner",
+                                      "type": "string"
+                                  }
+                              ],
+                              "responses": {
+                                  "200": {
+                                      "description": "200 response",
+                                      "schema": {
+                                          "$ref": "#/definitions/AddTokenResponse"
+                                      }
+                                  }
+                              },
+                              "security": [
+                                {
+                                  "api_key": []
+                                }
+                              ],
+                              "x-amazon-apigateway-request-validator": "Validate query string parameters and headers",
+                              "x-amazon-apigateway-integration": {
+                                "responses": {
+                                  "default": {
+                                    "statusCode": "200"
+                                  }
+                                },
+                                "requestParameters": {
+                                  "integration.request.querystring.Owner": "method.request.querystring.Owner",
+                                  "integration.request.path.Location": "method.request.path.Location"
+                                },
+                                "uri": {
+                                  "Fn::Sub":  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:GetTokenFunction/invocations"
+                                },
+                                "passthroughBehavior": "when_no_templates",
+                                "httpMethod": "POST",
+                                "contentHandling": "CONVERT_TO_TEXT",
+                                "type": "aws",
+                                "requestTemplates": {
+                                  "application/json": "##  See http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html\n##  This template will pass through all parameters including path, querystring, header, stage variables, and context through to the integration endpoint via the body/payload\n#set($allParams = $input.params())\n{\n\"body-json\" : $input.json('$'),\n\"params\" : {\n#foreach($type in $allParams.keySet())\n    #set($params = $allParams.get($type))\n\"$type\" : {\n    #foreach($paramName in $params.keySet())\n    \"$paramName\" : \"$util.escapeJavaScript($params.get($paramName))\"\n        #if($foreach.hasNext),#end\n    #end\n}\n    #if($foreach.hasNext),#end\n#end\n},\n\"stage-variables\" : {\n#foreach($key in $stageVariables.keySet())\n\"$key\" : \"$util.escapeJavaScript($stageVariables.get($key))\"\n    #if($foreach.hasNext),#end\n#end\n},\n\"context\" : {\n    \"account-id\" : \"$context.identity.accountId\",\n    \"api-id\" : \"$context.apiId\",\n    \"api-key\" : \"$context.identity.apiKey\",\n    \"authorizer-principal-id\" : \"$context.authorizer.principalId\",\n    \"caller\" : \"$context.identity.caller\",\n    \"cognito-authentication-provider\" : \"$context.identity.cognitoAuthenticationProvider\",\n    \"cognito-authentication-type\" : \"$context.identity.cognitoAuthenticationType\",\n    \"cognito-identity-id\" : \"$context.identity.cognitoIdentityId\",\n    \"cognito-identity-pool-id\" : \"$context.identity.cognitoIdentityPoolId\",\n    \"http-method\" : \"$context.httpMethod\",\n    \"stage\" : \"$context.stage\",\n    \"source-ip\" : \"$context.identity.sourceIp\",\n    \"user\" : \"$context.identity.user\",\n    \"user-agent\" : \"$context.identity.userAgent\",\n    \"user-arn\" : \"$context.identity.userArn\",\n    \"request-id\" : \"$context.requestId\",\n    \"resource-id\" : \"$context.resourceId\",\n    \"resource-path\" : \"$context.resourcePath\"\n    }\n}\n"
+                                }
+                              }
+                          }
+                      },
+                      "/token": {
+                          "post": {
+                              "tags": [
+                                  "token"
+                              ],
+                              "summary": "Add a new honey token",
+                              "description": "",
+                              "operationId": "AddToken",
+                              "consumes": [
+                                  "application/json"
+                              ],
+                              "produces": [
+                                  "application/json"
+                              ],
+                              "parameters": [
+                                  {
+                                      "in": "body",
+                                      "name": "body",
+                                      "description": "Token object to be added.",
+                                      "required": true,
+                                      "schema": {
+                                          "$ref": "#/definitions/AddTokenRequest"
+                                      }
+                                  }
+                              ],
+                              "responses": {
+                                  "200": {
+                                      "description": "200 response",
+                                      "schema": {
+                                          "$ref": "#/definitions/AddTokenResponse"
+                                      }
+                                  }
+                              },
+                              "security": [
+                                  {
+                                      "api_key": []
+                                  }
+                              ],
+                              "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                      "default": {
+                                          "statusCode": "200"
+                                      }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AddTokenFunction/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws"
+                              }
+                          },
+                          "put": {
+                              "tags": [
+                                  "token"
+                              ],
+                              "summary": "Update an existing honey token",
+                              "description": "",
+                              "operationId": "UpdateToken",
+                              "consumes": [
+                                  "application/json"
+                              ],
+                              "produces": [
+                                  "application/json"
+                              ],
+                              "parameters": [
+                                  {
+                                      "in": "body",
+                                      "name": "body",
+                                      "description": "Token object to be updated.",
+                                      "required": true,
+                                      "schema": {
+                                          "$ref": "#/definitions/UpdateTokenRequest"
+                                      }
+                                  }
+                              ],
+                              "responses": {
+                                  "200": {
+                                      "description": "200 response",
+                                      "schema": {
+                                          "$ref": "#/definitions/UpdateTokenResponse"
+                                      }
+                                  }
+                              },
+                              "security": [
+                                  {
+                                      "api_key": []
+                                  }
+                              ],
+                              "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                      "default": {
+                                          "statusCode": "200"
+                                      }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:UpdateTokenFunction/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws"
+                              }
+                          },
+                          "delete": {
+                              "tags": [
+                                  "token"
+                              ],
+                              "summary": "Delete an existing honey token",
+                              "description": "",
+                              "operationId": "DeleteToken",
+                              "consumes": [
+                                  "application/json"
+                              ],
+                              "produces": [
+                                  "application/json"
+                              ],
+                              "parameters": [
+                                  {
+                                      "in": "body",
+                                      "name": "body",
+                                      "description": "Token object to be deleted.",
+                                      "required": true,
+                                      "schema": {
+                                          "$ref": "#/definitions/DeleteTokenRequest"
+                                      }
+                                  }
+                              ],
+                              "responses": {
+                                  "200": {
+                                      "description": "200 response",
+                                      "schema": {
+                                          "$ref": "#/definitions/DeleteTokenResponse"
+                                      }
+                                  }
+                              },
+                              "security": [
+                                  {
+                                      "api_key": []
+                                  }
+                              ],
+                              "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                      "default": {
+                                          "statusCode": "200"
+                                      }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteTokenFunction/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws"
+                              }
+                          }
+                      }
+                  },
+
+                  "securityDefinitions": {
+                      "api_key": {
+                          "type": "apiKey",
+                          "name": "x-api-key",
+                          "in": "header",
+                          "description": "An AWS API Gateway API Key"
+                      }
+                  },
+                  "definitions": {
+                      "Empty": {
+                          "type": "object",
+                          "title": "Empty Schema"
+                      },
+                      "AddTokenRequest": {
+                          "type": "object",
+                          "required": [
+                              "Owner",
+                              "Location",
+                              "ExpiresAt",
+                              "Notes"
+                          ],
+                          "properties": {
+                              "Owner": {
+                                  "type": "string",
+                                  "description": "Example: \"Jane Smith\""
+                              },
+                              "Location": {
+                                  "type": "string",
+                                  "description": "Example: \"Production web server\""
+                              },
+                              "ExpiresAt": {
+                                  "type": "string",
+                                  "description": "Example: \"2016-01-01 00:00:00\""
+                              },
+                              "Notes": {
+                                  "type": "string",
+                                  "description": "Example: \"Generated via REST API\""
+                              }
+                          }
+                      },
+                      "AddTokenResponse": {
+                          "type": "object",
+                          "properties": {
+                              "Status": {
+                                  "type": "string",
+                                  "description": "The status returned by the AddTokenFunction.\nNOTE: Deprecated\nexample:\n- \"FAILED\"\n- \"SUCCESS\"\n"
+                              },
+                              "AccessKey": {
+                                  "type": "object",
+                                  "description": "http://docs.aws.amazon.com/IAM/latest/APIReference/API_AccessKey.html",
+                                  "properties": {
+                                      "UserName": {
+                                          "type": "string"
+                                      },
+                                      "Status": {
+                                          "type": "string"
+                                      },
+                                      "CreateDate": {
+                                          "type": "string"
+                                      },
+                                      "SecretAccessKey": {
+                                          "type": "string"
+                                      },
+                                      "AccessKeyId": {
+                                          "type": "string"
+                                      }
+                                  }
+                              },
+                              "User": {
+                                  "type": "object",
+                                  "description": "http://docs.aws.amazon.com/IAM/latest/APIReference/API_User.html",
+                                  "properties": {
+                                      "UserName": {
+                                          "type": "string"
+                                      },
+                                      "Path": {
+                                          "type": "string"
+                                      },
+                                      "CreateDate": {
+                                          "type": "string"
+                                      },
+                                      "UserId": {
+                                          "type": "string"
+                                      },
+                                      "Arn": {
+                                          "type": "string"
+                                      }
+                                  }
+                              }
+                          }
+                      },
+                      "UpdateTokenRequest": {
+                          "type": "object",
+                          "required": [
+                              "AccessKeyId",
+                              "Owner",
+                              "Location",
+                              "ExpiresAt",
+                              "Notes"
+                          ],
+                          "properties": {
+                              "AccessKeyId": {
+                                  "type": "string",
+                                  "description": "Example: \"AKIAGEE0UZ8EEW6AEB4K\""
+                              },
+                              "Owner": {
+                                  "type": "string",
+                                  "description": "Example: \"Jane Smith\""
+                              },
+                              "Location": {
+                                  "type": "string",
+                                  "description": "Example: \"Production web server\""
+                              },
+                              "ExpiresAt": {
+                                  "type": "string",
+                                  "description": "Example: \"2016-01-01 00:00:00\""
+                              },
+                              "Notes": {
+                                  "type": "string",
+                                  "description": "Example: \"Generated via REST API\""
+                              }
+                          }
+                      },
+                      "UpdateTokenResponse": {
+                          "type": "object",
+                          "properties": {
+                              "Status": {
+                                  "type": "string",
+                                  "description": "The status returned by the DeleteTokenFunction.\nexample:\n- \"Failure\"\n- \"Success\"\n"
+                              },
+                              "Message": {
+                                  "type": "string",
+                                  "description": "The message returned by the DeleteTokenFunction.\nexample:\n- \"Successfully deleted AKIAGEE0UZ8EEW6AEB4K and marked as deactivated in db\"\n"
+                              }
+                          }
+                      },
+                      "DeleteTokenRequest": {
+                          "type": "object",
+                          "required": [
+                              "AccessKeyId"
+                          ],
+                          "properties": {
+                              "AccessKeyId": {
+                                  "type": "string",
+                                  "description": "Example: \"AKIAGEE0UZ8EEW6AEB4K\""
+                              }
+                          }
+                      },
+                      "DeleteTokenResponse": {
+                          "type": "object",
+                          "properties": {
+                              "Status": {
+                                  "type": "string",
+                                  "description": "The status returned by the DeleteTokenFunction.\nexample:\n- \"FAILED\"\n- \"SUCCESS\"\n"
+                              },
+                              "Reason": {
+                                  "type": "string",
+                                  "description": "The message returned by the DeleteTokenFunction.\nexample:\n- \"Successfully deleted AKIAGEE0UZ8EEW6AEB4K and marked as deactivated in db\"\n"
+                              }
+                          }
+                      }
+                  },
+                  "x-amazon-apigateway-request-validators": {
+                      "Validate query string parameters and headers": {
+                        "validateRequestParameters": true,
+                        "validateRequestBody": false
+                      }
+                  },
+                  "externalDocs": {
+                      "description": "Find out more about Spacecrab",
+                      "url": "https://developer.atlassian.com/blog/2017/10/project-spacecrab-breach-detection/"
+                  }
+                }
+            }
+        }
+    }
+}

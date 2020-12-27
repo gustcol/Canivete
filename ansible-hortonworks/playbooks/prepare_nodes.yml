@@ -1,0 +1,33 @@
+---
+- import_playbook: "set_variables.yml"
+
+- name: Apply the common role to the hadoop-cluster group
+  hosts: hadoop-cluster
+  any_errors_fatal: true
+  become: yes
+  roles:
+    - common
+
+- name: Apply the database role to the ambari-server group
+  hosts: ambari-server
+  any_errors_fatal: true
+  become: yes
+  roles:
+    - role: database
+      when: database != "embedded" and not database_options.external_hostname|default('')
+
+- name: Apply the krb5-client role to the hadoop-cluster group
+  hosts: hadoop-cluster
+  any_errors_fatal: true
+  become: yes
+  roles:
+    - role: krb5-client
+      when: security == "mit-kdc"
+
+- name: Apply the mit-kdc role to the ambari-server group
+  hosts: ambari-server
+  any_errors_fatal: true
+  become: yes
+  roles:
+    - role: mit-kdc
+      when: security == "mit-kdc" and not security_options.external_hostname|default('')

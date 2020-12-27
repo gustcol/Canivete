@@ -1,0 +1,66 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-01-29 17:35:21 +0000 (Mon, 29 Jan 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  graphite:
+    extends:
+      file: common.yml
+      service: common
+    image: graphiteapp/graphite-statsd:${VERSION:-latest}
+    ports:
+      - 80
+      - 2003-2004
+      - 2023-2024
+      - 8125:8125/udp
+      - 8126
+      - 8080
+    networks:
+      - graphite
+
+  graphite-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/graphite-web.cfg -f /conf/graphite-carbon-relay.cfg -d
+    ports:
+      - 2003:2003
+      - 2004:2004
+      - 8080:8080
+    networks:
+      - graphite
+    links:
+      - graphite:carbon-relay
+      - graphite:graphite-web
+    volumes:
+      - ../../haproxy-configs:/conf:ro
+
+  graphite-collectd:
+    image: harisekhon/collectd
+    networks:
+      - graphite
+    links:
+      - graphite-haproxy:graphite
+    volumes:
+      - ../conf/collectd.d/write_graphite.conf:/etc/collectd.d/write_graphite.conf:ro
+
+  graphite-telegraf:
+    image: telegraf:${TELEGRAF_VERSION:-alpine}
+    networks:
+      - graphite
+    links:
+      - graphite-haproxy:graphite
+    volumes:
+      - ../conf/telegraf-graphite.conf:/etc/telegraf/telegraf.conf:ro
+
+networks:
+  graphite:

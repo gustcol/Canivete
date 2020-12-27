@@ -1,0 +1,14 @@
+.DS_Store
+*.json
+Gemfile.lock
+.rvmrc
+.ruby-gemset
+.ruby-version
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/

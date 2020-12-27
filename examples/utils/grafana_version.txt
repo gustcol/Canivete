@@ -1,0 +1,6 @@
+# Purpose: brew install Grafana version 5.0.3 on macOS
+# Use case: users who have a newer version and want to downgrade
+
+brew unlink grafana
+brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/96a0f6c408c1e4e8e3feaaba956e033c8efb9d14/Formula/grafana.rb
+grafana-server -v

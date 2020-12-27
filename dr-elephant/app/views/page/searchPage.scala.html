@@ -1,0 +1,120 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+
+@(paginationStats: controllers.PaginationStats)(results: Html)
+
+@*
+* The Search Page
+*
+* This includes the filter panel at the left and the paginated serach results at the center.
+*
+* @param paginationStats The pagination information
+* @param results The search results
+*@
+
+@main("Dr. Elephant - Search", "search") {
+  @tags.column(3) {
+    @tags.panel(){ Search } {
+      <form id="search-form" role="form" method="get" action="@routes.Application.search()">
+        <!--Job Id, FlowExec Url and the Username test input type-->
+        <div class="form-group">
+          <label for="form-job-id">Job/App ID</label>
+          <input type="text" class="form-control" id="form-job-id" name="id" placeholder="Job ID">
+        </div>
+        <div class="form-group">
+          <label for="form-flow-exec-id">Flow Execution URL/ID</label>
+          <input type="text" class="form-control" id="form-flow-exec-id" name="flow-exec-id" placeholder="Flow Exec URL/ID">
+        </div>
+        <div class="form-group">
+          <label for="form-job-def-id">Job Definition ID</label>
+          <input type="text" class="form-control" id="form-job-def-id" name="job-def-id" placeholder="Job Definition ID">
+        </div>
+        <div class="form-group">
+          <label for="form-username">User</label>
+          <input type="text" class="form-control" id="form-username" name="username" placeholder="User">
+        </div>
+        <div class="form-group">
+          <label for="form-queue-name">Queue</label>
+          <input type="text" class="form-control" id="form-queue-name" name="queue-name" placeholder="Queue">
+        </div>
+
+        <!--Job Type filter-->
+        <div class="checkbox">
+          <label><input type="checkbox" id="form-job-type-enable" name="filter-job-type" value=""> Job Type</label>
+        </div>
+        <div class="form-group" style="padding-left:10px;">
+          <select class="form-control" id="form-job-type" name="job-type">
+            @for((appType, jobTypeList) <- com.linkedin.drelephant.ElephantContext.instance().getAppTypeToJobTypes) {
+              <optgroup label="@appType.getName">
+              @for(jobType <- jobTypeList) {
+                <option value="@jobType.getName">@jobType.getName</option>
+              }
+              </optgroup>
+            }
+          </select>
+        </div>
+
+        <!--Severity filter-->
+        <div class="checkbox">
+          <label><input type="checkbox" id="form-severity-enable" name="filter-severity" value=""> Severity</label>
+        </div>
+        <div class="form-group" style="padding-left:10px;">
+          <select class="form-control" id="form-severity" name="severity">
+            @for(severity <- com.linkedin.drelephant.analysis.Severity.values()) {
+              <option value="@severity.getValue">@severity.getText</option>
+            }
+            </select>
+        </div>
+        <div class="form-group" style="padding-left:10px;">
+          <select class="form-control" id="form-analysis" name="analysis">
+            <option value="">All Analysis</option>
+            @for((appType, heuristicList) <- com.linkedin.drelephant.ElephantContext.instance().getAllHeuristicNames) {
+              <optgroup label="@appType">
+              @for(heuristic <- heuristicList) {
+                <option value="@heuristic">@heuristic</option>
+              }
+              </optgroup>
+            }
+          </select>
+        </div>
+
+        <!--Job Finish Date filter-->
+        <div class="checkbox">
+          <label><input type="checkbox" id="form-datetime-enable" name="datetime-enable" value=""> Job Finish Date</label>
+        </div>
+        <div class="form-group" style="padding-left:10px;">
+          <input type="text" class="form-control" id="form-finished-time-begin-date" name="finished-time-begin-date" placeholder="From: mm/dd/yyyy">
+
+          <input type="hidden" id="form-finished-time-begin" name="finished-time-begin" value="" />
+        </div>
+        <div class="form-group" style="padding-left:10px;">
+          <input type="text" class="form-control" id="form-finished-time-end-date" name="finished-time-end-date" placeholder="To: mm/dd/yyyy">
+          <input type="hidden" id="form-finished-time-end" name="finished-time-end" value="" />
+        </div>
+
+        <button type="submit" class="btn btn-default" id="submit-button">Get Result</button>
+      </form>
+    }
+  }
+
+  <!--The filtered and paginated results-->
+  @tags.column(9) {
+    @results
+    @if(paginationStats != null) {
+      @tags.pagination(paginationStats, routes.Application.search())
+    }
+  }
+}

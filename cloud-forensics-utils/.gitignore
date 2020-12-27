@@ -1,0 +1,13 @@
+*.pyc
+.coverage
+*.egg-info
+__pycache__
+.noseids
+
+# Python packaging
+build/
+dist/
+
+# virtualenv
+venv/
+ENV/

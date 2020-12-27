@@ -1,0 +1,12 @@
+boto3
+click
+click-log
+rapidfuzz
+jsondiff
+jsonschema
+marshmallow-jsonschema
+python-dateutil
+PyYAML
+retrying
+swag-client
+tabulate

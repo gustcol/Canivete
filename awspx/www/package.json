@@ -1,0 +1,26 @@
+{
+  "name": "awspx",
+  "version": "1.3.0",
+  "description": "AWS resource, relationship, and attack path visualisation",
+  "author": "beatro0t",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --port 80",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "codemirror": "^5.57.0",
+    "core-js": "^3.6.5",
+    "cytoscape": "^3.15.2",
+    "cytoscape-dagre": "^2.2.2",
+    "neo4j-driver": "^4.1.1",
+    "vue": "^2.6.12",
+    "vue-template-compiler": "^2.6.12",
+    "vuetify": "^2.3.10"
+  },
+  "devDependencies": {
+    "@mdi/font": "^5.5.55",
+    "@vue/cli-plugin-babel": "^4.5.4",
+    "@vue/cli-service": "^4.5.4"
+  }
+}

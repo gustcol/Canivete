@@ -1,0 +1,23 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2020-04-10 13:35:58 +0100 (Fri, 10 Apr 2020)
+#
+#  https://github.com/harisekhon/devops-bash-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                             Deb Packages Optional
+# ============================================================================ #
+
+direnv
+
+# Ubuntu 20.04 has Python3, python installs Python2 but python-pip package is no longer available
+python
+python3
+python-pip
+python3-pip
+python-setuptools # needed by 'pip install awscli'

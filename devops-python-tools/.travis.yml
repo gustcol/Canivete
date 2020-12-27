@@ -1,0 +1,151 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2014-11-29 01:02:47 +0000 (Sat, 29 Nov 2014)
+#
+#  https://github.com/harisekhon/devops-python-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#  to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                               T r a v i s   C I
+# ============================================================================ #
+
+# https://docs.travis-ci.com/user/customizing-the-build/
+
+version: ~> 1.0
+
+# ============================
+# Mac Python 2.7 not available - see https://travis-ci.org/HariSekhon/pylib/jobs/584226228
+#os:
+#  - linux
+#  - osx
+
+# =================================================
+# https://docs.travis-ci.com/user/languages/python/
+python:
+  - "2.7"
+  #- "3.4" supported by pip as of March 2019
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "pypy"   # currently Python 2.7.13, PyPy 7.1.1
+  - "pypy3"  # currently Python 3.6.1,  PyPy 7.1.1-beta0
+
+# =============================================
+# https://docs.travis-ci.com/user/build-matrix/
+# https://docs.travis-ci.com/user/build-stages/matrix-expansion/
+matrix:
+  fast_finish: true
+  include:
+    # numpy has gone 2.7+ only now, so had to drop Python 2.6 support
+    - os: linux
+      language: python
+      python: "2.7"
+
+    - os: osx
+      language: generic # workaround since Mac doesn't have Python support yet, so install to system Python
+      # https://docs.travis-ci.com/user/reference/osx/
+      # macOS 10.15.7 - otherwise defaults to Mac macOS 10.13 with xcode9.4 otherwise - and HomeBrew update takes 50 minutes until the build times out :-/
+      osx_image: xcode12.2
+
+    - os: linux
+      language: python
+      python: "3.5"
+
+    - os: linux
+      language: python
+      python: "3.6"
+
+    - os: linux
+      language: python
+      python: "3.7"
+
+    - os: linux
+      language: python
+      python: "3.8"
+
+      # python-krbV fails to compile on PyPy
+      #
+      # psutil doesn't build:
+      #
+      # RuntimeError: broken / incompatible Python implementation, see: https://github.com/giampaolo/psutil/issues/1659
+      #
+    #- os: linux
+    #  language: python
+    #  python: "pypy"
+
+    - os: linux
+      language: python
+      python: "pypy3"
+
+  # ===================================================================================================
+  # https://docs.travis-ci.com/user/multi-os/#allowing-failures-on-jobs-running-on-one-operating-system
+  allow_failures:
+    - python: "pypy"
+    - python: "pypy3"
+
+# =======================================
+# https://docs.travis-ci.com/user/docker/
+services:
+  - docker
+
+# ======================================================
+# https://docs.travis-ci.com/user/environment-variables/
+env:
+#  - DEBUG=1
+  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1
+
+# ==============================================
+# https://docs.travis-ci.com/user/notifications/
+notifications:
+  email: false
+
+# =================================================================================
+# https://docs.travis-ci.com/user/customizing-the-build/#building-specific-branches
+# https://docs.travis-ci.com/user/conditional-builds-stages-jobs
+#branches:
+#  only:
+#    - master
+
+# ========================================
+# https://docs.travis-ci.com/user/caching/
+
+before_cache:
+  #- rm -f $HOME/.cache/pip/log/debug.log
+  # XXX: cache breaks pypy builds, so clear it
+  - rm -f $HOME/.cache/pip
+
+cache:
+  - pip
+  - directories:
+    - $HOME/.cache
+    - $HOME/.cpan
+    - $HOME/.cpanm
+    - $HOME/.gem
+
+# ==============================================
+# https://docs.travis-ci.com/user/job-lifecycle/
+
+# avoid package checksum mismatches when installing packages
+before_install:
+  - sudo rm -f "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
+  - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
+
+install:
+  - travis_retry make
+  #- pip install --upgrade ndg-httpsclient
+  - travis_retry pip uninstall -y certifi && travis_retry pip install certifi==2015.04.28
+
+script:
+  - travis_retry make test
+
+after_success:
+  - coveralls

@@ -1,0 +1,14 @@
+.idea
+.cache
+__pycache__
+/dist/
+.eggs/
+/*.egg-info
+README.rst
+CHANGELOG.rst g
+CHANGELOG.rst
+build
+*.pyc
+venvs
+.pytest_cache
+tests/iam-actions-from-*

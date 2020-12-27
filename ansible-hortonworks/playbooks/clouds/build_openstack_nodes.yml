@@ -1,0 +1,34 @@
+---
+- set_fact: outer_loop="{{ item }}"
+
+- name: Create {{ outer_loop.role }} node(s)
+  os_server:
+    name: "{{ cluster_name }}-{{ outer_loop.role }}{{ (outer_loop.count > 1) | ternary(local_loop,'') }}{{ cloud_config.name_suffix|default('') }}"
+    image: "{{ outer_loop.image }}"
+    flavor: "{{ outer_loop.flavor }}"
+    key_name: "{{ cloud_config.ssh.keyname }}"
+    availability_zone: "{{ cloud_config.zone }}"
+    state: present
+    wait: true
+    timeout: 900
+    validate_certs: false
+    meta:
+      Cluster: "{{ cluster_name }}"
+      Role: "{{ outer_loop.role }}"
+      Group: "{{ cluster_name }}-{{ outer_loop.role }}"
+  loop_control:
+    loop_var: local_loop
+  with_sequence: count="{{ outer_loop.count }}" format=-%02x
+  async: 1000
+  poll: 0
+  register: current_nodes_async
+
+- name: Wait for {{ outer_loop.role }} node(s) to be built
+  async_status:
+    jid: "{{ local_loop.ansible_job_id }}"
+  loop_control:
+    loop_var: local_loop
+  with_items: "{{ current_nodes_async.results }}"
+  register: current_nodes
+  until: current_nodes.finished
+  retries: 120

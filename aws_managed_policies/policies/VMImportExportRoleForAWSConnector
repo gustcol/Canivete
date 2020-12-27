@@ -1,0 +1,33 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:ListBucket",
+                        "s3:GetBucketLocation",
+                        "s3:GetObject"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::import-to-ec2-*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "ec2:ModifySnapshotAttribute",
+                        "ec2:CopySnapshot",
+                        "ec2:RegisterImage",
+                        "ec2:Describe*"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v1",
+        "IsDefaultVersion": true,
+        "CreateDate": "2015-09-03T20:48:59Z"
+    }
+}

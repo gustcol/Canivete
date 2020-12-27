@@ -1,0 +1,85 @@
+service:
+  dns:
+    name: ${PACMAN_HOST_NAME}
+  url:
+    compliance: ${PACMAN_HOST_NAME}/api/compliance
+    asset: ${PACMAN_HOST_NAME}/api/asset
+    statistics: ${PACMAN_HOST_NAME}/api/statistics
+    devstandards: ${PACMAN_HOST_NAME}/api/devstandards
+    auth: ${PACMAN_HOST_NAME}/api/auth
+    admin: ${PACMAN_HOST_NAME}/api/admin
+    notifications: ${PACMAN_HOST_NAME}/api/notifications
+    vulnerability: ${PACMAN_HOST_NAME}/api/vulnerability
+      
+endpoints:
+  refresh:
+    sensitive: false
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 100000
+            
+application:
+  cors:
+    allowed:
+      domains: all
+                 
+monitoring:
+  contextRootNames: asset,compliance,statistics,auth,admin,notifications,vulnerability
+
+auth: 
+  active: db
+
+spring:
+    cache:
+        cache-names: trends,compliance,assets
+        caffeine:
+            spec: maximumSize=500, expireAfterWrite=6h
+    datasource:
+      url: ${RDS_URL}
+      username: ${RDS_USERNAME}
+      password: ${RDS_PASSWORD}
+      driver-class-name: com.mysql.jdbc.Driver
+    cloud:
+      bus:
+          enabled: false
+  
+api:
+  services:
+  - name: Admin Service
+    url: ${PACMAN_HOST_NAME:http://localhost:8080}/api/admin/v2/api-docs
+    version: 2.0
+  - name: Auth Service
+    url: ${PACMAN_HOST_NAME:http://localhost:8080}/api/auth/v2/api-docs
+    version: 2.0
+  - name: Asset Service
+    url: ${PACMAN_HOST_NAME:http://localhost:8080}/api/asset/v2/api-docs
+    version: 2.0
+  - name: Compliance Service
+    url: ${PACMAN_HOST_NAME:http://localhost:8080}/api/compliance/v2/api-docs
+    version: 2.0
+  - name: Statistics Service
+    url: ${PACMAN_HOST_NAME:http://localhost:8080}/api/statistics/v2/api-docs
+    version: 2.0
+  - name: Notification Service
+    url: ${PACMAN_HOST_NAME:http://localhost:8080}/api/notifications/v2/api-docs
+    version: 2.0
+  - name: Vulnerability Service
+    url: ${PACMAN_HOST_NAME:http://localhost:8080}/api/vulnerability/v2/api-docs
+    version: 2.0
+      
+tagging:
+  mandatoryTags: Application,Environment
+  
+vulnerability:
+  types: ec2,onpremserver
+  summary:
+    severity: 5
+    
+swagger:
+  auth:
+    whitelist: /configuration/security,/swagger-ui.html,/api.html,/webjars/**,/user,/public/**,/api.html,/css/styles.js,/js/swagger.js,/js/swagger-ui.js,/js/swagger-oauth.js,/images/pacman_logo.svg,/images/favicon-32x32.png,/images/favicon-16x16.png,/images/favicon.ico,/docs/v1/api.html,/v2/api-docs/**,/v2/swagger.json,/webjars/springfox-swagger-ui/css/**,/webjars/springfox-swagger-ui/js/**,/configuration/ui,/swagger-resources/**,/configuration/**,/imgs/**,/css/**,/css/font/**,/proxy*/**,/hystrix/monitor/**,/hystrix/**/images/pacman_logo.svg,/images/favicon-32x32.png,/images/favicon-16x16.png,/images/favicon.ico,/docs/v1/api.html,/v2/api-docs/**,/v2/swagger.json,/webjars/springfox-swagger-ui/css/**,/webjars/springfox-swagger-ui/js/**,/configuration/ui,/swagger-resources/**,/configuration/**,/imgs/**,/css/**,/css/font/**,/proxy*/**,/hystrix/monitor/**,/hystrix/**,/refresh

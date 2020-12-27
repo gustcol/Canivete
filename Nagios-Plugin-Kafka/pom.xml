@@ -1,0 +1,219 @@
+<!--
+
+  vim:ts=2:sts=2:sw=2:et
+
+  Author: Hari Sekhon
+  Date: 2016-07-07 11:02:14 +0100 (Thu, 07 Jul 2016)
+
+  https://github.com/harisekhon/nagios-plugin-kafka
+
+  License: see accompanying Hari Sekhon LICENSE file
+
+  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+
+  https://www.linkedin.com/in/harisekhon
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.linkedin.harisekhon</groupId>
+  <artifactId>check_kafka</artifactId>
+  <version>0.1.0</version>
+  <packaging>jar</packaging>
+
+  <name>check_kafka</name>
+  <url>https://github.com/harisekhon/nagios-plugin-kafka</url>
+
+  <properties>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!--
+    <java.version>7</java.version>
+    -->
+
+    <harisekhon-utils.version>1.17.6</harisekhon-utils.version>
+    <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+    <findbugs-maven-plugin.version>3.0.5</findbugs-maven-plugin.version>
+    <junit.version>4.13.1</junit.version>
+    <!--
+      Kafka 0.10 API bug:
+      Cannot auto-commit offsets for group ... since the coordinator is unknown
+    -->
+    <kafka.version>2.2.2</kafka.version>
+    <!-- TODO: upgrade to log4j 2 or slf4j -->
+    <log4j.version>1.2.17</log4j.version>
+    <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+    <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+    <maven.shade.version>3.1.0</maven.shade.version>
+    <scala.mm.version>2.12</scala.mm.version>
+    <scala.version>2.12.8</scala.version>
+    <scalatest.version>3.0.4</scalatest.version>
+    <scala.maven.plugin.version>3.3.1</scala.maven.plugin.version>
+    <versioneye-maven-plugin.version>3.11.4</versioneye-maven-plugin.version>
+
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.linkedin.harisekhon</groupId>
+      <artifactId>harisekhon-utils</artifactId>
+      <version>${harisekhon-utils.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka_${scala.mm.version}</artifactId>
+      <version>${kafka.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_${scala.mm.version}</artifactId>
+      <version>${scalatest.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <!--
+        <configuration>
+          <source>1.${java.version}</source>
+          <target>1.${java.version}</target>
+          <compilerVersion>1.${java.version}</compilerVersion>
+        </configuration>
+        -->
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven.shade.version}</version>
+        <configuration>
+          <!-- put your configurations here -->
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>com.linkedin.harisekhon.kafka.CheckKafka</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>${scala.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>scala-compile-first</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>add-source</goal>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin.version}</version>
+        <configuration>
+          <mainClass>com.linkedin.harisekhon.kafka.CheckKafka</mainClass>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs-maven-plugin.version}</version>
+        <configuration>
+          <effort>Max</effort>
+          <threshold>Low</threshold>
+          <failOnError>true</failOnError>
+          <!--
+          <includeFilterFile>${session.executionRootDirectory}/findbugs-security-include.xml</includeFilterFile>
+          <excludeFilterFile>${session.executionRootDirectory}/findbugs-security-exclude.xml</excludeFilterFile>
+          -->
+          <plugins>
+            <plugin>
+              <groupId>com.h3xstream.findsecbugs</groupId>
+              <artifactId>findsecbugs-plugin</artifactId>
+              <version>LATEST</version> <!-- Auto-update to the latest stable -->
+            </plugin>
+          </plugins>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.versioneye</groupId>
+        <artifactId>versioneye-maven-plugin</artifactId>
+        <version>${versioneye-maven-plugin.version}</version>
+        <configuration>
+          <projectId>57616d340a82b200276f6669</projectId>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,21 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action": [
+                        "s3:GetObject",
+                        "s3:GetObjectVersion",
+                        "s3:ListBucket"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v2",
+        "IsDefaultVersion": true,
+        "CreateDate": "2017-03-20T17:14:10Z"
+    }
+}

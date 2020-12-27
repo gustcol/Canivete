@@ -1,0 +1,13 @@
+<div class="content">
+	<div class="container-fluid">
+		<h4 class="page-title">Security</h4>
+		
+		<gcp-security *ngIf="provider == 'gcp'"></gcp-security>
+
+		<aws-security *ngIf="provider == 'aws'"></aws-security>
+
+		<ovh-security *ngIf="provider == 'ovh'"></ovh-security>
+
+		<digitalocean-security *ngIf="provider == 'digitalocean'"></digitalocean-security>
+	</div>
+</div>

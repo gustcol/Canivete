@@ -1,0 +1,42 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-03-16 20:35:14 +0000 (Sat, 16 Mar 2019)
+#
+#  https://github.com/harisekhon/devops-bash-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                          Alpine Package Requirements
+# ============================================================================ #
+
+bash
+bc
+coreutils
+curl
+gcc
+git
+go
+grep
+jq
+libxml2-utils  # needed for xmllint
+make
+parallel
+perl
+perl-app-cpanminus
+ruby-dev # to build Travis CI gem
+wget
+which
+zip
+unzip
+
+# causes errors now so moved to apk-packages-optional.txt to allow failures
+#
+#   python (missing):
+# ERROR: unsatisfiable constraints:
+#     required by: world[python]
+#python
+#py-pip

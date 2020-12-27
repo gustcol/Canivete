@@ -1,0 +1,37 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "appmesh:Describe*",
+                        "appmesh:List*"
+                    ],
+                    "Resource": "*"
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "cloudformation:DescribeStack*"
+                    ],
+                    "Resource": "arn:aws:cloudformation:*:*:stack/AWSAppMesh-GettingStarted-*"
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "acm:ListCertificates",
+                        "acm:DescribeCertificate",
+                        "acm-pca:DescribeCertificateAuthority",
+                        "acm-pca:ListCertificateAuthorities"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v4",
+        "IsDefaultVersion": true,
+        "CreateDate": "2020-03-05T23:54:06Z"
+    }
+}

@@ -1,0 +1,2752 @@
+<!DOCTYPE html>
+<html ng-app="AWSDocsDocPageApp" xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <title>
+   Actions, resources, and condition keys for      Amazon Fraud Detector - AWS Identity and Access Management
+  </title>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <meta content="/assets" name="assets_root"/>
+  <meta content="list_amazonfrauddetector" name="target_state"/>
+  <meta content="list_amazonfrauddetector" name="default_state"/>
+  <link href="https://docs.aws.amazon.com/assets/images/favicon.ico" rel="icon" type="image/ico"/>
+  <link href="https://docs.aws.amazon.com/assets/images/favicon.ico" rel="shortcut icon" type="image/ico"/>
+  <link href="https://docs.aws.amazon.com/IAM/latest/UserGuide/list_amazonfrauddetector.html" rel="canonical"/>
+  <meta content="Lists all of the available service-specific resources, actions, and condition keys that can be used in IAM policies to control access to Amazon Fraud Detector." name="description"/>
+  <meta content="IAD" name="deployment_region"/>
+  <meta content="AWS Identity and Access Management" name="product"/>
+  <meta content="User Guide" name="guide"/>
+  <meta content="de_de:Deutsch/en_us:English/es_es:Español/fr_fr:Français/it_it:Italiano/ja_jp:日本語/ko_kr:한국어/pt_br:Português/zh_cn:中文 (简体)/zh_tw:中文 (繁體)" name="locales"/>
+  <meta content="Control access to your AWS resources with user identity (authentication) and with policies that define specific permissions (authorization)." name="abstract"/>
+  <meta content="en_us" name="guide-locale"/>
+  <meta content="toc-contents.json" name="tocs"/>
+  <meta content="IAM" name="feedback-item"/>
+  <meta content="AWS Identity and Access Management" name="this_doc_product"/>
+  <meta content="User Guide" name="this_doc_guide"/>
+  <link href="https://docs.aws.amazon.com/assets/css/vendor4.css?version=2020.09.30" rel="stylesheet"/>
+  <link href="https://docs.aws.amazon.com/assets/css/awsdocs-common.css?version=2020.09.30" rel="stylesheet"/>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/vendor3.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/vendor4.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/vendor1.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/awsdocs-common.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/awsdocs-doc-app.js?version=2020.09.30" type="text/javascript">
+  </script>
+ </head>
+ <body class="awsdocs awsui">
+  <div class="awsdocs-container">
+   <awsdocs-header>
+   </awsdocs-header>
+   <awsui-app-layout class="awsui-util-no-gutters" header-selector="awsdocs-header" id="app-layout" navigation-change="$ctrl.onNavChange($event)" navigation-hide="false" navigation-open="$ctrl.navOpen" navigation-width="$ctrl.navWidth" ng-controller="ContentController as $ctrl" tools-change="$ctrl.onToolsChange($event)" tools-hide="$ctrl.hideTools" tools-open="$ctrl.toolsOpen" tools-width="$ctrl.toolsWidth">
+    <div dom-region="navigation" id="guide-toc">
+     <awsdocs-toc>
+     </awsdocs-toc>
+    </div>
+    <div dom-region="content" id="main-column" tabindex="-1">
+     <awsdocs-view class="awsdocs-view">
+      <div id="awsdocs-content">
+       <head>
+        <title>
+         Actions, resources, and condition keys for      Amazon Fraud Detector - AWS Identity and Access Management
+        </title>
+        <meta content="iam-ug.pdf#list_amazonfrauddetector" name="pdf"/>
+        <meta content="https://www.amazon.com/dp/B07642VLTV" name="kindle"/>
+        <meta content="https://github.com/awsdocs/iam-user-guide/tree/master/doc_source/list_amazonfrauddetector.md" name="github"/>
+        <meta content="aws-iam-release-notes.rss" name="rss"/>
+        <meta content="http://forums.aws.amazon.com/forum.jspa?forumID=76" name="forums"/>
+        <meta content="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IAM&amp;topic_url=http://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_amazonfrauddetector.html" name="feedback"/>
+        <meta content="feedbackyes.html?topic_url=http://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_amazonfrauddetector.html" name="feedback-yes"/>
+        <meta content="feedbackno.html?topic_url=http://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_amazonfrauddetector.html" name="feedback-no"/>
+        <meta content="IAM,AWS Identity and Access Management,IAM user,user,IAM group,group,IAM role,role,permission policy,trust policy,policy,access key,password" name="keywords"/>
+       </head>
+       <body>
+        <div id="main">
+         <div style="display: none">
+          <a href="iam-ug.pdf#list_amazonfrauddetector" target="_blank" title="Open PDF">
+          </a>
+          <a href="https://www.amazon.com/dp/B07642VLTV" target="_blank" title="Open Kindle">
+          </a>
+          <a href="https://github.com/awsdocs/iam-user-guide/tree/master/doc_source/list_amazonfrauddetector.md" target="_blank" title="Edit on GitHub">
+          </a>
+         </div>
+         <div class="breadcrumb" id="breadcrumbs">
+          <a href="http://aws.amazon.com">
+           AWS
+          </a>
+          <a href="/index.html">
+           Documentation
+          </a>
+          <a href="/iam/index.html">
+           AWS Identity and Access Management
+          </a>
+          <a href="introduction.html">
+           User Guide
+          </a>
+         </div>
+         <div id="page-toc-src">
+          <a href="#amazonfrauddetector-actions-as-permissions">
+           Actions
+          </a>
+          <a href="#amazonfrauddetector-resources-for-iam-policies">
+           Resource types
+          </a>
+          <a href="#amazonfrauddetector-policy-keys">
+           Condition keys
+          </a>
+         </div>
+         <div class="awsui-util-container" id="main-content">
+          <div id="main-col-body">
+           <awsdocs-language-banner data-service="$ctrl.pageService">
+           </awsdocs-language-banner>
+           <h1 class="topictitle" id="list_amazonfrauddetector">
+            Actions, resources, and condition keys for      Amazon Fraud Detector
+           </h1>
+           <div class="awsdocs-page-header-container">
+            <awsdocs-page-header>
+            </awsdocs-page-header>
+            <awsdocs-filter-selector id="awsdocs-filter-selector">
+            </awsdocs-filter-selector>
+           </div>
+           <div class="awsdocs-note awsdocs-tip">
+            <div class="awsdocs-note-title">
+             <awsui-icon name="status-info" variant="link">
+             </awsui-icon>
+             <span>
+              Tip
+             </span>
+            </div>
+            <div class="awsdocs-note-text">
+             <p>
+              This page is moving to a new location on November 16, 2020. Please update your bookmark
+                                          to      use the new page at
+              <a href="https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonfrauddetector.html">
+               https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonfrauddetector.html
+              </a>
+              .
+             </p>
+            </div>
+           </div>
+           <p>
+            Amazon Fraud Detector (service prefix:
+            <code class="code">
+             frauddetector
+            </code>
+            ) provides the following    service-specific resources, actions, and condition context
+                                    keys for use in IAM permission    policies.
+           </p>
+           <p>
+            References:
+           </p>
+           <div class="itemizedlist">
+            <ul class="itemizedlist" type="disc">
+             <li class="listitem">
+              <p>
+               Learn how to
+               <a href="https://docs.aws.amazon.com/frauddetector/latest/ug/what-is-frauddetector.html">
+                configure this service
+               </a>
+               .
+              </p>
+             </li>
+             <li class="listitem">
+              <p>
+               View a list of the
+               <a href="https://docs.aws.amazon.com/frauddetector/latest/api/">
+                API operations available for this          service
+               </a>
+               .
+              </p>
+             </li>
+             <li class="listitem">
+              <p>
+               Learn how to secure this service and its resources by
+               <a href="https://docs.aws.amazon.com/frauddetector/latest/ug/assets.html">
+                using          IAM
+               </a>
+               permission policies.
+              </p>
+             </li>
+            </ul>
+           </div>
+           <div class="highlights" id="inline-topiclist">
+            <p>
+             <strong>
+              Topics
+             </strong>
+            </p>
+            <ul>
+             <li>
+              <a href="#amazonfrauddetector-actions-as-permissions">
+               Actions defined by        Amazon Fraud Detector
+              </a>
+             </li>
+             <li>
+              <a href="#amazonfrauddetector-resources-for-iam-policies">
+               Resource types defined by        Amazon Fraud Detector
+              </a>
+             </li>
+             <li>
+              <a href="#amazonfrauddetector-policy-keys">
+               Condition keys for        Amazon Fraud Detector
+              </a>
+             </li>
+            </ul>
+           </div>
+           <h2 id="amazonfrauddetector-actions-as-permissions">
+            Actions defined by        Amazon Fraud Detector
+           </h2>
+           <p>
+            You can specify the following actions in the
+            <code class="code">
+             Action
+            </code>
+            element of an IAM      policy statement. Use policies to grant permissions to perform
+                                    an operation in AWS. When you      use an action in a policy, you usually allow or
+                                    deny access to the API operation or CLI      command with the same name. However,
+                                    in some cases, a single action controls access to more      than one operation. Alternatively,
+                                    some operations require several different actions.
+           </p>
+           <p>
+            The
+            <b>
+             Resource types
+            </b>
+            column indicates whether each action supports      resource-level permissions. If
+                                    there is no value for this column, you must specify all      resources ("*") in the
+            <code class="code">
+             Resource
+            </code>
+            element of your policy statement. If the column      includes a resource type, then
+                                    you can specify an ARN of that type in a statement with that      action. Required
+                                    resources are indicated in the table with an asterisk (*). If you specify a      resource-level
+                                    permission ARN in a statement using this action, then it must be of this type.   
+                                    Some actions support multiple resource types. If the resource type is optional (not
+                                    indicated      as required), then you can choose to use one but not the other.
+           </p>
+           <p>
+            For details about the columns in the following table, see
+            <a href="./reference_policies_actions-resources-contextkeys.html#actions_table">
+             The actions table
+            </a>
+            .
+           </p>
+           <div class="table-container">
+            <div class="table-contents">
+             <table id="w469aac33c14c29d448c13b9">
+              <thead>
+               <tr>
+                <th>
+                 Actions
+                </th>
+                <th>
+                 Description
+                </th>
+                <th>
+                 Access level
+                </th>
+                <th>
+                 Resource types (*required)
+                </th>
+                <th>
+                 Condition keys
+                </th>
+                <th>
+                 Dependent actions
+                </th>
+               </tr>
+              </thead>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-BatchCreateVariable">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_BatchCreateVariable">
+                 BatchCreateVariable
+                </a>
+               </td>
+               <td>
+                Creates a batch of variables.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-BatchGetVariable">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_BatchGetVariable">
+                 BatchGetVariable
+                </a>
+               </td>
+               <td>
+                Gets a batch of variables.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-variable">
+                  variable
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-CreateDetectorVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_CreateDetectorVersion">
+                 CreateDetectorVersion
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates a detector version. The detector version starts in a DRAFT status.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-CreateModel">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_CreateModel">
+                 CreateModel
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates a model using the specified model type.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-CreateModelVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_CreateModelVersion">
+                 CreateModelVersion
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates a version of the model using the specified model type and model id.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-CreateRule">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_CreateRule.html">
+                 CreateRule
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates a rule for use with the specified detector.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-CreateVariable">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_CreateVariable.html">
+                 CreateVariable
+                </a>
+               </td>
+               <td>
+                Creates a variable.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-DeleteDetector">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_DeleteDetector">
+                 DeleteDetector
+                </a>
+               </td>
+               <td>
+                Deletes the detector. Before deleting a detector, you must first delete all detector
+                                                versions and rule versions associated with the detector.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-DeleteDetectorVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_DeleteDetectorVersion">
+                 DeleteDetectorVersion
+                </a>
+               </td>
+               <td>
+                Deletes the detector version. You cannot delete detector versions that are in ACTIVE
+                                                status.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector-version">
+                  detector-version*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-DeleteEvent">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_DeleteEvent">
+                 DeleteEvent
+                </a>
+               </td>
+               <td>
+                Deletes the specified event.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-DeleteRule">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_DeleteRule">
+                 DeleteRule
+                </a>
+               </td>
+               <td>
+                Deletes the rule. You cannot delete a rule if it is used by an ACTIVE or INACTIVE
+                                                detector version.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-rule">
+                  rule*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-DescribeDetector">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_DescribeDetector">
+                 DescribeDetector
+                </a>
+               </td>
+               <td>
+                Gets all versions for a specified detector.
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-DescribeModelVersions">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_DescribeModelVersions">
+                 DescribeModelVersions
+                </a>
+               </td>
+               <td>
+                Gets all of the model versions for the specified model type or for the specified model
+                                                type and model ID. You can also get details for a single, specified model version.
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model-version">
+                  model-version
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetDetectorVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetDetectorVersion">
+                 GetDetectorVersion
+                </a>
+               </td>
+               <td>
+                Gets a particular detector version.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector-version">
+                  detector-version*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetDetectors">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetDetectors">
+                 GetDetectors
+                </a>
+               </td>
+               <td>
+                Gets all detectors or a single detector if a detectorId is specified. This is a paginated
+                                                API. If you provide a null maxResults, this action retrieves a maximum of 10 records
+                                                per page. If you provide a maxResults, the value must be between 5 and 10. To get
+                                                the next page results, provide the pagination token from the GetDetectorsResponse
+                                                as part of your request. A null pagination token fetches the records from the beginning.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetEntityTypes">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetEntityTypes">
+                 GetEntityTypes
+                </a>
+               </td>
+               <td>
+                Gets all entity types or a specific entity type if a name is specified. This is a
+                                                paginated API. If you provide a null maxResults, this action retrieves a maximum of
+                                                10 records per page. If you provide a maxResults, the value must be between 5 and
+                                                10. To get the next page results, provide the pagination token from the GetEntityTypesResponse
+                                                as part of your request. A null pagination token fetches the records from the beginning.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-entity-type">
+                  entity-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetEventPrediction">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetEventPrediction">
+                 GetEventPrediction
+                </a>
+               </td>
+               <td>
+                Evaluates an event against a detector version. If a version ID is not provided, the
+                                                detector’s (ACTIVE) version is used.
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetEventTypes">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetEventTypes">
+                 GetEventTypes
+                </a>
+               </td>
+               <td>
+                Gets all event types or a specific event type if name is provided. This is a paginated
+                                                API. If you provide a null maxResults, this action retrieves a maximum of 10 records
+                                                per page. If you provide a maxResults, the value must be between 5 and 10. To get
+                                                the next page results, provide the pagination token from the GetEventTypesResponse
+                                                as part of your request. A null pagination token fetches the records from the beginning.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-event-type">
+                  event-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetExternalModels">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetExternalModels">
+                 GetExternalModels
+                </a>
+               </td>
+               <td>
+                Gets the details for one or more Amazon SageMaker models that have been imported into
+                                                the service. This is a paginated API. If you provide a null maxResults, this actions
+                                                retrieves a maximum of 10 records per page. If you provide a maxResults, the value
+                                                must be between 5 and 10. To get the next page results, provide the pagination token
+                                                from the GetExternalModelsResult as part of your request. A null pagination token
+                                                fetches the records from the beginning.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-external-model">
+                  external-model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetKMSEncryptionKey">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetKMSEncryptionKey">
+                 GetKMSEncryptionKey
+                </a>
+               </td>
+               <td>
+                Gets the encryption key if a Key Management Service (KMS) customer master key (CMK)
+                                                has been specified to be used to encrypt content in Amazon Fraud Detector.
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetLabels">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetLabels">
+                 GetLabels
+                </a>
+               </td>
+               <td>
+                Gets all labels or a specific label if name is provided. This is a paginated API.
+                                                If you provide a null maxResults, this action retrieves a maximum of 50 records per
+                                                page. If you provide a maxResults, the value must be between 10 and 50. To get the
+                                                next page results, provide the pagination token from the GetGetLabelsResponse as part
+                                                of your request. A null pagination token fetches the records from the beginning.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-label">
+                  label
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetModelVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetModelVersion">
+                 GetModelVersion
+                </a>
+               </td>
+               <td>
+                Gets the details of the specified model version.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model-version">
+                  model-version*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetModels">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetModels">
+                 GetModels
+                </a>
+               </td>
+               <td>
+                Gets one or more models. Gets all models for the AWS account if no model type and
+                                                no model id provided. Gets all models for the AWS account and model type, if the model
+                                                type is specified but model id is not provided. Gets a specific model if (model type,
+                                                model id) tuple is specified.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetOutcomes">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetOutcomes">
+                 GetOutcomes
+                </a>
+               </td>
+               <td>
+                Gets one or more outcomes. This is a paginated API. If you provide a null maxResults,
+                                                this actions retrieves a maximum of 100 records per page. If you provide a maxResults,
+                                                the value must be between 50 and 100. To get the next page results, provide the pagination
+                                                token from the GetOutcomesResult as part of your request. A null pagination token
+                                                fetches the records from the beginning.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-outcome">
+                  outcome
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetRules">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetRules.html">
+                 GetRules
+                </a>
+               </td>
+               <td>
+                Get all rules for a detector (paginated) if ruleId and ruleVersion are not specified.
+                                                Gets all rules for the detector and the ruleId if present (paginated). Gets a specific
+                                                rule if both the ruleId and the ruleVersion are specified.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-rule">
+                  rule
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-GetVariables">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_GetVariables">
+                 GetVariables
+                </a>
+               </td>
+               <td>
+                Gets all of the variables or the specific variable. This is a paginated API. Providing
+                                                null maxSizePerPage results in retrieving maximum of 100 records per page. If you
+                                                provide maxSizePerPage the value must be between 50 and 100. To get the next page
+                                                result, a provide a pagination token from GetVariablesResult as part of your request.
+                                                Null pagination token fetches the records from the beginning.
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-variable">
+                  variable
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="11">
+                <a id="amazonfrauddetector-ListTagsForResource">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_ListTagsForResource.html">
+                 ListTagsForResource
+                </a>
+               </td>
+               <td rowspan="11">
+                Lists all tags associated with the resource. This is a paginated API. To get the next
+                                                page results, provide the pagination token from the response as part of your request.
+                                                A null pagination token fetches the records from the beginning.
+               </td>
+               <td rowspan="11">
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector-version">
+                  detector-version
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-entity-type">
+                  entity-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-event-type">
+                  event-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-external-model">
+                  external-model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-label">
+                  label
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model-version">
+                  model-version
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-outcome">
+                  outcome
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-rule">
+                  rule
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-variable">
+                  variable
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-PutDetector">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_PutDetector.html">
+                 PutDetector
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates or updates a detector.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-PutEntityType">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_PutEntityType.html">
+                 PutEntityType
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates or updates an entity type. An entity represents who is performing the event.
+                                                As part of a fraud prediction, you pass the entity ID to indicate the specific entity
+                                                who performed the event. An entity type classifies the entity. Example classifications
+                                                include customer, merchant, or account.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-entity-type">
+                  entity-type*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-PutEventType">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_PutEventType.html">
+                 PutEventType
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates or updates an event type. An event is a business activity that is evaluated
+                                                for fraud risk. With Amazon Fraud Detector, you generate fraud predictions for events.
+                                                An event type defines the structure for an event sent to Amazon Fraud Detector. This
+                                                includes the variables sent as part of the event, the entity performing the event
+                                                (such as a customer), and the labels that classify the event. Example event types
+                                                include online payment transactions, account registrations, and authentications.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-event-type">
+                  event-type*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-PutExternalModel">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_PutExternalModel.html">
+                 PutExternalModel
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates or updates an Amazon SageMaker model endpoint. You can also use this action
+                                                to update the configuration of the model endpoint, including the IAM role and/or the
+                                                mapped variables.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-external-model">
+                  external-model*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-PutKMSEncryptionKey">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_PutKMSEncryptionKey.html">
+                 PutKMSEncryptionKey
+                </a>
+               </td>
+               <td>
+                Specifies the Key Management Service (KMS) customer master key (CMK) to be used to
+                                                encrypt content in Amazon Fraud Detector.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-PutLabel">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_PutLabel.html">
+                 PutLabel
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates or updates label. A label classifies an event as fraudulent or legitimate.
+                                                Labels are associated with event types and used to train supervised machine learning
+                                                models in Amazon Fraud Detector.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-label">
+                  label*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-PutOutcome">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_PutOutcome.html">
+                 PutOutcome
+                </a>
+               </td>
+               <td rowspan="2">
+                Creates or updates an outcome.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-outcome">
+                  outcome*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="12">
+                <a id="amazonfrauddetector-TagResource">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_TagResource.html">
+                 TagResource
+                </a>
+               </td>
+               <td rowspan="12">
+                Assigns tags to a resource.
+               </td>
+               <td rowspan="12">
+                Tagging
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector-version">
+                  detector-version
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-entity-type">
+                  entity-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-event-type">
+                  event-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-external-model">
+                  external-model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-label">
+                  label
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model-version">
+                  model-version
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-outcome">
+                  outcome
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-rule">
+                  rule
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-variable">
+                  variable
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="12">
+                <a id="amazonfrauddetector-UntagResource">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UntagResource.html">
+                 UntagResource
+                </a>
+               </td>
+               <td rowspan="12">
+                Removes tags from a resource.
+               </td>
+               <td rowspan="12">
+                Tagging
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector-version">
+                  detector-version
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-entity-type">
+                  entity-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-event-type">
+                  event-type
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-external-model">
+                  external-model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-label">
+                  label
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model-version">
+                  model-version
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-outcome">
+                  outcome
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-rule">
+                  rule
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-variable">
+                  variable
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-UpdateDetectorVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateDetectorVersion">
+                 UpdateDetectorVersion
+                </a>
+               </td>
+               <td>
+                Updates a detector version. The detector version attributes that you can update include
+                                                models, external model endpoints, rules, rule execution mode, and description. You
+                                                can only update a DRAFT detector version.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector">
+                  detector*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-UpdateDetectorVersionMetadata">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateDetectorVersionMetadata">
+                 UpdateDetectorVersionMetadata
+                </a>
+               </td>
+               <td>
+                Updates the detector version's description. You can update the metadata for any detector
+                                                version (DRAFT, ACTIVE, or INACTIVE).
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector-version">
+                  detector-version*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-UpdateDetectorVersionStatus">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateDetectorVersionStatus">
+                 UpdateDetectorVersionStatus
+                </a>
+               </td>
+               <td>
+                Updates the detector version’s status. You can perform the following promotions or
+                                                demotions using UpdateDetectorVersionStatus: DRAFT to ACTIVE, ACTIVE to INACTIVE,
+                                                and INACTIVE to ACTIVE.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-detector-version">
+                  detector-version*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-UpdateModel">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateModel">
+                 UpdateModel
+                </a>
+               </td>
+               <td>
+                Updates a model. You can update the description attribute using this action.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-UpdateModelVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateModelVersion">
+                 UpdateModelVersion
+                </a>
+               </td>
+               <td rowspan="2">
+                Updates a model version. Updating a model version retrains an existing model version
+                                                using updated training data and produces a new minor version of the model. You can
+                                                update the training data set location and data access role attributes using this action.
+                                                This action creates and trains a new minor version of the model, for example version
+                                                1.01, 1.02, 1.03.
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-model">
+                  model*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-UpdateModelVersionStatus">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateModelVersionStatus">
+                 UpdateModelVersionStatus
+                </a>
+               </td>
+               <td>
+                Updates the status of a model version.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-UpdateRuleMetadata">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateRuleMetadata.html">
+                 UpdateRuleMetadata
+                </a>
+               </td>
+               <td>
+                Updates a rule's metadata. The description attribute can be updated.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-rule">
+                  rule*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td rowspan="2">
+                <a id="amazonfrauddetector-UpdateRuleVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateRuleVersion.html">
+                 UpdateRuleVersion
+                </a>
+               </td>
+               <td rowspan="2">
+                Updates a rule version resulting in a new rule version. Updates a rule version resulting
+                                                in a new rule version (version 1, 2, 3 ...).
+               </td>
+               <td rowspan="2">
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-rule">
+                  rule*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_RequestTag___TagKey_">
+                  aws:RequestTag/${TagKey}
+                 </a>
+                </p>
+                <p>
+                 <a href="#amazonfrauddetector-aws_TagKeys">
+                  aws:TagKeys
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-UpdateVariable">
+                </a>
+                <a href="https://docs.aws.amazon.com/frauddetector/latest/api/API_UpdateVariable.html">
+                 UpdateVariable
+                </a>
+               </td>
+               <td>
+                Updates a variable.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-variable">
+                  variable*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+             </table>
+            </div>
+           </div>
+           <h2 id="amazonfrauddetector-resources-for-iam-policies">
+            Resource types defined by        Amazon Fraud Detector
+           </h2>
+           <p>
+            The following resource types are defined by this service and can be used in the
+            <code class="code">
+             Resource
+            </code>
+            element of IAM permission policy statements. Each action in the
+            <a href="#amazonfrauddetector-actions-as-permissions">
+             Actions table
+            </a>
+            identifies the      resource types that can be specified with that action. A resource
+                                    type can also define which      condition keys you can include in a policy. These
+                                    keys are displayed in the last column of the      table. For details about the columns
+                                    in the following table, see
+            <a href="./reference_policies_actions-resources-contextkeys.html#resources_table">
+             The resource types table
+            </a>
+            .
+           </p>
+           <div class="table-container">
+            <div class="table-contents">
+             <table id="w469aac33c14c29d448c15b5">
+              <thead>
+               <tr>
+                <th>
+                 Resource types
+                </th>
+                <th>
+                 ARN
+                </th>
+                <th>
+                 Condition keys
+                </th>
+               </tr>
+              </thead>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-detector">
+                </a>
+                detector
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:detector/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-detector-version">
+                </a>
+                detector-version
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:detector-version/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-entity-type">
+                </a>
+                entity-type
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:entity-type/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-external-model">
+                </a>
+                external-model
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:external-model/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-event-type">
+                </a>
+                event-type
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:event-type/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-label">
+                </a>
+                label
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:label/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-model">
+                </a>
+                model
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:model/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-model-version">
+                </a>
+                model-version
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:model-version/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-outcome">
+                </a>
+                outcome
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:outcome/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-rule">
+                </a>
+                rule
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:rule/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-variable">
+                </a>
+                variable
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:frauddetector:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:variable/$
+                 <span>
+                  {
+                 </span>
+                 resourcePath}
+                </code>
+               </td>
+               <td>
+                <p>
+                 <a href="#amazonfrauddetector-aws_ResourceTag___TagKey_">
+                  aws:ResourceTag/${TagKey}
+                 </a>
+                </p>
+               </td>
+              </tr>
+             </table>
+            </div>
+           </div>
+           <h2 id="amazonfrauddetector-policy-keys">
+            Condition keys for        Amazon Fraud Detector
+           </h2>
+           <p>
+            Amazon Fraud Detector defines the following condition keys that can be used in the
+            <code class="code">
+             Condition
+            </code>
+            element of an IAM policy. You can use these keys to further refine      the conditions
+                                    under which the policy statement applies. For details about the columns in the   
+                                    following table, see
+            <a href="./reference_policies_actions-resources-contextkeys.html#context_keys_table">
+             The condition keys table
+            </a>
+            .
+           </p>
+           <p>
+            To view the global condition keys that are available to all services, see
+            <a href="reference_policies_condition-keys.html#AvailableKeys" target="_blank">
+             Available global        condition keys
+            </a>
+            .
+           </p>
+           <div class="table-container">
+            <div class="table-contents">
+             <table id="w469aac33c14c29d448c17b7">
+              <thead>
+               <tr>
+                <th>
+                 Condition keys
+                </th>
+                <th>
+                 Description
+                </th>
+                <th>
+                 Type
+                </th>
+               </tr>
+              </thead>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-aws_RequestTag___TagKey_">
+                </a>
+                <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-requesttag">
+                 aws:RequestTag/${TagKey}
+                </a>
+               </td>
+               <td>
+                Filters actions based on the tags that are passed in the request
+               </td>
+               <td>
+                String
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-aws_ResourceTag___TagKey_">
+                </a>
+                <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-resourcetag">
+                 aws:ResourceTag/${TagKey}
+                </a>
+               </td>
+               <td>
+                Filters actions based on the tags associated with the resource
+               </td>
+               <td>
+                String
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="amazonfrauddetector-aws_TagKeys">
+                </a>
+                <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-tagkeys">
+                 aws:TagKeys
+                </a>
+               </td>
+               <td>
+                Filters actions based on the tag keys that are passed in the request
+               </td>
+               <td>
+                String
+               </td>
+              </tr>
+             </table>
+            </div>
+           </div>
+           <awsdocs-copyright class="copyright-print">
+           </awsdocs-copyright>
+           <awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}">
+           </awsdocs-thumb-feedback>
+          </div>
+          <noscript>
+           <div>
+            <div>
+             <div>
+              <div id="js_error_message">
+               <p>
+                <img alt="Warning" src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png"/>
+                <strong>
+                 Javascript is disabled or is unavailable in your
+                                                   browser.
+                </strong>
+               </p>
+               <p>
+                To use the AWS Documentation, Javascript must be
+                                                enabled. Please refer to your browser's Help pages for instructions.
+               </p>
+              </div>
+             </div>
+            </div>
+           </div>
+          </noscript>
+          <div class="awsui-util-font-size-0" id="main-col-footer">
+           <div id="doc-conventions">
+            <a href="/general/latest/gr/docconventions.html" target="_top">
+             Document Conventions
+            </a>
+           </div>
+           <div class="prev-next">
+            <div accesskey="p" class="prev-link" href="./list_amazonforecast.html" id="previous">
+             Amazon Forecast
+            </div>
+            <div accesskey="n" class="next-link" href="./list_amazonfreertos.html" id="next">
+             Amazon FreeRTOS
+            </div>
+           </div>
+          </div>
+          <awsdocs-page-utilities>
+          </awsdocs-page-utilities>
+         </div>
+         <div id="quick-feedback-yes" style="display: none;">
+          <div class="title">
+           Did this page help you? - Yes
+          </div>
+          <div class="content">
+           <p>
+            Thanks for letting us know we're doing a good
+                                    job!
+           </p>
+           <p>
+            If you've got a moment, please tell us what we did right
+                                    so we can do more of it.
+           </p>
+           <p>
+            <awsui-button click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IAM&amp;topic_url=https://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_amazonfrauddetector.html" id="fblink" target="_blank" text="Feedback">
+            </awsui-button>
+           </p>
+          </div>
+         </div>
+         <div id="quick-feedback-no" style="display: none;">
+          <div class="title">
+           Did this page help you? - No
+          </div>
+          <div class="content">
+           <p>
+            Thanks for letting us know this page needs work. We're
+                                    sorry we let you down.
+           </p>
+           <p>
+            If you've got a moment, please tell us how we can make
+                                    the documentation better.
+           </p>
+           <p>
+            <awsui-button click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IAM&amp;topic_url=https://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_amazonfrauddetector.html" id="fblink" target="_blank" text="Feedback">
+            </awsui-button>
+           </p>
+          </div>
+         </div>
+        </div>
+       </body>
+      </div>
+     </awsdocs-view>
+     <div class="page-loading-indicator" id="page-loading-indicator">
+      <awsui-spinner size="large">
+      </awsui-spinner>
+     </div>
+    </div>
+    <div dom-region="tools" id="tools-panel">
+     <awsdocs-tools-panel id="awsdocs-tools-panel">
+     </awsdocs-tools-panel>
+    </div>
+   </awsui-app-layout>
+   <awsdocs-cookie-banner class="doc-cookie-banner">
+   </awsdocs-cookie-banner>
+   <!--
+                SiteCatalyst code version: H.25.2.
+                Copyright 1996-2012 Adobe, Inc. All Rights Reserved
+                More info available at http://www.omniture.com
+            -->
+   <script language="JavaScript" type="text/javascript">
+    var awsdocs = awsdocs || {};
+awsdocs.prop66 = 'AWS Identity and Access Management';
+awsdocs.prop65 =  'User Guide';
+   </script>
+   <script language="JavaScript" src="https://a0.awsstatic.com/s_code/js/3.0/awshome_s_code.js" type="text/javascript">
+   </script>
+   <!--/DO NOT REMOVE/-->
+   <!--End SiteCatalyst code version: H.25.2.-->
+  </div>
+ </body>
+</html>

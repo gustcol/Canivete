@@ -1,0 +1,48 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/devops-python-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                            Deb Package Requirements
+# ============================================================================ #
+
+# for htpasswd for docker registry authenticated checks
+apache2-utils
+
+# installs 343MB of dependencies - install by hand if needed
+#ffmpeg
+
+# IPython Notebook fails and leave apt broken
+# The following packages have unmet dependencies:
+#  python-zmq : Depends: libzmq1 but it is not going to be installed
+#  E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+#
+#ipython-notebook || :
+
+#which java || $(SUDO) apt-get install -y openjdk-8-jdk || $(SUDO) apt-get install -y openjdk-7-jdk
+
+# =====================================
+# installed by bash-tools submodule now
+
+# needed for tests/test_spark* and ambari_cancel_all_requests.sh
+#curl
+
+# either of these should do to ensure ping command is present for find_active_server.py's ping mode
+#iputils-ping
+##inetutils-ping
+
+# for anonymize_parallel.sh
+#parallel
+
+# needed for serf test's 'uptime' command
+#procps
+
+#zip
+#unzip

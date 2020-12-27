@@ -1,0 +1,299 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "FunctionCodeBucket"
+    },
+    "MasterDatabasePassword": {
+      "Type": "String",
+      "Description": "The password setup/restore functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "FunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The password lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "PagerdutyApiToken": {
+      "Type": "String",
+      "Description": "The API token to use to talk to PagerDuty",
+      "Default": "DONTUSE",
+      "NoEcho": "true"
+    },
+    "AlertEmailAddress": {
+      "Type": "String",
+      "Description": "Address to send alert emails to",
+      "Default": "DONTUSE",
+      "NoEcho": "true"
+    },
+    "AlertFromAddress": {
+      "Type": "String",
+      "Description": "Address to send alert emails from",
+      "Default": "DONTUSE",
+      "NoEcho": "true"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "Default": "/SpaceCrab/"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "OwnerArn": {
+      "Type": "String",
+      "Description": "Owner for KMS"
+    }
+  },
+  "Resources": {
+    "KMSKey": {
+      "Type": "AWS::KMS::Key",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "Description": "The KMS key used to encrypt lambda environment variables",
+        "KeyPolicy": {
+          "Statement": [
+            {
+              "Sid": "Enable IAM User Permissions",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "kms:*",
+              "Resource": "*"
+            },
+            {
+              "Sid": "Allow use of the key",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": [
+                  {
+                    "Ref": "SpaceCrabLambdaExecutionRoleArn"
+                  }
+                ]
+              },
+              "Action": [
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:DescribeKey"
+              ],
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17",
+          "Id": "SpaceCrabKeyPolicy"
+        }
+      }
+    },
+    "LambdaEncryptValueFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "KMSKey"
+      ],
+      "Properties": {
+        "FunctionName": "EncryptFunction",
+        "Description": "Encrypt Stuff",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "EncryptFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {}
+        },
+        "Timeout": 15,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    },
+    "EncryptedMasterDatabasePassword": {
+      "Type": "AWS::CloudFormation::CustomResource",
+      "DeletionPolicy": "Retain",
+      "Version": "1.0",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LambdaEncryptValueFunction",
+            "Arn"
+          ]
+        },
+        "KeyId": {
+          "Ref": "KMSKey"
+        },
+        "PlainText": {
+          "Ref": "MasterDatabasePassword"
+        }
+      }
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Type": "AWS::CloudFormation::CustomResource",
+      "DeletionPolicy": "Retain",
+      "Version": "1.0",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LambdaEncryptValueFunction",
+            "Arn"
+          ]
+        },
+        "KeyId": {
+          "Ref": "KMSKey"
+        },
+        "PlainText": {
+          "Ref": "FunctionDatabasePassword"
+        }
+      }
+    },
+    "EncryptedPagerdutyToken": {
+      "Type": "AWS::CloudFormation::CustomResource",
+      "Version": "1.0",
+      "DeletionPolicy": "Retain",      
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LambdaEncryptValueFunction",
+            "Arn"
+          ]
+        },
+        "KeyId": {
+          "Ref": "KMSKey"
+        },
+        "PlainText": {
+          "Ref": "PagerdutyApiToken"
+        }
+      }
+    },
+    "EncryptedAlertEmailAddress": {
+      "Type": "AWS::CloudFormation::CustomResource",
+      "Version": "1.0",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LambdaEncryptValueFunction",
+            "Arn"
+          ]
+        },
+        "KeyId": {
+          "Ref": "KMSKey"
+        },
+        "PlainText": {
+          "Ref": "AlertEmailAddress"
+        }
+      }
+    },
+    "EncryptedFromEmailAddress": {
+      "Type": "AWS::CloudFormation::CustomResource",
+      "Version": "1.0",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LambdaEncryptValueFunction",
+            "Arn"
+          ]
+        },
+        "KeyId": {
+          "Ref": "KMSKey"
+        },
+        "PlainText": {
+          "Ref": "AlertFromAddress"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "EncryptedMasterDatabasePassword": {
+      "Value": {
+        "Fn::GetAtt": [
+          "EncryptedMasterDatabasePassword",
+          "CipherText"
+        ]
+      },
+      "Description": "KMS Encrypted master database password (base64 encoded)"
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Value": {
+        "Fn::GetAtt": [
+          "EncryptedFunctionDatabasePassword",
+          "CipherText"
+        ]
+      },
+      "Description": "KMS Encrypted database password (base64 encoded)"
+    },
+    "EncryptedPagerdutyToken": {
+      "Value": {
+        "Fn::GetAtt": [
+          "EncryptedPagerdutyToken",
+          "CipherText"
+        ]
+      },
+      "Description": "KMS Encrypted database password (base64 encoded)"
+    },
+    "EncryptedAlertEmailAddress": {
+      "Value": {
+        "Fn::GetAtt": [
+          "EncryptedAlertEmailAddress",
+          "CipherText"
+        ]
+      },
+      "Description": "KMS Encrypted alerting email address (base64 encoded)"
+    },
+    "EncryptedFromEmailAddress": {
+      "Value": {
+        "Fn::GetAtt": [
+          "EncryptedFromEmailAddress",
+          "CipherText"
+        ]
+      },
+      "Description": "KMS Encrypted sending email address (base64 encoded)"
+    },
+    "KMSKeyArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "KMSKey",
+          "Arn"
+        ]
+      },
+      "Description": "the KMSKey to use for things"
+    }
+  }
+}

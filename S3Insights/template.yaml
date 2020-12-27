@@ -1,0 +1,599 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    SAM template for S3Insights host resources
+
+Globals:
+  Function:
+    Timeout: 900
+    Runtime: python3.6
+    MemorySize: 1024
+
+Parameters:
+  DeploymentName:
+      Type: String
+      AllowedPattern : "[a-zA-Z0-9]*"
+      MinLength : 4
+      MaxLength : 15
+
+Resources:
+  ConfigurationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${DeploymentName}_configuration_table
+      AttributeDefinitions:
+        - AttributeName: partitionkey
+          AttributeType: S
+        - AttributeName: sortkey
+          AttributeType: S
+      KeySchema:
+        - AttributeName: partitionkey
+          KeyType: HASH
+        - AttributeName: sortkey
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+  ConsolidatedInventoryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${DeploymentName}-${AWS::AccountId}-consolidated
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: 'True'
+        BlockPublicPolicy: 'True'
+        IgnorePublicAcls: 'True'
+        RestrictPublicBuckets: 'True'
+      AccelerateConfiguration:
+        AccelerationStatus: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+  LambdaIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+        Version: '2012-10-17'
+      Description: String
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonAthenaFullAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: 'CorePermissions'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Action:
+              - sts:AssumeRole
+              Effect: Allow
+              Resource:
+              - !Sub arn:aws:iam::*:role/${DeploymentName}-cross-account-iam-role
+            - Action:
+                - sqs:SendMessage
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:GetQueueUrl
+              Effect: "Allow"
+              Resource: !GetAtt S3NotificationSQSQueue.Arn
+            - Action:
+                - sqs:ListQueues
+              Effect: "Allow"
+              Resource: "*"
+            - Action:
+              - s3:CreateBucket
+              - s3:DeleteBucket
+              - s3:GetBucketPolicy
+              - s3:ListAllMyBuckets
+              - s3:ListBucket
+              - s3:PutBucketPolicy
+              - s3:PutAccelerateConfiguration
+              - s3:SetBucketEncryption
+              - s3:PutBucketNotification
+              - s3:GetBucketNotification
+              - s3:PutBucketPublicAccessBlock
+              - s3:GetEncryptionConfiguration
+              - s3:PutEncryptionConfiguration
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+              - s3:ListBucket
+              - s3:DeleteBucketPolicy
+              Effect: Allow
+              Resource:
+              - !Sub arn:aws:s3:::${DeploymentName}*
+              - !Sub arn:aws:s3:::${DeploymentName}*/*
+            - Action:
+              - s3:SetBucketEncryption
+              - s3:GetEncryptionConfiguration
+              - 3:PutEncryptionConfiguration
+              Effect: Allow
+              Resource:
+              - "*"
+            - Action:
+              - s3:ListAllMyBuckets
+              - s3:ListBucket
+              - s3:GetBucketLocation
+              - s3:PutInventoryConfiguration
+              - s3:GetInventoryConfiguration
+              Effect: Allow
+              Resource: "*"
+            - Action:
+              - cloudformation:createstack
+              - cloudformation:deletestack
+              - cloudformation:describestacks
+              - sns:listtopics
+              - sns:listsubscriptionsbytopic
+              Effect: Allow
+              Resource: "*"
+            - Action:
+              - dynamodb:PutItem
+              - dynamodb:GetItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+              - dynamodb:DescribeTable
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:BatchWriteItem
+              Effect: Allow
+              Resource: !GetAtt ConfigurationTable.Arn
+            - Action:
+              - sns:createtopic
+              - sns:deletetopic
+              - sns:subscribe
+              - sns:gettopicattributes
+              - sns:settopicattributes
+              - sns:unsubscribe
+              - sns:subscribe
+              Effect: Allow
+              Resource: !Sub arn:aws:sns:*:${AWS::AccountId}:${DeploymentName}*
+            - Action:
+              - ses:verifyemailidentity
+              - ses:verifyemailaddress
+              - ses:sendemail
+              - ses:sendemailraw
+              - ses:deleteidentity
+              - ses:listidentities
+              Effect: Allow
+              Resource: "*"
+      RoleName: !Sub ${DeploymentName}-lambda-iam-role
+  S3NotificationSQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${DeploymentName}-sqs-consolidate-inventory-files
+      VisibilityTimeout: 3600
+  SQSNotifcationFromS3:
+    Type: AWS::SQS::QueuePolicy
+    DependsOn: S3NotificationSQSQueue
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: SQSNotifyIssueUpdateQueuePolicy
+        Statement:
+        - Effect: Allow
+          Principal: "*"
+          Action: sqs:SendMessage
+          Resource: !GetAtt S3NotificationSQSQueue.Arn
+          Condition:
+            ArnEquals:
+              aws:SourceArn: !Sub arn:aws:sns:*:${AWS::AccountId}:${DeploymentName}*
+      Queues:
+      - Ref: S3NotificationSQSQueue
+  InitializeLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: initialize.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  InitializeSourceAccountsIteratorLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: initialize_source_account_iterator.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  CreateInventoryConfigurationLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: create_inventory_configuration.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  CreateSmokeTestResourcesLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: create_smoke_test_resources.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  InitializeInventoryMonitorIteratorLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: initialize_inventory_monitor_iterator.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  UpdateInventoryStatusLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: update_inventory_status.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  TrackInventoryCompletionLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: inventory_monitor.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  CreateAthenaResourcesLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: run_analysis.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  SendWelcomeEmailLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: welcome_email.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  DeleteInventoryConfigurationLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: delete_inventory_configuration.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  ConfigureIteratorForDeleteingDestBucketsLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: delete_destination_buckets_iterator.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  DeleteDestinationBucketsLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: delete_destination_buckets.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  DeleteSmokeTestResourcesLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: delete_smoke_test_resources.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  InventoryObjectProcessor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3insights/
+      Handler: inventory_object_processor.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Environment:
+        Variables:
+          SQSARN: !GetAtt S3NotificationSQSQueue.Arn
+          CONSOLIDATEDINVENTORYBUCKETNAME: !Ref ConsolidatedInventoryBucket
+          CONFIGURATIONTABLENAME: !Ref ConfigurationTable
+          DEPLOYMENTNAME: !Ref DeploymentName
+  InventoryObjectProcessorEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      Enabled: true
+      BatchSize: 5
+      EventSourceArn: !GetAtt S3NotificationSQSQueue.Arn
+      FunctionName: !Ref InventoryObjectProcessor
+  StatesExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+  HarvesterStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      StateMachineName: !Sub ${DeploymentName}HarvesterStateMachine
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "Comment": "Step function for managing the workflow for generating, processing, and analyzing inventory objects",
+              "StartAt": "Initialize",
+              "States": {
+                "Initialize": {
+                  "Type": "Task",
+                  "Resource": "${InitializeLambdaArn}",
+                  "Next": "InitializeIteratorForCreatingInventoryConfiguration"
+                },
+                "InitializeIteratorForCreatingInventoryConfiguration": {
+                  "Type": "Task",
+                  "Resource": "${InitializeSourceAccountsIteratorLambdaArn}",
+                  "Next": "CreateInventoryConfiguration"
+                },
+                "CreateInventoryConfiguration": {
+                  "Type": "Task",
+                  "Resource": "${CreateInventoryConfigurationLambdaArn}",
+                  "Next": "AreInventoryConfigurationsCreated"
+                },
+                "AreInventoryConfigurationsCreated": {
+                    "Type": "Choice",
+                    "Choices": [
+                        {
+                            "Variable": "$.continue",
+                            "BooleanEquals": true,
+                            "Next": "CreateInventoryConfiguration"
+                        }
+                    ],
+                    "Default": "CreateSmokeTestResources"
+                },
+                "CreateSmokeTestResources": {
+                  "Type": "Task",
+                  "Resource": "${CreateSmokeTestResourcesLambdaArn}",
+                  "Next": "InitializeInventoryMonitorIterator"
+                },
+                "InitializeInventoryMonitorIterator": {
+                  "Type": "Task",
+                  "Resource": "${InitializeInventoryMonitorIteratorLambdaArn}",
+                  "Next": "InitializeIteratorForUpdatingInventoryStatus"
+                },
+                 "InitializeIteratorForUpdatingInventoryStatus": {
+                  "Type": "Task",
+                  "Resource": "${InitializeSourceAccountsIteratorLambdaArn}",
+                  "Next": "UpdateInventoryStatus"
+                },
+                "UpdateInventoryStatus": {
+                  "Type": "Task",
+                  "Resource": "${UpdateInventoryStatusLambdaFunctionLambdaArn}",
+                  "Next": "AreAllInventoryOperationsUpdated"
+                },
+                "AreAllInventoryOperationsUpdated": {
+                    "Type": "Choice",
+                    "Choices": [
+                        {
+                            "Variable": "$.continue",
+                            "BooleanEquals": true,
+                            "Next": "UpdateInventoryStatus"
+                        }
+                    ],
+                    "Default": "TrackInventoryCompletion"
+                },
+                "TrackInventoryCompletion": {
+                    "Type": "Task",
+                    "Resource": "${TrackInventoryCompletionLambdaArn}",
+                    "Next": "IsComplete"
+                },
+
+                "IsComplete": {
+                    "Type": "Choice",
+                    "Choices": [
+                        {
+                            "Variable": "$.continue",
+                            "BooleanEquals": true,
+                            "Next": "WaitForInventoryJobs"
+                        }
+                    ],
+                    "Default": "CreateAthenaResources"
+                },
+                "WaitForInventoryJobs" : {
+                  "Type": "Wait",
+                  "SecondsPath": "$.wait_time_in_seconds",
+                  "Next": "InitializeIteratorForUpdatingInventoryStatus"
+                },
+                "CreateAthenaResources": {
+                  "Type": "Task",
+                  "Resource": "${CreateAthenaResourcesLambdaArn}",
+                  "Next": "WaitForAthenaJobs"
+                },
+                "WaitForAthenaJobs" : {
+                  "Type": "Wait",
+                  "SecondsPath": "$.wait_time_in_seconds",
+                  "Next": "SendWelcomeEmail"
+                },
+                "SendWelcomeEmail": {
+                  "Type": "Task",
+                  "Resource": "${SendWelcomeEmailLambdaArn}",
+                  "Next": "InitializeIteratorForDeletingInventoryConfiguration"
+                },
+                "InitializeIteratorForDeletingInventoryConfiguration": {
+                  "Type": "Task",
+                  "Resource": "${InitializeSourceAccountsIteratorLambdaArn}",
+                  "Next": "DeleteInventoryConfiguration"
+                },
+                "DeleteInventoryConfiguration": {
+                  "Type": "Task",
+                  "Resource": "${DeleteInventoryConfigurationLambdaFunctionLambdaArn}",
+                  "Next": "HaveAllConfigurationsBeenDeleted"
+                },
+                "HaveAllConfigurationsBeenDeleted": {
+                    "Type": "Choice",
+                    "Choices": [
+                        {
+                            "Variable": "$.continue",
+                            "BooleanEquals": true,
+                            "Next": "DeleteInventoryConfiguration"
+                        }
+                    ],
+                    "Default": "ConfigureIteratorForDeleteingDestBuckets"
+                },
+                "ConfigureIteratorForDeleteingDestBuckets": {
+                  "Type": "Task",
+                  "Resource": "${ConfigureIteratorForDeleteingDestBucketsLambdaArn}",
+                  "Next": "DeleteDestinationBuckets"
+                },
+                "DeleteDestinationBuckets": {
+                  "Type": "Task",
+                  "Resource": "${DeleteDestinationBucketsLambdaArn}",
+                  "Next": "AreDestinationBucketsDeleted"
+                },
+                "AreDestinationBucketsDeleted": {
+                    "Type": "Choice",
+                    "Choices": [
+                        {
+                            "Variable": "$.continue",
+                            "BooleanEquals": true,
+                            "Next": "DeleteDestinationBuckets"
+                        }
+                    ],
+                    "Default": "DeleteSmokeTestResources"
+                },
+                "DeleteSmokeTestResources": {
+                  "Type": "Task",
+                  "Resource": "${DeleteSmokeTestResourcesLambdaArn}",
+                  "End": true
+                }
+              }
+            }
+          - {InitializeLambdaArn: !GetAtt [ InitializeLambdaFunction, Arn ],InitializeSourceAccountsIteratorLambdaArn: !GetAtt [ InitializeSourceAccountsIteratorLambdaFunction, Arn ],CreateInventoryConfigurationLambdaArn: !GetAtt [ CreateInventoryConfigurationLambdaFunction, Arn ], CreateSmokeTestResourcesLambdaArn: !GetAtt [ CreateSmokeTestResourcesLambdaFunction, Arn ], InitializeInventoryMonitorIteratorLambdaArn: !GetAtt [InitializeInventoryMonitorIteratorLambdaFunction, Arn], UpdateInventoryStatusLambdaFunctionLambdaArn: !GetAtt [UpdateInventoryStatusLambdaFunction, Arn], TrackInventoryCompletionLambdaArn: !GetAtt [ TrackInventoryCompletionLambdaFunction, Arn ], CreateAthenaResourcesLambdaArn: !GetAtt [ CreateAthenaResourcesLambdaFunction, Arn ], SendWelcomeEmailLambdaArn: !GetAtt [ SendWelcomeEmailLambdaFunction, Arn ], DeleteInventoryConfigurationLambdaFunctionLambdaArn: !GetAtt [ DeleteInventoryConfigurationLambdaFunction, Arn ], ConfigureIteratorForDeleteingDestBucketsLambdaArn: !GetAtt [ConfigureIteratorForDeleteingDestBucketsLambdaFunction, Arn], DeleteDestinationBucketsLambdaArn: !GetAtt [DeleteDestinationBucketsLambdaFunction, Arn], DeleteSmokeTestResourcesLambdaArn: !GetAtt [DeleteSmokeTestResourcesLambdaFunction, Arn]}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
+
+  CleanupStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      StateMachineName: !Sub ${DeploymentName}CleanupStateMachine
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "Comment": "Step function for deleting temporary resources for the current Harvester execution",
+              "StartAt": "InitializeIteratorForDeletingInventoryConfiguration",
+              "States": {
+                "InitializeIteratorForDeletingInventoryConfiguration": {
+                  "Type": "Task",
+                  "Resource": "${InitializeSourceAccountsIteratorLambdaArn}",
+                  "Next": "DeleteInventoryConfiguration"
+                },
+                "DeleteInventoryConfiguration": {
+                  "Type": "Task",
+                  "Resource": "${DeleteInventoryConfigurationLambdaFunctionLambdaArn}",
+                  "Next": "HaveAllConfigurationsBeenDeleted"
+                },
+                "HaveAllConfigurationsBeenDeleted": {
+                    "Type": "Choice",
+                    "Choices": [
+                        {
+                            "Variable": "$.continue",
+                            "BooleanEquals": true,
+                            "Next": "DeleteInventoryConfiguration"
+                        }
+                    ],
+                    "Default": "ConfigureIteratorForDeleteingDestBuckets"
+                },
+                "ConfigureIteratorForDeleteingDestBuckets": {
+                  "Type": "Task",
+                  "Resource": "${ConfigureIteratorForDeleteingDestBucketsLambdaArn}",
+                  "Next": "DeleteDestinationBuckets"
+                },
+                "DeleteDestinationBuckets": {
+                  "Type": "Task",
+                  "Resource": "${DeleteDestinationBucketsLambdaArn}",
+                  "Next": "AreDestinationBucketsDeleted"
+                },
+                "AreDestinationBucketsDeleted": {
+                    "Type": "Choice",
+                    "Choices": [
+                        {
+                            "Variable": "$.continue",
+                            "BooleanEquals": true,
+                            "Next": "DeleteDestinationBuckets"
+                        }
+                    ],
+                    "Default": "DeleteSmokeTestResources"
+                },
+                "DeleteSmokeTestResources": {
+                  "Type": "Task",
+                  "Resource": "${DeleteSmokeTestResourcesLambdaArn}",
+                  "End": true
+                }
+              }
+            }
+          - {InitializelambdaArn: !GetAtt [ InitializeLambdaFunction, Arn ],InitializeSourceAccountsIteratorLambdaArn: !GetAtt [ InitializeSourceAccountsIteratorLambdaFunction, Arn ],CreateInventoryConfigurationLambdaArn: !GetAtt [ CreateInventoryConfigurationLambdaFunction, Arn ], InitializeInventoryMonitorIteratorLambdaArn: !GetAtt [InitializeInventoryMonitorIteratorLambdaFunction, Arn], UpdateInventoryStatusLambdaFunctionLambdaArn: !GetAtt [UpdateInventoryStatusLambdaFunction, Arn], TrackInventoryCompletionLambdaArn: !GetAtt [ TrackInventoryCompletionLambdaFunction, Arn ], CreateAthenaResourceslambdaArn: !GetAtt [ CreateAthenaResourcesLambdaFunction, Arn ], SendWelcomeEmaillambdaArn: !GetAtt [ SendWelcomeEmailLambdaFunction, Arn ], DeleteInventoryConfigurationLambdaFunctionLambdaArn: !GetAtt [ DeleteInventoryConfigurationLambdaFunction, Arn ], ConfigureIteratorForDeleteingDestBucketsLambdaArn: !GetAtt [ConfigureIteratorForDeleteingDestBucketsLambdaFunction, Arn], DeleteDestinationBucketsLambdaArn: !GetAtt [DeleteDestinationBucketsLambdaFunction, Arn], DeleteSmokeTestResourcesLambdaArn: !GetAtt [DeleteSmokeTestResourcesLambdaFunction, Arn]}
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]

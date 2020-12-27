@@ -1,0 +1,20 @@
+[submodule "lib"]
+	path = lib
+	url = https://github.com/harisekhon/lib
+	branch = master
+[submodule "bash-tools"]
+	path = bash-tools
+	url = https://github.com/harisekhon/bash-tools
+	branch = master
+[submodule "sql"]
+	path = sql
+	url = https://github.com/HariSekhon/SQL-scripts
+[submodule "templates/kubernetes"]
+	path = templates/kubernetes
+	url = https://github.com/HariSekhon/Kubernetes-templates
+[submodule "sql-keywords"]
+	path = sql-keywords
+	url = https://github.com/HariSekhon/SQL-keywords
+[submodule "templates"]
+	path = templates
+	url = https://github.com/HariSekhon/templates

@@ -1,0 +1,120 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: Tue May 26 10:39:01 UTC 2015
+#
+#  https://github.com/harisekhon/nagios-plugin-kafka
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#  to help improve or steer this or other code I publish
+#
+#  http://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                               T r a v i s   C I
+# ============================================================================ #
+
+# https://docs.travis-ci.com/user/customizing-the-build/
+
+version: ~> 1.0
+
+# ================================================
+# https://docs.travis-ci.com/user/languages/scala/
+language: scala
+scala:
+  # Travis CI broke switching during test phase for these versions
+  #- 2.10.6
+  #- 2.11.11
+  - 2.12.8
+
+jdk:
+  # not available any more
+  #- oraclejdk8
+  # Travis CI networking issue
+  #- oraclejdk9
+  # oraclejdk10 EOL Oct 2018
+  #- oraclejdk10
+  - oraclejdk11
+  # SonarQube plugin version 2.2 is now built with Java 8, doesn't support Java 7
+  #- oraclejdk7
+  # Travis CI doesn't support this any more on new bionic build
+  #- openjdk8
+  - openjdk9
+  - openjdk11
+  # dropped OpenJDK 7 as it's getting buffer overflows from both SBT and Maven Surefire
+  # - openjdk7
+
+# =========================================
+# https://docs.travis-ci.com/user/multi-os/
+#os:
+#  - linux
+#  - osx
+
+# =======================================
+# https://docs.travis-ci.com/user/docker/
+services:
+  - docker
+
+# ==============================================
+# https://docs.travis-ci.com/user/notifications/
+notifications:
+  email: false
+
+# =================================================================================
+# https://docs.travis-ci.com/user/customizing-the-build/#building-specific-branches
+# https://docs.travis-ci.com/user/conditional-builds-stages-jobs
+#branches:
+#  only:
+#    - master
+
+# ========================================
+# https://docs.travis-ci.com/user/caching/
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+cache:
+  - pip
+  - directories:
+    - $HOME/.cache
+    - $HOME/.cpan
+    - $HOME/.cpanm
+    - $HOME/.gem
+    - $HOME/.m2
+    - $HOME/.ivy
+    - $HOME/.ivy2
+    - $HOME/.gradle
+    - $HOME/.sbt
+    - bash-tools/pytools_checks
+
+# ==============================================
+# https://docs.travis-ci.com/user/job-lifecycle/
+
+# avoid package checksum mismatches when installing packages
+before_install:
+  - sudo rm -f "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
+  - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
+
+install:
+  #- travis_retry make random-build
+  - travis_retry make all
+
+#script:
+#  - travis_retry make test
+
+after_success:
+  # Nagios Plugin Kafka
+  - curl --header "Content:Type:application/json" --data {build:true} -X POST https://cloud.docker.com/api/build/v1/source/29209476-d68e-42e1-ba59-4b9a35104fef/trigger/76a766f5-1ba8-4189-a2ae-d62a62c2d8d4/call/
+  # Nagios Plugins
+  - curl --header "Content:Type:application/json" --data '{"build":"true"}' -X POST https://cloud.docker.com/api/build/v1/source/867fff52-9a87-4ca2-84e5-62603473083f/trigger/5b0d1a59-8b53-466a-87d7-8e99dfd01f16/call/
+  # Alpine Github
+  - curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/df816f2a-9407-4f1b-8b51-39615d784e65/trigger/8d9cb826-48df-439c-8c20-1975713064fc/call/
+  # Debian Github
+  - curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/439eff84-50c7-464a-a49e-0ac0bf1a9a43/trigger/0cfb3fe7-2028-494b-a43b-068435e6a2b3/call/
+  # CentOS Github
+  - curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/efba1846-5a9e-470a-92f8-69edc1232ba0/trigger/316d1158-7ffb-49a4-a7bd-8e5456ba2d15/call/
+  # Ubuntu Github
+  - curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/8b3dc094-d4ca-4c92-861e-1e842b5fac42/trigger/abd4dbf0-14bc-454f-9cde-081ec014bc48/call/

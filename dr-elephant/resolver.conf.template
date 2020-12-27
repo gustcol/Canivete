@@ -1,0 +1,4 @@
+[repositories]
+  local
+  # label ":" url [ ["," ivyPattern] "," artifactPattern [", mavenCompatible"]]
+  # custom_resolver : repo_url, [organization]/[module]/[revision]/[module]-[revision].ivy, [organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext], mavenCompatible

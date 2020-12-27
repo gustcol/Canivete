@@ -1,0 +1,810 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/bash-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#  to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+ifneq ("$(wildcard bash-tools)", "")
+	BASH_TOOLS := bash-tools
+else
+	BASH_TOOLS := .
+endif
+
+# would fail bootstrapping on Alpine
+#SHELL := /usr/bin/env bash
+
+export PATH := $(PATH):/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+
+DOCKER_IMAGE := harisekhon/github
+
+ifneq ("$(wildcard /.dockerenv)", "")
+	INSIDE_DOCKER := 1
+else
+	INSIDE_DOCKER :=
+endif
+
+CODE_FILES := $(shell if type git >/dev/null 2>&1; then git ls-files | while read line; do test -f "$$line" || continue; echo "$$line"; done; fi)
+
+CPANM = cpanm
+
+FATPACKS_DIR := fatpacks
+
+SUDO := sudo
+SUDO_PIP := sudo -H
+SUDO_PERL := sudo
+
+PYTHON_VIRTUALENV :=
+
+ifdef PERLBREW_PERL
+	# can't put this here, nor @commented, otherwise gets error - "commands commence before first target.  Stop."
+	#echo "Perlbrew environment detected, not calling sudo"
+	SUDO_PERL =
+else
+	PERLBREW_PERL :=
+endif
+
+# Travis has custom python install earlier in $PATH even in Perl builds so need to install PyPI modules locally to non-system python otherwise they're not found by programs.
+# Perms not set correctly on custom python install in Travis perl build so workaround is done to chown to travis user in .travis.yml
+# Better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not finding the perlbrew installation first
+# Looks like Perl travis builds are now using system Python - do not use TRAVIS env
+ifdef VIRTUAL_ENV
+	#echo "Virtual Env / Conda detected, not calling sudo"
+	SUDO_PIP :=
+	PYTHON_VIRTUALENV := 1
+endif
+ifdef CONDA_DEFAULT_ENV
+	SUDO_PIP :=
+	PYTHON_VIRTUALENV := 1
+endif
+
+# must come after to reset SUDO_PERL/SUDO_PIP to blank if root
+# EUID / UID not exported in Make
+# USER not populated in Docker
+ifeq '$(shell id -u)' '0'
+	#echo "root UID detected, not calling sudo"
+	SUDO :=
+	SUDO_PERL :=
+	SUDO_PIP :=
+endif
+
+# placeholders to silence check_makefile.sh warnings - should be set in client Makefiles after sourcing
+ifndef REPO
+	REPO := NOTSET
+endif
+ifndef ARGS
+	ARGS := NOTSET
+endif
+ifndef CONF_FILES
+	CONF_FILES := NOTSET
+endif
+
+define MAKEFILE_USAGE_COMMON
+
+ Usage:
+
+  Common Options:
+
+    make help                   show this message
+    make build                  installs all dependencies - OS packages and any language libraries via native tools eg. pip, cpanm, gem, go etc that are not available via OS packages
+    make build-retry            retries 'make build' x 3 until success to try to mitigate temporary upstream repo failures triggering false alerts in CI systems
+    make ci                     prints env, then runs 'build-retry' for more resilient CI builds with debugging
+    make printenv               prints environment variables, CPU cores, OS release, $$PWD, Git branch, hashref etc. Useful for CI debugging
+    make system-packages        installs OS packages only (detects OS via whichever package manager is available)
+    make test                   run tests
+    make clean                  removes compiled / generated files, downloaded tarballs, temporary files etc.
+
+    make submodules             initialize and update submodules to the right release (done automatically by build / system-packages)
+    make init                   same as above, often useful to do in CI systems to get access to additional submodule provided targets such as 'make ci'
+
+    make cpan                   install any modules listed in any cpan-requirements.txt files if not already installed
+    make gem                    install any modules listed in any gem-requirements.txt files if not already installed
+    make npm                    install any modules listed in any npm-requirements.txt files if not already installed
+    make pip                    install any modules listed in any requirements.txt files if not already installed
+
+    make python-compile         compile any python files found in the current directory and 1 level of subdirectory
+    make pycompile
+
+    make github                 open browser at github project
+    make readme                 open browser at github's README
+    make github-url             print github url and copy to clipboard
+    make status                 open browser at Github CI Builds overview Status page for all projects
+
+    make ls                     print list of code files in project
+    make wc                     show counts of files and lines
+
+endef
+    #make ${VENV}                make a virtualenv in the base directory (see VENV)
+    #make pip-install            install python packages in requirements.txt
+    #make git-config             set local git configuration
+export MAKEFILE_USAGE_COMMON
+export MAKEFILE_USAGE
+
+# doesn't seem to work
+#.DEFAULT: build
+#	@echo running default
+#	$(MAKE) build
+
+# won't be run the first time - will default to first target which will only then initialize submodules
+.PHONY: default
+default: git printenv
+	@$(MAKE) main
+
+.PHONY: printenv
+printenv: git
+	@ printf "CPU Cores: "; nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null; :
+	@ # $$USER not always set in sh
+	@ # printf "Git hashref: "; git rev-parse HEAD
+	@ # printf "Git hashref: "; git log --pretty=format:'%H' -n 1
+	@ # printf "Git branch:  "; git branch --show-current # doesn't work on Alpine
+	@ # printf "Git branch:  "; git show-branch --current # prints too many branches
+	@ # sort --ignore-case switch not available on Alpine, must use sort -f which is available on both Mac and all Linux distros
+	@ . $(BASH_TOOLS)/lib/ci.sh || : ; \
+		if is_CI || test -f /.dockerenv; then \
+			echo; \
+			echo "USER = `whoami`"; \
+			echo "PWD = $$PWD"; \
+			echo; \
+			printf "Git branch: "; git rev-parse --abbrev-ref HEAD; \
+			printf "Git commit: "; git log --pretty=format:"%ai  %cn  %H  %s" -n 1; echo; \
+			echo; \
+			if [ -f /.dockerenv  ]; then i\
+				echo "Running inside Docker:"; \
+				ls -l /.dockerenv 2>/dev/null; \
+			fi; \
+			echo; \
+			echo "OS RELEASE:"; \
+			echo; \
+			uname -a || : ; \
+			echo; \
+			cat /etc/*release || : ; \
+			echo; \
+			unset MAKEFILE_USAGE; \
+			unset MAKEFILE_USAGE_COMMON; \
+			unset TERMCAP; \
+			echo; \
+			echo "CI ENVIRONMENT:"; \
+			echo; \
+			env | grep -vi -e PASS -e TOKEN -e KEY -e SECRET | sort -f; \
+			echo; \
+			echo; \
+			if which java 2>/dev/null; then \
+				which java; \
+				java -version; \
+				echo; \
+			fi; \
+			echo "PATH:"; echo "$$PATH" | tr ':' '\n'; \
+			echo; \
+		else \
+			env | grep -E 'BUILD|PIPELINE|JOB|STAGE|\<CI_|^CI=' | grep -v TOKEN || : ; \
+		fi | cat # stops git commands from entering pager
+
+.PHONY: git-summary
+git-summary: init
+	@echo
+	@echo "Git summary:"
+	@$(BASH_TOOLS)/git_summary_line.sh
+	@echo
+
+.PHONY: ci
+ci: printenv
+	$(MAKE) build-retry
+
+.PHONY: build-retry
+build-retry: git
+	$(BASH_TOOLS)/retry.sh $(MAKE) build
+
+# won't be run the first time - will default to first target which will only then initialize submodules
+.PHONY: main
+main: printenv
+	@$(MAKE) build
+
+.PHONY: help
+help:
+	@# this doesn't work because the macro insertion of a multiline literal breaks the line-based make format so we have to export to an env var instead of using natively
+	@# even the unescaped macro literal in a commented breaks make
+	@echo "$$MAKEFILE_USAGE_COMMON $$MAKEFILE_USAGE" # | less -RFXig # don't use less it will make target tests hang
+	@echo
+	@echo "Now exiting usage help with status code 3 to explicitly prevent silent build failures from stray 'help' arguments"
+	@exit 3
+
+.PHONY: usage
+usage: help
+	@#:
+
+# clever but breaks 'make -n <target>' tests because the exit 3 doesn't actually get called and leads make to think there is a matching target, which then fail to execute
+# catchall - any unrecognized target will print usage
+#%::
+#	@# don't use less, it will make target tests hang
+#	@echo Unrecognized option $@; \
+#	echo; \
+#	$(MAKE) usage;
+
+.PHONY: quick
+quick:
+	QUICK=1 $(MAKE) build
+
+.PHONY: git
+git:
+	type git 2>/dev/null || $(BASH_TOOLS)/install_packages.sh git
+
+.PHONY: submodules
+submodules: git
+	@echo "checking out any git submodules:"
+	git submodule update --init --recursive
+	@echo
+
+.PHONY: git-clean
+git-clean: git
+	@git clean -n -d
+	@printf "\n\n%s" "If you're happy with this list, run:"
+	@printf "\n\n%s\n\n" "git clean -f -d"
+
+.PHONY: gitignore
+gitignore:
+	$(BASH_TOOLS)/update_gitignore.io.sh
+
+.PHONY: btest
+btest: bash-test
+	@:
+
+.PHONY: bash-test
+bash-test:
+	$(BASH_TOOLS)/check_all.sh
+
+.PHONY: push
+push:
+	git push
+
+.PHONY: system-packages
+system-packages: submodules
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
+	if [ -x /usr/local/bin/brew -a `uname` = Darwin ]; then $(MAKE) homebrew-packages; fi
+
+.PHONY: system-packages-perl
+system-packages-perl: system-packages
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages-perl; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages-perl; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages-perl; fi
+
+.PHONY: system-packages-python
+system-packages-python: system-packages
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages-python; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages-python; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages-python; fi
+
+.PHONY: apk-packages
+apk-packages:
+	# not portable in Alpine sh
+	#for x in apk-packages{,-perl,-python}{,-dev}.txt; do \
+
+	for x in apk-packages.txt apk-packages-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/apk_install_packages.sh"
+	#for x in apk-packages-{optional,cpan,pip}.txt; do \
+
+	for x in apk-packages-optional.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | NO_FAIL=1 NO_UPDATE=1 xargs "$(BASH_TOOLS)/apk_install_packages.sh"
+
+.PHONY: apk-packages-perl
+apk-packages-perl:
+	for x in apk-packages-perl.txt apk-packages-perl-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/apk_install_packages.sh"
+	#for x in apk-packages-{optional,cpan,pip}.txt; do \
+
+	# don't put comments inside the for loop, breaks syntax expecting 'done'
+	# no point installing system cpan packages if using perlbrew as they won't be found inside perlbrew
+	for x in apk-packages-cpan.txt; do \
+		if [ -z "$(PERLBREW_PERL)" ]; then \
+			find . -maxdepth 3 -path "*/setup/$$x"; \
+		fi; \
+	done | NO_FAIL=1 NO_UPDATE=1 xargs "$(BASH_TOOLS)/apk_install_packages.sh"
+
+.PHONY: apk-packages-python
+apk-packages-python:
+	for x in apk-packages-python.txt apk-packages-python-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/apk_install_packages.sh"
+	# no point installing system pip packages when they won't be found in virtualenv and will need to be pip installed anyway
+	for x in apk-packages-pip.txt; do \
+		if [ -z "$(PYTHON_VIRTUALENV)" ]; then \
+			find . -maxdepth 3 -path "*/setup/$$x"; \
+		fi; \
+	done | NO_FAIL=1 NO_UPDATE=1 xargs "$(BASH_TOOLS)/apk_install_packages.sh"
+
+.PHONY: apt-packages
+apt-packages:
+	#for x in deb-packages{,-perl,-python}{,-dev}.txt; do \
+
+	for x in deb-packages.txt deb-packages-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/apt_install_packages.sh"
+	#for x in deb-packages-{optional,cpan,pip}.txt; do \
+
+	for x in deb-packages-optional.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | NO_FAIL=1 NO_UPDATE=1 xargs "$(BASH_TOOLS)/apt_install_packages.sh"
+
+.PHONY: apt-packages-perl
+apt-packages-perl:
+	for x in deb-packages-perl.txt deb-packages-perl-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/apt_install_packages.sh"
+	for x in deb-packages-cpan.txt; do \
+		if [ -z "$(PERLBREW_PERL)" ] && \
+		   [ -z "$(GOOGLE_CLOUD_SHELL)" ]; then \
+			find . -maxdepth 3 -path "*/setup/$$x"; \
+		fi; \
+	done | NO_FAIL=1 NO_UPDATE=1 xargs "$(BASH_TOOLS)/apt_install_packages.sh"
+
+.PHONY: apt-packages-python
+apt-packages-python:
+	for x in deb-packages-python.txt deb-packages-python-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/apt_install_packages.sh"
+	for x in deb-packages-pip.txt; do \
+		if [ -z "$(PYTHON_VIRTUALENV)" ] && \
+		   [ -z "$(GOOGLE_CLOUD_SHELL)" ]; then \
+			find . -maxdepth 3 -path "*/setup/$$x"; \
+		fi; \
+	done  | NO_FAIL=1 NO_UPDATE=1 xargs "$(BASH_TOOLS)/apt_install_packages.sh"
+
+.PHONY: yum-packages
+yum-packages:
+	# needed for Fedora to have find and xargs to use below
+	"$(BASH_TOOLS)/yum_install_packages.sh" findutils
+
+	# if on Amazon Linux 2 install epel this way
+	if type -P amazon-linux-extras; then \
+		$(SUDO) amazon-linux-extras install epel -y; \
+	fi
+	$(BASH_TOOLS)/setup/install_epel_repo.sh
+
+	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
+	for x in rpm-packages.txt rpm-packages-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/yum_install_packages.sh"
+	for x in rpm-packages-optional.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | NO_FAIL=1 xargs "$(BASH_TOOLS)/yum_install_packages.sh"
+
+.PHONY: yum-packages-perl
+yum-packages-perl:
+	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
+	for x in rpm-packages-perl.txt rpm-packages-perl-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/yum_install_packages.sh"
+	for x in rpm-packages-cpan.txt; do \
+		if [ -z "$(PERLBREW_PERL)" ]; then \
+			find . -maxdepth 3 -path "*/setup/$$x"; \
+		fi; \
+	done | NO_FAIL=1 xargs "$(BASH_TOOLS)/yum_install_packages.sh"
+
+.PHONY: yum-packages-python
+yum-packages-python:
+	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
+	for x in rpm-packages-python.txt rpm-packages-python-dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | xargs "$(BASH_TOOLS)/yum_install_packages.sh"
+	. "$(BASH_TOOLS)/lib/python.sh"; \
+	set +o pipefail || : ; \
+	if ! inside_virtualenv; then \
+		for x in rpm-packages-pip.txt; do \
+			find . -maxdepth 3 -path "*/setup/$$x"; \
+		done | NO_FAIL=1 xargs "$(BASH_TOOLS)/yum_install_packages.sh"; \
+	fi
+
+.PHONY: homebrew-packages
+homebrew-packages:
+	# Fails if any of the packages are already installed, ignore and continue - if it's a problem the latest build steps will fail with missing headers
+	for x in brew-packages.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | NO_FAIL=1 xargs "$(BASH_TOOLS)/brew_install_packages.sh"
+	@# fix for OpenSSL 1.0 -> 1.1 library linkage breaking python -c 'import hashlib', which break pips, eg:
+	@# https://stackoverflow.com/questions/20399331/error-importing-hashlib-with-python-2-7-but-not-with-2-6
+	$(BASH_TOOLS)/setup/brew_fix_openssl_dependencies.sh
+
+.PHONY: system-packages-remove
+system-packages-remove:
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages-remove; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages-remove; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages-remove; fi
+
+.PHONY: apk-packages-remove
+apk-packages-remove:
+	for x in apk-packages-{,perl-,python-}dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | NO_FAIL=1 xargs "$(BASH_TOOLS)/apk_remove_packages.sh"
+	$(SUDO) rm -fr /var/cache/apk/*
+
+.PHONY: apt-packages-remove
+apt-packages-remove:
+	for x in deb-packages-{,perl-,python-}dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | NO_FAIL=1 xargs "$(BASH_TOOLS)/apt_remove_packages.sh"
+
+.PHONY: yum-packages-remove
+yum-packages-remove:
+	for x in rpm-packages-{,perl-,python-}dev.txt; do \
+		find . -maxdepth 3 -path "*/setup/$$x"; \
+	done | NO_FAIL=1 xargs "$(BASH_TOOLS)/yum_remove_packages.sh"
+
+.PHONY: cpan
+cpan::
+	find . -maxdepth 3 -path '*/setup/cpan-requirements*.txt' | grep -v cpan-requirements-optional.txt | xargs $(BASH_TOOLS)/perl_cpanm_install_if_absent.sh
+	@$(MAKE) cpan-optional
+
+.PHONY: cpan-optional
+cpan-optional::
+	find . -maxdepth 3 -path '*/setup/cpan-requirements-optional.txt' | NO_FAIL=1 xargs $(BASH_TOOLS)/perl_cpanm_install_if_absent.sh
+
+.PHONY: gems
+gems:: gem
+	@:
+
+.PHONY: gem
+gem::
+	find . -maxdepth 3 -path '*/setup/gem-requirements.txt' | xargs $(BASH_TOOLS)/ruby_gem_install_if_absent.sh
+	@$(MAKE) gem-optional
+
+.PHONY: gem-optional
+gem-optional::
+	find . -maxdepth 3 -path '*/setup/gem-requirements-optional.txt' | NO_FAIL=1 xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
+
+.PHONY: npm
+npm::
+	find . -maxdepth 3 -path '*/setup/npm-requirements.txt' -o -path '*/setup/npm-packages.txt' | $(BASH_TOOLS)/nodejs_npm_install_if_absent.sh
+	@$(MAKE) npm-optional
+
+.PHONY: npm-optional
+npm-optional::
+	find . -maxdepth 3 -path '*/setup/npm-requirements-optional.txt' | NO_FAIL=1 $(BASH_TOOLS)/nodejs_npm_install_if_absent.sh
+
+.PHONY: pip
+pip::
+	find . -maxdepth 3 -path '*/requirements.txt' | xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
+	@$(MAKE) pip-optional
+
+.PHONY: pip-optional
+pip-optional::
+	find . -maxdepth 3 -path '*/requirements-optional.txt' | NO_FAIL=1 xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
+
+.PHONY: pip-user
+pip-user::
+	PYTHON_USER_INSTALL=1 $(MAKE) pip
+
+.PHONY: fatpacks
+fatpacks:
+	$(BASH_TOOLS)/perl_generate_fatpacks.sh *.pl
+	@echo
+	@if [ -d lib/resources ]; then \
+		cp -av lib/resources fatpacks/; \
+	fi
+	@if $(MAKE) -n fatpacks-local >/dev/null 2>&1; then \
+		echo; \
+		echo "fatpacks-local target detected, running:"; \
+		$(MAKE) fatpacks-local; \
+	fi
+	@echo
+	@if [ -n "`ls "$(FATPACKS_DIR)"`" ]; then \
+		tar czvf fatpacks.tar.gz "$(FATPACKS_DIR)"; \
+		echo; \
+		echo "Generated fatpacks.tar.gz containing $(FATPACKS_DIR)/ directory of perl scripts with all dependencies bundled"; \
+	fi
+
+.PHONY: fatpack
+fatpack: fatpacks
+	@:
+
+.PHONY: python-compile
+python-compile:
+	$(BASH_TOOLS)/python_compile.sh
+
+.PHONY: pycompile
+pycompile: python-compile
+	@:
+
+.PHONY: python-version
+python-version:
+	$(BASH_TOOLS)/setup/which_python_installed.sh
+
+.PHONY: golang-version
+golang-version:
+	@echo && \
+	which go && \
+	ls -l `which go` && \
+	echo && \
+	go version || : ; \
+	echo
+
+.PHONY: go-version
+go-version: golang-version
+	@:
+
+.PHONY: golang-clean
+golang-clean:
+	@$(BASH_TOOLS)/golang_rm_binaries.sh
+
+.PHONY: go-clean
+go-clean: golang-clean
+	@:
+
+# =======================
+# Nice tricks for pure Python projects
+# - borrowed from https://gist.github.com/bsmith89/c6811893c1cbd2a72cc1d144a197bef2#file-makefile
+
+#VENV = .venv
+#export VIRTUAL_ENV := $(abspath ${VENV})
+
+# putting the venv/bin at the start of the path means that the venv python will be called
+# and the venv libraries used automatically, so no need to 'source .venv/bin/activate' first
+# although it misses the hash flush 'hash -r' that the venv activate script does
+#export PATH := ${VIRTUAL_ENV}/bin:${PATH}
+
+#${VENV}:
+#    python3 -m venv "$@"
+
+#pip-install: requirements.txt | ${VENV}
+#    pip install --upgrade -r requirements.txt
+# =======================
+
+.PHONY: sonar
+sonar:
+	sonar-scanner
+
+.PHONY: update
+update: update2
+	@# putting this here instead of inline dep because otherwise check_makefile.sh will fail the target as build target doesn't exist in this Makefile.in
+	@$(MAKE) build
+
+.PHONY: update2
+update2: update-no-recompile
+	@:
+
+.PHONY: update-no-recompile
+update-no-recompile:
+	git pull --no-edit
+	$(MAKE) submodules
+
+.PHONY: update-submodules
+update-submodules:
+	git submodule update --init --remote
+.PHONY: updatem
+updatem: update-submodules
+	@:
+
+.PHONY: docker-run
+docker-run:
+	docker run -ti --rm ${DOCKER_IMAGE} ${ARGS}
+
+.PHONY: run
+run: docker-run
+	@:
+
+.PHONY: concourse
+concourse:
+	$(BASH_TOOLS)/concourse.sh
+
+.PHONY: fly
+fly: concourse
+	@:
+
+.PHONY: docker-mount
+docker-mount:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/code ${DOCKER_IMAGE} bash -c "cd /code; exec bash"
+
+.PHONY: docker-mount-alpine
+docker-mount-alpine:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/code ${DOCKER_IMAGE}:alpine bash -c "cd /code; exec bash"
+
+.PHONY: docker-mount-debian
+docker-mount-debian:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/code ${DOCKER_IMAGE}:debian bash -c "cd /code; exec bash"
+
+.PHONY: docker-mount-centos
+docker-mount-centos:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/code ${DOCKER_IMAGE}:centos bash -c "cd /code; exec bash"
+
+.PHONY: docker-mount-ubuntu
+docker-mount-ubuntu:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/code ${DOCKER_IMAGE}:ubuntu bash -c "cd /code; exec bash"
+
+.PHONY: mount
+mount: docker-mount
+	@:
+
+.PHONY: mount-alpine
+mount-alpine: docker-mount-alpine
+	@:
+
+.PHONY: mount-debian
+mount-debian: docker-mount-debian
+	@:
+
+.PHONY: mount-centos
+mount-centos: docker-mount-centos
+	@:
+
+.PHONY: mount-ubuntu
+mount-ubuntu: docker-mount-ubuntu
+	@:
+
+# checks dockerhub build status for this repo - needs check_dockerhub_repo_build_status.py from Advanced Nagios Plugins Collection to be in $PATH
+.PHONY: dockerhub-status
+dockerhub-status:
+	check_dockerhub_repo_build_status.py -r "$(DOCKER_IMAGE)"
+
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/u/harisekhon and Dockerfiles source repo https://github.com/harisekhon/Dockerfiles
+.PHONY: docker-alpine
+docker-alpine:
+	$(BASH_TOOLS)/docker_mount_build_exec.sh alpine
+
+.PHONY: docker-debian
+docker-debian:
+	$(BASH_TOOLS)/docker_mount_build_exec.sh debian
+
+.PHONY: docker-centos
+docker-centos:
+	$(BASH_TOOLS)/docker_mount_build_exec.sh centos
+
+.PHONY: docker-fedora
+docker-fedora:
+	$(BASH_TOOLS)/docker_mount_build_exec.sh fedora
+
+.PHONY: docker-ubuntu
+docker-ubuntu:
+	$(BASH_TOOLS)/docker_mount_build_exec.sh ubuntu
+
+.PHONY: travis
+travis:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://travis-ci.org/$(REPO)"
+
+.PHONY: travis-log
+travis-log:
+	travis_last_log.py --failed $(REPO)
+
+.PHONY: travis-debug
+travis-debug:
+	travis_debug_session.py $(REPO)
+
+.PHONY: browse
+browse: github
+	@:
+
+.PHONY: commitcount
+commitcount:
+	@# interestingly, even on 10,000 commit repos, there are no duplicate short hashes shown from:
+	@# git log --all --pretty=format:"%h" | sort | uniq -d
+	@git log --all --pretty=format:"%h" | wc -l
+
+.PHONY: github
+github:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://github.com/$(REPO)"
+
+.PHONY: github-url
+github-url:
+	@. $(BASH_TOOLS)/.bash.d/functions.sh; echo "https://github.com/$(REPO)" | tee /dev/stderr | tr -d '\n' | paste_clipboard
+
+.PHONY: gitlab
+gitlab:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://gitlab.com/$(REPO)"
+
+.PHONY: gitlab-url
+gitlab-url:
+	@. $(BASH_TOOLS)/.bash.d/functions.sh; echo "https://gitlab.com/$(REPO)" | tee /dev/stderr | tr -d '\n' | paste_clipboard
+
+.PHONY: bitbucket
+bitbucket:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://bitbucket.org/$(REPO)/src/master/"
+
+.PHONY: bitbucket-url
+bitbucket-url:
+	@. $(BASH_TOOLS)/.bash.d/functions.sh; echo "https://bitbucket.org/$(REPO)/src/master/" | tee /dev/stderr | tr -d '\n' | paste_clipboard
+
+.PHONY: status
+status:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://bitbucket.org/HariSekhon/DevOps-Bash-tools/src/master/STATUS.md"
+
+.PHONY: readme
+readme:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://github.com/$(REPO)/blob/master/README.md"
+
+.PHONY: issues
+issues:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://github.com/$(REPO)/issues"
+
+.PHONY: github
+dockerhub:
+	@. $(BASH_TOOLS)/.bash.d/network.sh; browser "https://hub.docker.com/u/harisekhon"
+
+.PHONY: dockerhub-url
+dockerhub-url:
+	@. $(BASH_TOOLS)/.bash.d/functions.sh; echo "https://hub.docker.com/u/harisekhon" | tee /dev/stderr | tr -d '\n' | paste_clipboard
+
+.PHONY: startrack
+startrack:
+	@echo "Don't run this too much, you will hit an API limit against your IP"
+	@. $(BASH_TOOLS)/.bash.d/network.sh; \
+	browser "https://seladb.github.io/StarTrack-js/?\
+	u=$$(sed 's/\/.*//' <<< "$(REPO)")\
+	&r=$$(sed 's/.*\///' <<< "$(REPO)")"
+
+.PHONY: star
+star: startrack
+	@:
+
+.PHONY: allstars
+allstars:
+	@echo "Takes a while, don't run this all the time or you will hit an API limit against your IP"
+	@REPOS="Nagios-Plugins Dockerfiles DevOps-Python-tools DevOps-Perl-tools DevOps-Bash-Tools Nagios-Plugin-Kafka HAProxy-configs"; \
+	. $(BASH_TOOLS)/.bash.d/network.sh; \
+	browser "https://seladb.github.io/StarTrack-js/#/preload?\
+	$$(\
+		for repo in $$REPOS; do \
+			printf "%s" "&r=HariSekhon,$$repo"; \
+		done | \
+		sed 's/\&//'\
+	)"
+
+.PHONY: ls
+ls:
+	@echo $(CODE_FILES) | tr ' ' '\n' | sort
+
+.PHONY: wc
+wc:
+	if [ -x wc.sh ]; then ./wc.sh; exit 1; fi
+	@# CODE_FILES := definitions in Makefiles must not be quoted or will get wc error 'open: File name too long'
+	@wc -l $(CODE_FILES)
+	@printf 'Total Lines:\t\t\t'
+	@cat $(CODE_FILES) | wc -l | sed 's/[[:space:]]//g'
+	@printf 'Total Lines without # comments:\t'
+	@sed 's/#.*//;/^[[:space:]]*$$/d' $(CODE_FILES) | wc -l | sed 's/[[:space:]]//g'
+	@printf 'Total Files:\t\t\t'
+	@tr ' ' '\n' <<< "$(CODE_FILES)" | wc -l | sed 's/[[:space:]]//g'
+	@printf 'of which not the following:\t'
+	@tr ' ' '\n' <<< "$(CODE_FILES)" | grep -Ev -e '\.bash' \
+												-e lib/ \
+												-e setup/ \
+												-e 'tests?/' \
+												-e vagrant/ \
+												| wc -l | sed 's/[[:space:]]//g'
+	@printf 'of which .bash*:\t\t'
+	@tr ' ' '\n' <<< "$(CODE_FILES)" | grep '\.bash' | wc -l | sed 's/[[:space:]]//g'
+	@printf 'of which lib/:\t\t\t'
+	@tr ' ' '\n' <<< "$(CODE_FILES)" | grep lib/ | wc -l | sed 's/[[:space:]]//g'
+	@printf 'of which setup/:\t\t'
+	@tr ' ' '\n' <<< "$(CODE_FILES)" | grep setup/ | wc -l | sed 's/[[:space:]]//g'
+	@printf 'of which test(s)/:\t\t'
+	@tr ' ' '\n' <<< "$(CODE_FILES)" | grep -Ee 'tests?/' | wc -l | sed 's/[[:space:]]//g'
+	@printf 'of which vagrant/:\t\t'
+	@tr ' ' '\n' <<< "$(CODE_FILES)" | grep vagrant/ | wc -l | sed 's/[[:space:]]//g'
+
+# finds .swp, would need to port out code lists
+#.PHONY: wcall
+#wcall:
+#	find . -type f --not -path '*.git*' -exec cat {} \; | wc -l
+#
+#.PHONY: wcall
+#wcall:
+#	find . -type f -not -path '*.git*' -exec sed 's/#.*//;/^[[:space:]]*$$/d' {} \; | wc -l

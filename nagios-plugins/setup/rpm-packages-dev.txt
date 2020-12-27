@@ -1,0 +1,23 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                          RPM Dev Package Requirements
+# ============================================================================ #
+
+# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
+#cyrus-sasl-devel
+
+gcc-c++
+libev-devel
+
+# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+openssl-devel

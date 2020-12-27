@@ -1,0 +1,69 @@
+{
+  "blueprint" : "{{ blueprint_name }}",
+  "config_recommendation_strategy" : "{{ config_recommendation_strategy }}",
+{% if ambari_version is version_compare('2.6', '>=') %}
+  "repository_version_id": "{{ vdf_id }}",
+{% endif %}
+  "default_password" : "{{ default_password }}",
+{% if security|lower == "mit-kdc" or security|lower == "active-directory" %}
+  "credentials" : [
+    {
+      "alias" : "kdc.admin.credential",
+{% if security|lower == "mit-kdc" %}
+      "principal" : "{{ security_options.admin_principal }}/admin@{{ security_options.realm | upper }}",
+{% endif %}
+{% if security|lower == "active-directory" %}
+      "principal" : "{{ security_options.admin_principal }}@{{ security_options.realm | upper }}",
+{% endif %}
+      "key" : "{{ security_options.admin_password }}",
+      "type" : "TEMPORARY"
+    }
+  ],
+  "security" : {
+    "type" : "KERBEROS"
+  },
+{% endif %}
+{#
+  The following checks if the inventory being used is static or a dynamic cloud inventory.
+  The 'nodes' variable would only exist in a cloud specific inventory.
+#}
+{% if nodes is defined %}
+  "host_groups" :[
+    {% for node_group in nodes if node_group.count > 0 -%}
+
+    {
+      "name" : "{{ node_group.role }}",
+      "hosts" : [
+        {% for node in groups[node_group.role]|sort -%}
+
+        { "fqdn" : "{{ hostvars[node]['ansible_fqdn'] | lower }}" }{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+
+      ]
+    }{% if not loop.last and node_group.count > 0 %},{% endif %}
+
+    {% endfor %}
+
+  ]
+{% else %}
+  "host_groups" :[
+    {% for node_group in groups if node_group not in ['all', 'ambari-server', 'hadoop-cluster', 'ungrouped'] and groups[node_group]|length > 0 -%}
+
+    {
+      "name" : "{{ node_group }}",
+      "hosts" : [
+        {% for node in groups[node_group]|sort -%}
+
+        { "fqdn" : "{{ hostvars[node]['ansible_fqdn'] | lower }}" }{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+
+      ]
+    }{% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+  ]
+{% endif %}
+}

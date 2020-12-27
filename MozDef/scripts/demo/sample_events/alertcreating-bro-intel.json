@@ -1,0 +1,25 @@
+[
+  {
+    "category": "brointel",
+    "processid": "0",
+    "severity": "7",
+    "tags": ["nsm","bro","intel"],
+    "hostname": "nsm5",
+    "summary": "Bro intel match: <randomipaddress>",
+    "file": "nsm",
+    "details": {
+      "category": "brointel",
+      "destinationipaddress": "0.0.82.27",
+      "seenwhere": "Intel::ADDR",
+      "uid": "C4RdjhyE2jkvRH54d",
+      "ts": "1405546326.853474",
+      "seenindicator": "0.0.139.213",
+      "sources": "CIF - need-to-know",
+      "seenindicatortype": "HTTP::IN_X_FORWARDED_FOR_HEADER",
+      "destinationport": 443,
+      "sourceport": 58969,
+      "destinationipv4address": "0.0.82.27",
+      "severity": "NOTICE"
+    }
+  }
+]

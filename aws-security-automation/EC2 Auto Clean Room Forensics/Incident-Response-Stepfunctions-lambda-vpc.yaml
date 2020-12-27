@@ -1,0 +1,740 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'You will be billed for the AWS resources used if you create a stack from this
+  template.
+  Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+  
+  Licensed under the Apache License, Version 2.0 (the "License").
+  You may not use this file except in compliance with the License.
+  A copy of the License is located at
+  
+      http://www.apache.org/licenses/LICENSE-2.0
+  
+  or in the "license" file accompanying this file. This file is distributed 
+  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  express or implied. See the License for the specific language governing 
+  permissions and limitations under the License.'
+Parameters:
+  VPCCIDR:
+    Type: String
+    Description: IP Address range for the VPN connected VPC
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 10.1.0.0/16
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetCIDR:
+    Type: String
+    Description: IP Address range for the VPN connected Subnet
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 10.1.0.0/24
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VpcId of your existing Virtual Private Cloud (VPC)
+    ConstraintDescription: must be the VPC Id of an existing Virtual Private Cloud.
+  NodeRunTime:
+    Type: String
+    Description: Node Runtime
+    Default: nodejs6.10
+  AmiId:
+    Type: String
+    Description: AMI to use when launching the forensics instance
+  instanceProfile:
+    Type: String
+    Description: Instance Profile Details Details
+  IsolatedInstanceSecurityGroup:
+    Type: String
+    Description: Security Group for isolation
+  HookUrlName:
+    Type: String
+    Description: AWS Slack URL Name
+  SlackChannelName:
+    Type: String
+    Description: AWS Slack Channel Name to publish the message
+    Default: "#aws-security"
+  IncidentResponseTopic:
+    Type: String
+    Description: SNS RTopic
+    Default: IncidentResponseTopic-v1
+  lambdas3bucketsname:
+    Type: String
+    Description: Bucket name where lambda functions reside
+  lambdas3keyname:
+    Type: String
+    Description: Key name of lambda functions in S3
+    Default: incidentresponse.zip
+  SSHLocation:
+    Description: " The IP address range that can be used to SSH to the EC2 instances"
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 0.0.0.0/0
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  Ec2KeyPair:
+    Type: String
+    Description: Key pair to use in starting a new instance
+  OutputS3Bucket:
+    Type: String
+    Description: Name of S3 bucket where forensic analysis report will be stored
+  OutputS3BucketRegion:
+    Type: String
+    Description: Output S3 bucket region
+
+Mappings: {}
+Resources:
+  IncidentResponseStepFunction:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: Sydney-Summit-Incident-Response-StateMachine
+      DefinitionString:
+        Fn::Join:
+        - ''
+        - - "{"
+          - '"Comment": " A state machine that submits a Job to AWS Batch and monitors
+            the Job until it completes. ",'
+          - '"StartAt": "Create Support Ticket Job",'
+          - '"States": {'
+          - '"Create Support Ticket Job": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - CreateTicket
+            - Arn
+          - "\","
+          - '"ResultPath": "$.supportID",'
+          - '"Next": "Start Isolating the instance",'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "},"
+          - '"Start Isolating the instance": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - IsolateInstance
+            - Arn
+          - "\","
+          - '"Next": "Job Complete?",'
+          - '"InputPath": "$",'
+          - '"ResultPath": "$",'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "},"
+          - '"Wait X Seconds": {'
+          - '"Type": "Wait",'
+          - '"SecondsPath": "$.wait_time",'
+          - '"Next": "Start Isolating the instance"'
+          - "},"
+          - '"Job Complete?": {'
+          - '"Type": "Choice",'
+          - '"Choices": [{'
+          - '"Variable": "$.STATUS",'
+          - '"StringEquals": "FAILED",'
+          - '"Next": "Job Failed"'
+          - "}, {"
+          - '"Variable": "$.STATUS",'
+          - '"StringEquals": "SUCCEEDED",'
+          - '"Next": "Alert Security Team on Isolation and Incident"'
+          - "}],"
+          - '"Default": "Wait X Seconds"'
+          - "},"
+          - '"Job Failed": {'
+          - '"Type": "Fail",'
+          - '"Cause": "AWS Batch Job Failed",'
+          - '"Error": "DescribeJob returned FAILED"'
+          - "},"
+          - ''
+          - '"Alert Security Team on Isolation and Incident": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - SendIsolationNotification
+            - Arn
+          - "\","
+          - '"InputPath": "$",'
+          - '"ResultPath": "$",'
+          - '"Next": "Prepare for Remediation",'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "},"
+          - '"Prepare for Remediation": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - createRemediationStepsLambda
+            - Arn
+          - "\","
+          - '"InputPath": "$",'
+          - '"ResultPath": "$.snapshotID",'
+          - '"Next": "Start Forensic Instance",'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "},"
+          - '"Start Forensic Instance": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - runInstance
+            - Arn
+          - "\","
+          - '"InputPath": "$",'
+          - '"ResultPath": "$",'
+          - '"Next": "Attach Volume For Forensic Analysis",'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "},"
+          - '"Attach Volume For Forensic Analysis": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - CreateAndAttachAffectedVolume
+            - Arn
+          - "\","
+          - '"InputPath": "$",'
+          - '"Next": "SSM Activation Job Complete?",'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "},"
+          - '"Wait for instance boot up": {'
+          - '"Type": "Wait",'
+          - '"SecondsPath": "$.wait_time",'
+          - '"Next": "IsSSMInstalled"'
+          - "},"
+          - '"IsSSMInstalled": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - IsSSMInstalled
+            - Arn
+          - "\","
+          - '"InputPath": "$",'
+          - '"Next": "SSM Activation Job Complete?",'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "},"
+          - ''
+          - '"SSM Activation Job Complete?": {'
+          - '"Type": "Choice",'
+          - '"Choices": [{'
+          - '"Variable": "$.SSM_STATUS",'
+          - '"StringEquals": "FAILED",'
+          - '"Next": "SSM Activation Job Failed"'
+          - "}, {"
+          - '"Variable": "$.SSM_STATUS",'
+          - '"StringEquals": "SUCCEEDED",'
+          - '"Next": "Generate Forensic Report"'
+          - "}],"
+          - '"Default": "Wait for instance boot up"'
+          - "},"
+          - '"SSM Activation Job Failed": {'
+          - '"Type": "Fail",'
+          - '"Cause": "AWS SSM Activation Job Failed",'
+          - '"Error": "DescribeJob returned FAILED"'
+          - "},"
+          - '"Generate Forensic Report": {'
+          - '"Type": "Task",'
+          - '"Resource": "'
+          - Fn::GetAtt:
+            - RunForesnsicAnalysis
+            - Arn
+          - "\","
+          - '"InputPath": "$",'
+          - '"End": true,'
+          - '"Retry": [{'
+          - '"ErrorEquals": ["States.ALL"],'
+          - '"IntervalSeconds": 1,'
+          - '"MaxAttempts": 3,'
+          - '"BackoffRate": 2.0'
+          - "}]"
+          - "}"
+          - "}"
+          - "}"
+      RoleArn:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+  CreateTicket:
+    Properties:
+      FunctionName: sec-ir-1-createSupportTicket
+      Description: Function to create support ticket
+      Handler: generateSupportTicket.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+    Type: AWS::Lambda::Function
+  IsolateInstance:
+    Properties:
+      FunctionName: sec-ir-2-isolateInstance
+      Description: Function to isolate Ec2 instance
+      Handler: isolateInstance.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          ISOLATED_SECUTRITYGROUP:
+            Ref: IsolatedInstanceSecurityGroup
+    Type: AWS::Lambda::Function
+  RunForesnsicAnalysis:
+    Properties:
+      FunctionName: sec-ir-8-runForesnsicAnalysis
+      Description: Function to Run Foresnsic Analysis
+      Handler: runForensicAnalysis.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          OUTPUT_S3_BUCKETNAME:
+            Ref: OutputS3Bucket
+          OUTPUT_S3_BUCKETREGION:
+            Ref: OutputS3BucketRegion
+    Type: AWS::Lambda::Function
+  createRemediationStepsLambda:
+    Properties:
+      FunctionName: sec-ir-4-snapShotCreation
+      Description: Function to isolate Ec2 instance
+      Handler: snapshotForRemediation.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          ISOLATED_SECUTRITYGROUP:
+            Ref: IsolatedInstanceSecurityGroup
+    Type: AWS::Lambda::Function
+  SendIsolationNotification:
+    Properties:
+      FunctionName: sec-ir-3-sendIsolationNotification
+      Description: Function to Send notification for instance Isolation and Snapshot
+        creation
+      Handler: sendIsolationNotification.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          HookUrl:
+            Ref: HookUrlName
+          SlackChannel:
+            Ref: SlackChannelName
+    Type: AWS::Lambda::Function
+  runInstance:
+    Properties:
+      FunctionName: sec-ir-5-startForensicInstance
+      Description: Function to Send notification for instance Isolation and Snapshot
+        creation
+      Handler: createForensicInstance.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          FORENSIC_SECUTRITYGROUP:
+            Ref: InstanceSecurityGroup
+          AMI_ID:
+            Ref: AmiId
+          INSTANCE_PROFILE:
+            Ref: instanceProfile
+          SUBNET_ID:
+            Ref: Subnet
+          EC2_KEYPAIR:
+            Ref: Ec2KeyPair
+    Type: AWS::Lambda::Function
+    DependsOn: InstanceSecurityGroup
+  CreateAndAttachAffectedVolume:
+    Properties:
+      FunctionName: sec-ir-6-createAndAttachAffectedVolume
+      Description: Function to Create and attach volume created from Snapshot
+      Handler: attachVolume.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          ISOLATED_SECUTRITYGROUP:
+            Ref: IsolatedInstanceSecurityGroup
+    Type: AWS::Lambda::Function
+  IsSSMInstalled:
+    Properties:
+      FunctionName: sec-ir-7-isSSMInstalled
+      Description: Function to Check SSM is installed or not
+      Handler: isSSMInstalled.lambda_handler
+      Runtime: python3.6
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          ISOLATED_SECUTRITYGROUP:
+            Ref: IsolatedInstanceSecurityGroup
+    Type: AWS::Lambda::Function
+  SNSParserLambda:
+    Properties:
+      FunctionName: sec-ir-9-invokeStepFunctions
+      Description: Function parse SNS message and invoke Step functions
+      Handler: SNSParserInvokeStep.handler
+      Runtime:
+        Ref: NodeRunTime
+      Timeout: '300'
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Ref: lambdas3bucketsname
+        S3Key:
+          Ref: lambdas3keyname
+      Environment:
+        Variables:
+          STEP_FUNCTION_ARN:
+            Ref: IncidentResponseStepFunction
+          SNS: SNS_DATA
+    Type: AWS::Lambda::Function
+  AllowSNSParserLambdaProcessor:
+    DependsOn:
+    - SNSParserLambda
+    Properties:
+      FunctionName:
+        Ref: SNSParserLambda
+      Action: lambda:InvokeFunction
+      Principal: sns.amazonaws.com
+      SourceArn:
+        Ref: IncidentSNSTopic
+    Type: AWS::Lambda::Permission
+  IncidentSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+      - Endpoint:
+          Fn::GetAtt:
+          - SNSParserLambda
+          - Arn
+        Protocol: lambda
+      TopicName:
+        Ref: IncidentResponseTopic
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock:
+        Ref: VPCCIDR
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: SubnetCIDR
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: VPC
+      InternetGatewayId:
+        Ref: InternetGateway
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  Route:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId:
+        Ref: RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: InternetGateway
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: Subnet
+      RouteTableId:
+        Ref: RouteTable
+  NetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  InboundHTTPNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '80'
+        To: '80'
+  InboundSSHNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '101'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '22'
+        To: '22'
+  InboundResponsePortsNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '1024'
+        To: '65535'
+  OutBoundHTTPNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '80'
+        To: '80'
+  OutBoundHTTPSNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '101'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '443'
+        To: '443'
+  OutBoundResponsePortsNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '1024'
+        To: '65535'
+  SubnetNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: Subnet
+      NetworkAclId:
+        Ref: NetworkAcl
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: VPC
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp:
+          Ref: SSHLocation
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: 0.0.0.0/0
+  LambdaExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+            - states.amazonaws.com
+        Version: '2012-10-17'
+    Type: AWS::IAM::Role
+  IncidentResponselambdapolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: IncidentResponseLambdaPolicy
+      Roles:
+      - Ref: LambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          - logs:DescribeLog*
+          Resource: arn:aws:logs:*:*:*
+        - Effect: Allow
+          Action:
+          - ec2:*
+          - elasticloadbalancing:*
+          - ssm:*
+          Resource: "*"
+        - Sid: ListExistingRolesAndPolicies
+          Effect: Allow
+          Action:
+          - iam:ListRolePolicies
+          - iam:ListRoles
+          - iam:Pass*
+          Resource: "*"
+        - Sid: InvokePermission
+          Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          Resource: "*"
+        - Sid: stepinvocation
+          Effect: Allow
+          Action:
+          - states:*
+          Resource: "*"
+Outputs:
+  VPCId:
+    Description: VPCId of the newly created VPC
+    Value:
+      Ref: VPC
+  SubnetDetails:
+    Description: SubnetId of the subnet Created
+    Value:
+      Ref: Subnet

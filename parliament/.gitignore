@@ -1,0 +1,15 @@
+.DS_Store
+.coverage
+utils/docs/
+*.pyc
+*.egg-info
+.eggs
+venv/
+.coverage
+htmlcov/
+dist/
+.env/
+parliament/private_auditors
+tmp/*
+.idea/*
+.vscode

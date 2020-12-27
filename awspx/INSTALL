@@ -1,0 +1,183 @@
+#!/bin/bash
+
+#####################################################################################################
+#                                                                                                   #
+# This script serves a couple of purposes, its behaviour will vary based on how it is named:        #
+#                                                                                                   #
+# - INSTALL              - will create the awspx container and copy this script to awspx            #
+# - awspx                - will pass arguments to cli.py in the awpx container                      #
+# - docker-entrypoint.sh - will start the webserver and neo4j (sourced by /docker-entrypoint.sh)    #
+#                                                                                                   #
+#####################################################################################################
+
+_OS_="UNKNOWN"
+
+function host_checks(){
+    
+    #MacOS
+    if [ "$(uname)" == "Darwin" ]; then
+        _OS_="MACOS"
+        
+        # Linux
+    elif [[ "$(uname)" =~ "Linux" ]]; then
+        _OS_="LINUX"
+        if [[ "$(whoami)" != "root" ]]; then
+            echo "[-] awspx must be run with root privileges."
+            exit 1
+        fi
+        # Unsupported
+    else
+        echo "[-] Platform: '$(uname)' is not supported"
+        exit 1
+    fi
+    
+    DOCKER_RUNNING="$(docker info >/dev/null 2>&1)"
+    
+    if [ "${?}" -ne 0 ]; then
+        echo "[-] \"docker\" must first be started."
+        exit 1
+    fi
+}
+
+function install(){
+    
+    CLI="/usr/local/bin/awspx"
+    [[ $_OS_ == "MACOS" ]] \
+        && MOUNT="${HOME}/bin/awspx" \
+        || MOUNT="/opt/awspx"
+    
+    # Make sure this script exists somewhere in $PATH
+    if !(which awspx >/dev/null 2>&1) ; then
+        read -p "[*] '/usr/local/bin' isn't in your \$PATH. Choose another location to save \"awspx\" [y/n]? " response
+        if [[ "${response}" == "Y" || "${response}" == "y" ]]; then
+            select p in $(echo "${PATH}" | tr ':' '\n' | sort); do
+                case $p in
+                    /*)
+                        cp -f $0 $p/awspx >/dev/null
+                        CLI="awspx"
+                        break
+                    ;;
+                    *) ;;
+                esac
+            done
+        fi
+    else
+        CLI="awspx"
+    fi
+    
+    # Delete all containers named awspx (prompt for confirmation)
+    if [ -n "$(docker ps -a -f name=awspx -q)" ]; then
+        
+        echo -e "[!] An existing container named \"awspx\" was detected\n"
+        echo -e "    In order to continue, it must be deleted. All data will be lost."
+        read -p "    Continue [y/n]? " response
+        
+        [[ "${response}" == "Y" || "${response}" == "y" ]] \
+            || exit
+        
+        docker stop awspx >/dev/null 2>&1
+        docker rm awspx >/dev/null 2>&1
+        
+    fi
+    
+    echo ""
+
+    # Build or pull awspx
+    case $1 in
+        build|BUILD) 
+            echo -e "[*] Creating \"awspx\" image...\n"
+            docker build $(dirname $0) -t beatro0t/awspx:latest
+            ;;
+        *)
+            echo -e "[*] Pulling \"awspx\" image... \n"
+            docker pull beatro0t/awspx:latest
+            ;;
+    esac
+    
+    if [ $? -ne 0 ]; then
+        echo -e "\n[-] Installation failed"
+        exit 1
+    fi
+
+    echo ""
+
+    # Create container
+    echo -en "[*] Creating \"awspx\" container... "
+    if docker run -itd \
+        --name awspx \
+        --hostname=awspx \
+        --env NEO4J_AUTH=neo4j/password \
+        -p 127.0.0.1:80:80 \
+        -p 127.0.0.1:7687:7687 \
+        -p 127.0.0.1:7373:7373 \
+        -p 127.0.0.1:7474:7474 \
+        -v ${MOUNT}/data:/opt/awspx/data \
+        --restart=always beatro0t/awspx:latest >/dev/null; then
+        
+        cp $(dirname $0)/data/sample.zip -f ${MOUNT}/data/. >/dev/null 2>&1
+        
+        echo -e "and you're all set!\n"
+        
+        echo -e "    The web interface (http://localhost) will be available shortly..."
+        echo -e "    Run: \`${CLI} -h\` for a list of options."
+    fi
+    
+    echo ""
+}
+
+function hook(){
+    
+    if [[ "${@}" == "neo4j" ]]; then
+        # Start web interface
+        [[ -z "$(pgrep npm)" ]] \
+            && cd /opt/awspx/www \
+            && nohup npm run serve>/dev/null 2>&1 &
+        
+        # Start neo4j
+        nohup /docker-entrypoint.sh neo4j console 2>&1 &
+        
+        # Start bash so /docker-entrypoint.sh doesn't terminate
+        bash
+    fi
+    
+}
+
+function awspx(){
+    
+    if [[ -z "$(docker ps -a -f name=^/awspx$ -q)" ]]; then
+        echo -e "[-] Couldn't find \"awspx\" container, you will need to create it first"
+        exit 1
+    fi
+
+    if [[ -z "$(docker ps -a -f name=^/awspx$ -f status=running -q)" ]]; then
+        docker start awspx > /dev/null
+    fi
+
+    docker exec -it \
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN \
+        -e AWS_SECURITY_TOKEN=$AWS_SECURITY_TOKEN \
+        awspx /opt/awspx/cli.py $@
+    
+}
+
+function main(){
+    
+    case "$(basename $0)" in
+        INSTALL)
+            host_checks
+            install $@
+        ;;
+        docker-entrypoint.sh)
+            hook $@
+        ;;
+        awspx)
+            host_checks
+            awspx $@
+        ;;
+    esac
+    
+}
+
+main $@

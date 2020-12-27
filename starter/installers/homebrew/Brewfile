@@ -1,0 +1,240 @@
+# Set global configuration arguments
+cask_args appdir: "/Applications"
+
+# Taps
+tap "caskroom/cask"
+tap "caskroom/fonts"
+tap "caskroom/versions"
+tap "homebrew/bundle"
+tap "homebrew/core"
+tap "homebrew/headonly"
+tap "joeyhoer/extras"
+
+# Cask dependencies
+brew "mas"
+cask "java"
+cask "xquartz"
+
+# Shells
+# Note: Don't forget to add shells to `/etc/shells` before running `chsh`.
+brew "bash"
+brew "zsh"
+brew "antigen"
+
+# CLI utilities
+# Note: This replaces some (outdated) built-in macOS utilities with the GNU equivalents
+# Don't forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
+brew "coreutils"
+brew "curl", args: ["with-nghttp2"]
+#brew "findutils" # Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed
+brew "git"
+brew "grep"
+#brew "gnu-sed", args: ["default-names"] # Install GNU `sed`, overwriting the built-in `sed`
+#brew "moreutils" # Install more useful GNU utilities like `sponge`
+#brew "openssh"
+brew "pv"
+brew "pwgen"
+brew "ripgrep"
+brew "rsync"
+brew "screen"
+brew "ssh-copy-id"
+brew "tmux"
+brew "tree"
+brew "wget"
+
+# Other useful tools
+brew "highlight"
+brew "multimarkdown"
+brew "pandoc"
+brew "reattach-to-user-namespace"
+brew "xmlstarlet"
+
+# Image tools
+brew "advancecomp"
+brew "apngasm"
+brew "joeyhoer/extras/apngdis"
+brew "joeyhoer/extras/crunchme"
+brew "joeyhoer/extras/cryopng"
+brew "joeyhoer/extras/cryozopflipng"
+brew "joeyhoer/extras/defluff"
+brew "ffmpeg", args: ["with-libvpx", "with-webp", "with-x265"]
+brew "joeyhoer/extras/flif", args: ["with-apng", "with-gif"]
+brew "joeyhoer/extras/gifify", args: ["HEAD"]
+brew "gifsicle"
+brew "joeyhoer/extras/gifv", args: ["HEAD"]
+brew "graphicsmagick"
+brew "guetzli"
+brew "icoutils"
+brew "imagemagick", args: ["with-fftw", "with-hdri", "with-liblqr", "with-librsvg", "with-opencl", "with-openmp", "with-webp"]
+brew "imageworsener"
+brew "jhead"
+brew "jpeg"
+brew "jpeg-archive"
+brew "jpegoptim"
+brew "joeyhoer/extras/jpegquality", args: ["HEAD"]
+brew "jpegrescan"
+brew "libbpg"
+brew "joeyhoer/extras/mediancut-posterizer"
+brew "mozjpeg"
+brew "joeyhoer/extras/nice-screenshot", args: ["HEAD"]
+brew "optipng"
+brew "perceptualdiff"
+brew "pngcheck"
+brew "pngcrush"
+brew "pngnq"
+brew "joeyhoer/extras/pngnq-s9"
+brew "joeyhoer/extras/pngout"
+brew "pngquant"
+brew "joeyhoer/extras/pngthermal"
+brew "joeyhoer/extras/pngwolf-zopfli", args: ["HEAD"]
+brew "joeyhoer/extras/video-poster", args: ["HEAD"]
+brew "webp"
+
+# Compression tools
+brew "brotli"
+brew "bzip2"
+brew "cabextract"
+brew "gzip"
+brew "joeyhoer/extras/gzthermal"
+brew "joeyhoer/extras/huffmix"
+brew "joeyhoer/extras/kzipmix"
+brew "lbzip2"
+brew "lz4"
+brew "p7zip"
+brew "pbzip2"
+brew "pigz"
+brew "pixz"
+brew "snappy"
+brew "unar"
+brew "xz"
+brew "zopfli", args: ["HEAD"]
+
+# Mac OS tools
+brew "duti" # Required for setting preferences
+brew "imagesnap"
+brew "mackup"
+brew "tccutil" # Required for setting preferences
+brew "trash"
+brew "wifi-password"
+
+# Server stack
+# brew "httpd"
+brew "dnsmasq"
+brew "percona-server"
+brew "php"
+
+# Programming languages
+# Installing Python/Ruby with Homebrew is unnecessary,
+# as they will be installed and managed via pyenv/rbenv respectively
+brew "go"
+brew "pyenv" # Python
+brew "ruby-build"
+brew "rbenv" # Ruby
+brew "node" # Also installs `npm`
+
+# Web tools
+brew "closure-compiler"
+brew "closure-stylesheets"
+brew "htmlcompressor", args: ["with-yuicompressor"]
+brew "lynx"
+cask "phantomjs"
+brew "slimerjs"
+brew "webkit2png"
+brew "yuicompressor"
+brew "sass/sass/sass"
+
+# Network tools
+brew "tor"
+brew "namebench"
+brew "nmap"
+brew "speedtest_cli"
+
+# Security tools
+brew "foremost"
+brew "hashpump"
+brew "sqlmap"
+
+# Install GUI applications
+cask "adapter"
+cask "adobe-creative-cloud"
+cask "airdisplay"
+cask "airserver"
+cask "atom"
+cask "bartender"
+cask "boom"
+cask "colors"
+cask "dropbox"
+cask "forklift"
+cask "imagealpha"
+cask "imageoptim"
+cask "iterm2-beta"
+cask "itsycal"
+cask "kaleidoscope"
+cask "osxfuse"
+cask "password-assistant"
+cask "rocket"
+cask "sequel-pro"
+cask "slack"
+cask "sublime-text"
+cask "the-unarchiver"
+cask "transmission"
+cask "vlc"
+cask "wkhtmltopdf"
+
+# Browsers
+cask "safari-technology-preview"
+cask "google-chrome"
+cask "google-chrome-canary"
+cask "opera"
+cask "opera-beta"
+cask "firefox"
+
+# Virtulization applications
+cask "vmware-fusion"
+cask "vagrant"
+cask "vagrant-manager"
+
+# Preference Panes
+cask "hosts"
+
+# Screensavers
+cask "ios-saver"
+
+# Services
+cask "markdown-service-tools"
+
+# QuickLook plugins
+cask "qlcolorcode"
+cask "qlmarkdown"
+cask "qlstephen"
+cask "webpquicklook"
+
+# Color Picker plugins
+cask "colorpicker-skalacolor"
+
+# Fonts
+cask "font-anonymous-pro"
+cask "font-bebas-neue"
+cask "font-comic-neue"
+cask "font-dejavu-sans"
+cask "font-league-gothic"
+cask "font-liberation-sans"
+cask "joeyhoer/extras/font-microsoft-office"
+cask "joeyhoer/extras/font-san-francisco-compact"
+cask "font-symbola"
+
+# MAS applications
+# Get a list of installed MAS apps with:
+# `brew bundle dump --file=- | egrep ^mas`
+mas "1Blocker", id: 1107421413
+mas "Byword", id: 420212497
+mas "Divvy", id: 413857545
+mas "Kaleidoscope", id: 587512244
+mas "Marked 2", id: 890031187
+mas "xScope", id: 889428659
+
+# Apple MAS applications
+mas "Keynote", id: 409183694
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+mas "Xcode", id: 497799835

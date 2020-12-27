@@ -1,0 +1,51 @@
+---
+cloud_config:
+  name_suffix: ''
+  region: 'europe-west1'
+  zone: 'europe-west1-b'
+  vpc_name: "{{ cluster_name }}-vpc"
+  subnet_name: "{{ cluster_name }}-subnet"
+  subnet_cidr: '10.0.10.0/24'
+  admin_username: google-user
+  ssh:
+    privatekey: '~/.ssh/id_rsa'
+
+firewall_rules:
+  - name: "{{ cluster_name }}-allow-internal"            # default firewall rule - do not change
+    allowed: 'tcp:0-65535;udp:0-65535'
+    src_range: "{{ cloud_config.subnet_cidr }}"
+  - name: "{{ cluster_name }}-ssh-access"
+    allowed: 'tcp:22'
+    src_range: '0.0.0.0/0'
+  - name: "{{ cluster_name }}-ambari-access"
+    allowed: 'tcp:8080,8443'
+    src_range: '0.0.0.0/0'
+
+nodes:
+  - role: "hdp-master"
+    count: 1
+    image: centos-7
+    type: n1-highmem-4
+    public_ip: true
+    root_disk:
+      type: pd-ssd
+      size: 15
+    ambari_server: true
+
+  - role: "hdp-slave"
+    count: 2
+    image: centos-7
+    type: n1-standard-2
+    public_ip: true
+    root_disk:
+      type: pd-ssd
+      size: 15
+
+  - role: "hdp-edge"
+    count: 0
+    image: centos-7
+    type: n1-standard-1
+    public_ip: true
+    root_disk:
+      type: pd-standard
+      size: 20

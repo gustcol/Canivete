@@ -1,0 +1,33 @@
+{
+  "aws-cloudwatch-log": [
+    "unit_test_default"
+  ],
+  "aws-firehose": {
+    "unit_test_delivery_stream": "unit_test_delivery_stream"
+  },
+  "aws-lambda": {
+    "unit_test_lambda": "unit_test_function",
+    "unit_test_lambda_qual": "unit_test_qualified_function:production"
+  },
+  "aws-s3": {
+    "unit_test_bucket": "unit.test.bucket.name"
+  },
+  "aws-sns": {
+    "unit_test_topic": "unit_test_topic_name"
+  },
+  "aws-sqs": {
+    "unit_test_queue": "unit_test_queue_name"
+  },
+  "demisto": [
+    "unit_test_demisto"
+  ],
+  "pagerduty": [
+    "unit_test_pagerduty"
+  ],
+  "phantom": [
+    "unit_test_phantom"
+  ],
+  "slack": [
+    "unit_test_channel"
+  ]
+}

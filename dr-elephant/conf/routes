@@ -1,0 +1,69 @@
+#
+# Copyright 2016 LinkedIn Corp.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+#
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Application calls
+GET        /                                    controllers.Application.dashboard()
+GET        /help                                controllers.Application.oldHelp()
+GET        /search                              controllers.Application.search()
+GET        /compare                             controllers.Application.compare()
+GET        /flowhistory                         controllers.Application.oldFlowHistory()
+GET        /jobhistory                          controllers.Application.oldJobHistory()
+
+# Routes for new user interface
+
+GET        /newflowhistory                      controllers.Application.flowHistory()
+GET        /newjobhistory                       controllers.Application.jobHistory()
+GET        /newhelp                             controllers.Application.help()
+
+# Rest calls
+GET        /rest/job                            controllers.Application.restAppResult(id: String)
+GET        /rest/jobexec                        controllers.Application.restJobExecResult(id: String)
+GET        /rest/flowexec                       controllers.Application.restFlowExecResult(id: String)
+GET        /rest/search                         controllers.Application.restSearch()
+GET        /rest/compare                        controllers.Application.restCompare()
+GET        /rest/flowgraphdata                  controllers.Application.restFlowGraphData(id: String)
+GET        /rest/jobgraphdata                   controllers.Application.restJobGraphData(id: String)
+GET        /rest/jobmetricsgraphdata            controllers.Application.restJobMetricsGraphData(id: String)
+GET        /rest/flowmetricsgraphdata           controllers.Application.restFlowMetricsGraphData(id: String)
+GET        /rest/dashboard-summaries            controllers.api.v1.Web.restDashboardSummaries()
+GET        /rest/workflow-summaries             controllers.api.v1.Web.restWorkflowSummariesForUser(username: String)
+GET        /rest/job-summaries                  controllers.api.v1.Web.restJobSummariesForUser(username: String)
+GET        /rest/application-summaries          controllers.api.v1.Web.restApplicationSummariesForUser(username: String)
+GET        /rest/workflows                      controllers.api.v1.Web.restWorkflowFromFlowId(workflowid: String)
+GET        /rest/jobs                           controllers.api.v1.Web.restJobFromJobId(jobid: String)
+GET        /rest/applications                   controllers.api.v1.Web.restApplicationFromApplicationId(applicationid: String)
+GET        /rest/search-options                 controllers.api.v1.Web.restSearchOptions()
+GET        /rest/search-results                 controllers.api.v1.Web.search()
+GET        /rest/resourceusagedatabyuser        controllers.Application.restResourceUsageDataByUser(startTime: String, endTime: String)
+GET        /rest/user-details                   controllers.api.v1.Web.restGetUsersSummaryStats()
+GET        /rest/workflow-exceptions            controllers.api.v1.Web.restExceptions()
+GET        /rest/exception-statuses             controllers.api.v1.Web.restExceptionStatuses()
+POST       /rest/getCurrentRunParameters        controllers.Application.getCurrentRunParameters()
+
+# Metrics calls
+GET        /ping                                controllers.MetricsController.ping()
+GET        /metrics                             controllers.MetricsController.index()
+GET        /tuneinmetrics                       controllers.AutoTuningMetricsController.index()
+GET        /healthcheck                         controllers.MetricsController.healthcheck()
+
+# Map static resources from the /public folder to the /assets URL path
+GET        /assets/*file                        controllers.Assets.at(path="/public", file)
+GET        /new                                 controllers.Application.serveAsset(path="index.html")
+GET        /new/*path                           controllers.Application.serveAsset(path)

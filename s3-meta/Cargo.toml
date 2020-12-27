@@ -1,0 +1,23 @@
+[package]
+name = "s3-meta"
+version = "1.0.1"
+authors = ["Isaac Whitfield <iw@whitfin.io>"]
+description = "Gather metadata about your S3 buckets"
+repository = "https://github.com/whitfin/s3-meta"
+keywords = ["aws", "amazon", "s3", "statistics"]
+categories = ["command-line-utilities", "filesystem", "visualization"]
+readme = "README.md"
+license = "MIT"
+
+[badges]
+appveyor = { repository = "whitfin/s3-meta" }
+travis-ci = { repository = "whitfin/s3-meta" }
+
+[dependencies]
+humantime = "1.1"
+pretty-bytes = "0.2"
+quick-xml = "0.12"
+
+# AWS/S3 libraries
+rusoto_core = "0.34"
+rusoto_s3 = "0.34"

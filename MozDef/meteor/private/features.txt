@@ -1,0 +1,10 @@
+kibana /kibana
+alerts /alerts
+ipblocklist /ipblocklist
+fqdnblocklist /fqdnblocklist
+watchlist /watchlist
+investigations /investigations
+incidents /incidents
+about /about
+blockip /blockip
+manage-alerts /manage-alerts

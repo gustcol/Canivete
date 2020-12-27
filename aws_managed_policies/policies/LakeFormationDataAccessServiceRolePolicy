@@ -1,0 +1,21 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:ListAllMyBuckets"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::*"
+                    ]
+                }
+            ]
+        },
+        "VersionId": "v1",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-06-20T20:46:19Z"
+    }
+}

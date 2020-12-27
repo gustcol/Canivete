@@ -1,0 +1,15 @@
+{
+  "source": "aws.ec2", 
+  "account": "101010101111", 
+  "time": "2015-11-23T06:58:14Z", 
+  "id": "07a51e4f-5d35-4010-a6a3-b7646aaead30", 
+  "region": "us-east-1", 
+  "detail": {
+    "state": "pending", 
+    "instance-id": "i-a2d74f12"
+  }, 
+  "resources": [
+    "arn:aws:ec2:us-east-1:101010101111:instance/i-a2d74f12"
+  ], 
+  "detail-type": "EC2 Instance State-change Notification"
+}

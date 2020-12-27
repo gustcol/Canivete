@@ -1,0 +1,33 @@
+#  vim:ts=4:sts=4:sw=4:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-05-22 11:15:16 +0100 (Tue, 22 May 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                    Mac OS X - Homebrew Package Requirements
+# ============================================================================ #
+
+# provides utils.pm
+# on Mac Makefile symlinks first found /usr/local/Cellar/nagios-plugins/<versions>/libexec or /usr/local/Cellar/monitoring-plugins/<versions>/libexec
+# using script setup/mac_symlink_nagios_plugins_libexec.sh
+nagios-plugins
+# monitoring-elugins
+
+# If you have trouble installing MySQL-python on Mac OS X see the first solution at https://stackoverflow.com/a/51483898
+mysql
+# conflicts with mysql package linking, run script setup/install_mysql_python.sh to work around
+#mysql-connector-c
+
+snappy
+
+# installed by bash-tools submodule now
+#jq
+#whois
+#jwhois

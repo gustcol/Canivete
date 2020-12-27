@@ -1,0 +1,44 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-11-25 13:47:16 +0000 (Mon, 25 Nov 2019)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/harisekhon/kubernetes-templates
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/HariSekhon
+#
+
+# ============================================================================ #
+#                                 S e r v i c e
+# ============================================================================ #
+
+# https://kubernetes.io/docs/concepts/services-networking/service/
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+  labels:
+    app: APP
+spec:
+  type: ClusterIP  # default
+  #type: NodePort
+  #type: LoadBalancer
+  #type: None       # headless, returns all A records instead of round robin. Useful for Cassandra seeding
+  #sessionAffinity: ClientIP  # use with LoadBalancer for stickyness
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    app: APP
+    role: master
+    tier: backend

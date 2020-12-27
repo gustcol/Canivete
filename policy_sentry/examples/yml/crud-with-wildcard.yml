@@ -1,0 +1,9 @@
+mode: crud
+name: 'RoleNameWithCRUD'
+permissions-management:
+- arn:aws:s3:::example-org-s3-access-logs
+wildcard-only:
+    single-actions:
+    - ram:enablesharingwithawsorganization
+    - ram:getresourcepolicies
+    - secretsmanager:putsecretvalue # attempting bypass

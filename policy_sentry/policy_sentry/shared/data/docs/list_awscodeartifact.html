@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html ng-app="AWSDocsDocPageApp" xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <title>
+   Actions, resources, and condition keys for      AWS CodeArtifact - AWS Identity and Access Management
+  </title>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <meta content="/assets" name="assets_root"/>
+  <meta content="list_awscodeartifact" name="target_state"/>
+  <meta content="list_awscodeartifact" name="default_state"/>
+  <link href="https://docs.aws.amazon.com/assets/images/favicon.ico" rel="icon" type="image/ico"/>
+  <link href="https://docs.aws.amazon.com/assets/images/favicon.ico" rel="shortcut icon" type="image/ico"/>
+  <link href="https://docs.aws.amazon.com/IAM/latest/UserGuide/list_awscodeartifact.html" rel="canonical"/>
+  <meta content="Lists all of the available service-specific resources, actions, and condition keys that can be used in IAM policies to control access to AWS CodeArtifact." name="description"/>
+  <meta content="IAD" name="deployment_region"/>
+  <meta content="AWS Identity and Access Management" name="product"/>
+  <meta content="User Guide" name="guide"/>
+  <meta content="de_de:Deutsch/en_us:English/es_es:Español/fr_fr:Français/it_it:Italiano/ja_jp:日本語/ko_kr:한국어/pt_br:Português/zh_cn:中文 (简体)/zh_tw:中文 (繁體)" name="locales"/>
+  <meta content="Control access to your AWS resources with user identity (authentication) and with policies that define specific permissions (authorization)." name="abstract"/>
+  <meta content="en_us" name="guide-locale"/>
+  <meta content="toc-contents.json" name="tocs"/>
+  <meta content="IAM" name="feedback-item"/>
+  <meta content="AWS Identity and Access Management" name="this_doc_product"/>
+  <meta content="User Guide" name="this_doc_guide"/>
+  <link href="https://docs.aws.amazon.com/assets/css/vendor4.css?version=2020.09.30" rel="stylesheet"/>
+  <link href="https://docs.aws.amazon.com/assets/css/awsdocs-common.css?version=2020.09.30" rel="stylesheet"/>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/vendor3.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/vendor4.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/vendor1.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/awsdocs-common.js?version=2020.09.30" type="text/javascript">
+  </script>
+  <script defer="" src="https://docs.aws.amazon.com/assets/js/awsdocs-doc-app.js?version=2020.09.30" type="text/javascript">
+  </script>
+ </head>
+ <body class="awsdocs awsui">
+  <div class="awsdocs-container">
+   <awsdocs-header>
+   </awsdocs-header>
+   <awsui-app-layout class="awsui-util-no-gutters" header-selector="awsdocs-header" id="app-layout" navigation-change="$ctrl.onNavChange($event)" navigation-hide="false" navigation-open="$ctrl.navOpen" navigation-width="$ctrl.navWidth" ng-controller="ContentController as $ctrl" tools-change="$ctrl.onToolsChange($event)" tools-hide="$ctrl.hideTools" tools-open="$ctrl.toolsOpen" tools-width="$ctrl.toolsWidth">
+    <div dom-region="navigation" id="guide-toc">
+     <awsdocs-toc>
+     </awsdocs-toc>
+    </div>
+    <div dom-region="content" id="main-column" tabindex="-1">
+     <awsdocs-view class="awsdocs-view">
+      <div id="awsdocs-content">
+       <head>
+        <title>
+         Actions, resources, and condition keys for      AWS CodeArtifact - AWS Identity and Access Management
+        </title>
+        <meta content="iam-ug.pdf#list_awscodeartifact" name="pdf"/>
+        <meta content="https://www.amazon.com/dp/B07642VLTV" name="kindle"/>
+        <meta content="https://github.com/awsdocs/iam-user-guide/tree/master/doc_source/list_awscodeartifact.md" name="github"/>
+        <meta content="aws-iam-release-notes.rss" name="rss"/>
+        <meta content="http://forums.aws.amazon.com/forum.jspa?forumID=76" name="forums"/>
+        <meta content="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IAM&amp;topic_url=http://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_awscodeartifact.html" name="feedback"/>
+        <meta content="feedbackyes.html?topic_url=http://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_awscodeartifact.html" name="feedback-yes"/>
+        <meta content="feedbackno.html?topic_url=http://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_awscodeartifact.html" name="feedback-no"/>
+        <meta content="IAM,AWS Identity and Access Management,IAM user,user,IAM group,group,IAM role,role,permission policy,trust policy,policy,access key,password" name="keywords"/>
+       </head>
+       <body>
+        <div id="main">
+         <div style="display: none">
+          <a href="iam-ug.pdf#list_awscodeartifact" target="_blank" title="Open PDF">
+          </a>
+          <a href="https://www.amazon.com/dp/B07642VLTV" target="_blank" title="Open Kindle">
+          </a>
+          <a href="https://github.com/awsdocs/iam-user-guide/tree/master/doc_source/list_awscodeartifact.md" target="_blank" title="Edit on GitHub">
+          </a>
+         </div>
+         <div class="breadcrumb" id="breadcrumbs">
+          <a href="http://aws.amazon.com">
+           AWS
+          </a>
+          <a href="/index.html">
+           Documentation
+          </a>
+          <a href="/iam/index.html">
+           AWS Identity and Access Management
+          </a>
+          <a href="introduction.html">
+           User Guide
+          </a>
+         </div>
+         <div id="page-toc-src">
+          <a href="#awscodeartifact-actions-as-permissions">
+           Actions
+          </a>
+          <a href="#awscodeartifact-resources-for-iam-policies">
+           Resource types
+          </a>
+          <a href="#awscodeartifact-policy-keys">
+           Condition keys
+          </a>
+         </div>
+         <div class="awsui-util-container" id="main-content">
+          <div id="main-col-body">
+           <awsdocs-language-banner data-service="$ctrl.pageService">
+           </awsdocs-language-banner>
+           <h1 class="topictitle" id="list_awscodeartifact">
+            Actions, resources, and condition keys for      AWS CodeArtifact
+           </h1>
+           <div class="awsdocs-page-header-container">
+            <awsdocs-page-header>
+            </awsdocs-page-header>
+            <awsdocs-filter-selector id="awsdocs-filter-selector">
+            </awsdocs-filter-selector>
+           </div>
+           <div class="awsdocs-note awsdocs-tip">
+            <div class="awsdocs-note-title">
+             <awsui-icon name="status-info" variant="link">
+             </awsui-icon>
+             <span>
+              Tip
+             </span>
+            </div>
+            <div class="awsdocs-note-text">
+             <p>
+              This page is moving to a new location on November 16, 2020. Please update your bookmark
+                                          to      use the new page at
+              <a href="https://docs.aws.amazon.com/service-authorization/latest/reference/list_awscodeartifact.html">
+               https://docs.aws.amazon.com/service-authorization/latest/reference/list_awscodeartifact.html
+              </a>
+              .
+             </p>
+            </div>
+           </div>
+           <p>
+            AWS CodeArtifact (service prefix:
+            <code class="code">
+             codeartifact
+            </code>
+            ) provides the following    service-specific resources, actions, and condition context
+                                    keys for use in IAM permission    policies.
+           </p>
+           <p>
+            References:
+           </p>
+           <div class="itemizedlist">
+            <ul class="itemizedlist" type="disc">
+             <li class="listitem">
+              <p>
+               Learn how to
+               <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/">
+                configure this service
+               </a>
+               .
+              </p>
+             </li>
+             <li class="listitem">
+              <p>
+               View a list of the
+               <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/">
+                API operations available for this          service
+               </a>
+               .
+              </p>
+             </li>
+             <li class="listitem">
+              <p>
+               Learn how to secure this service and its resources by
+               <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/auth-and-access-control.html">
+                using          IAM
+               </a>
+               permission policies.
+              </p>
+             </li>
+            </ul>
+           </div>
+           <div class="highlights" id="inline-topiclist">
+            <p>
+             <strong>
+              Topics
+             </strong>
+            </p>
+            <ul>
+             <li>
+              <a href="#awscodeartifact-actions-as-permissions">
+               Actions defined by        AWS CodeArtifact
+              </a>
+             </li>
+             <li>
+              <a href="#awscodeartifact-resources-for-iam-policies">
+               Resource types defined by        AWS CodeArtifact
+              </a>
+             </li>
+             <li>
+              <a href="#awscodeartifact-policy-keys">
+               Condition keys for        AWS CodeArtifact
+              </a>
+             </li>
+            </ul>
+           </div>
+           <h2 id="awscodeartifact-actions-as-permissions">
+            Actions defined by        AWS CodeArtifact
+           </h2>
+           <p>
+            You can specify the following actions in the
+            <code class="code">
+             Action
+            </code>
+            element of an IAM      policy statement. Use policies to grant permissions to perform
+                                    an operation in AWS. When you      use an action in a policy, you usually allow or
+                                    deny access to the API operation or CLI      command with the same name. However,
+                                    in some cases, a single action controls access to more      than one operation. Alternatively,
+                                    some operations require several different actions.
+           </p>
+           <p>
+            The
+            <b>
+             Resource types
+            </b>
+            column indicates whether each action supports      resource-level permissions. If
+                                    there is no value for this column, you must specify all      resources ("*") in the
+            <code class="code">
+             Resource
+            </code>
+            element of your policy statement. If the column      includes a resource type, then
+                                    you can specify an ARN of that type in a statement with that      action. Required
+                                    resources are indicated in the table with an asterisk (*). If you specify a      resource-level
+                                    permission ARN in a statement using this action, then it must be of this type.   
+                                    Some actions support multiple resource types. If the resource type is optional (not
+                                    indicated      as required), then you can choose to use one but not the other.
+           </p>
+           <p>
+            For details about the columns in the following table, see
+            <a href="./reference_policies_actions-resources-contextkeys.html#actions_table">
+             The actions table
+            </a>
+            .
+           </p>
+           <div class="table-container">
+            <div class="table-contents">
+             <table id="w469aac33c14c29d180c13b9">
+              <thead>
+               <tr>
+                <th>
+                 Actions
+                </th>
+                <th>
+                 Description
+                </th>
+                <th>
+                 Access level
+                </th>
+                <th>
+                 Resource types (*required)
+                </th>
+                <th>
+                 Condition keys
+                </th>
+                <th>
+                 Dependent actions
+                </th>
+               </tr>
+              </thead>
+              <tr>
+               <td>
+                <a id="awscodeartifact-AssociateExternalConnection">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_AssociateExternalConnection.html">
+                 AssociateExternalConnection
+                </a>
+               </td>
+               <td>
+                Grants permission to add an external connection to a repository
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-AssociateWithDownstreamRepository">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/repos-upstream.html">
+                 AssociateWithDownstreamRepository
+                </a>
+               </td>
+               <td>
+                Grants permission to associate an existing repository as an upstream repository to
+                                                another repository
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-CopyPackageVersions">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_CopyPackageVersions.html">
+                 CopyPackageVersions
+                </a>
+               </td>
+               <td>
+                Grants permission to copy package versions from one repository to another repository
+                                                in the same domain.
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-CreateDomain">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_CreateDomain.html">
+                 CreateDomain
+                </a>
+               </td>
+               <td>
+                Grants permission to create a new domain
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-CreateRepository">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_CreateRepository.html">
+                 CreateRepository
+                </a>
+               </td>
+               <td>
+                Grants permission to create a new repository
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DeleteDomain">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DeleteDomain.html">
+                 DeleteDomain
+                </a>
+               </td>
+               <td>
+                Grants permission to delete a domain
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DeleteDomainPermissionsPolicy">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DeleteDomainPermissionsPolicy.html">
+                 DeleteDomainPermissionsPolicy
+                </a>
+               </td>
+               <td>
+                Grants permission to delete the resource policy set on a domain
+               </td>
+               <td>
+                Permissions management
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DeletePackageVersions">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DeletePackageVersions.html">
+                 DeletePackageVersions
+                </a>
+               </td>
+               <td>
+                Grants permission to delete package versions
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DeleteRepository">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DeleteRepository.html">
+                 DeleteRepository
+                </a>
+               </td>
+               <td>
+                Grants permission to delete a repository
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DeleteRepositoryPermissionsPolicy">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DeleteRepositoryPermissionsPolicy.html">
+                 DeleteRepositoryPermissionsPolicy
+                </a>
+               </td>
+               <td>
+                Grants permission to delete the resource policy set on a repository
+               </td>
+               <td>
+                Permissions management
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DescribeDomain">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DescribeDomain.html">
+                 DescribeDomain
+                </a>
+               </td>
+               <td>
+                Grants permission to return information about a domain
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DescribePackageVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DescribePackageVersion.html">
+                 DescribePackageVersion
+                </a>
+               </td>
+               <td>
+                Grants permission to return information about a package version
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DescribeRepository">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DescribeRepository.html">
+                 DescribeRepository
+                </a>
+               </td>
+               <td>
+                Grants permission to return detailed information about a repository
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DisassociateExternalConnection">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DisassociateExternalConnection.html">
+                 DisassociateExternalConnection
+                </a>
+               </td>
+               <td>
+                Grants permission to disassociate an external connection from a repository
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-DisposePackageVersions">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DisposePackageVersions.html">
+                 DisposePackageVersions
+                </a>
+               </td>
+               <td>
+                Grants permission to set the status of package versions to Disposed and delete their
+                                                assets
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-GetAuthorizationToken">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_GetAuthorizationToken.html">
+                 GetAuthorizationToken
+                </a>
+               </td>
+               <td>
+                Grants permission to generate a temporary authentication token for accessing repositories
+                                                in a domain
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-GetDomainPermissionsPolicy">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_GetDomainPermissionsPolicy.html">
+                 GetDomainPermissionsPolicy
+                </a>
+               </td>
+               <td>
+                Grants permission to return a domain's resource policy
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-GetPackageVersionAsset">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_GetPackageVersionAsset.html">
+                 GetPackageVersionAsset
+                </a>
+               </td>
+               <td>
+                Grants permission to return an asset (or file) that is part of a package version
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-GetPackageVersionReadme">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_GetPackageVersionReadme.html">
+                 GetPackageVersionReadme
+                </a>
+               </td>
+               <td>
+                Grants permission to return a package version's readme file
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-GetRepositoryEndpoint">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_GetRepositoryEndpoint.html">
+                 GetRepositoryEndpoint
+                </a>
+               </td>
+               <td>
+                Grants permission to return an endpoint for a repository
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-GetRepositoryPermissionsPolicy">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_GetRepositoryPermissionsPolicy.html">
+                 GetRepositoryPermissionsPolicy
+                </a>
+               </td>
+               <td>
+                Grants permission to return a repository's resource policy
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ListDomains">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_ListDomains.html">
+                 ListDomains
+                </a>
+               </td>
+               <td>
+                Grants permission to list the domains in the current user's AWS account
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ListPackageVersionAssets">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_ListPackageVersionAssets.html">
+                 ListPackageVersionAssets
+                </a>
+               </td>
+               <td>
+                Grants permission to list a package version's assets
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ListPackageVersionDependencies">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_ListPackageVersionDependencies.html">
+                 ListPackageVersionDependencies
+                </a>
+               </td>
+               <td>
+                Grants permission to list the direct dependencies of a package version
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ListPackageVersions">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_ListPackageVersions.html">
+                 ListPackageVersions
+                </a>
+               </td>
+               <td>
+                Grants permission to list a package's versions
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ListPackages">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_ListPackages.html">
+                 ListPackages
+                </a>
+               </td>
+               <td>
+                Grants permission to list the packages in a repository
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ListRepositories">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_ListRepositories.html">
+                 ListRepositories
+                </a>
+               </td>
+               <td>
+                Grants permission to list the repositories administered by the calling account
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ListRepositoriesInDomain">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_ListRepositoriesInDomain.html">
+                 ListRepositoriesInDomain
+                </a>
+               </td>
+               <td>
+                Grants permission to list the repositories in a domain
+               </td>
+               <td>
+                List
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-PublishPackageVersion">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/repo-policies.html">
+                 PublishPackageVersion
+                </a>
+               </td>
+               <td>
+                Grants permission to publish assets and metadata to a repository endpoint
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-PutDomainPermissionsPolicy">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_PutDomainPermissionsPolicy.html">
+                 PutDomainPermissionsPolicy
+                </a>
+               </td>
+               <td>
+                Grants permission to attach a resource policy to a domain
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-domain">
+                  domain*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-PutPackageMetadata">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/repo-policies.html">
+                 PutPackageMetadata
+                </a>
+               </td>
+               <td>
+                Grants permission to add, modify or remove package metadata using a repository endpoint
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-PutRepositoryPermissionsPolicy">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_PutRepositoryPermissionsPolicy.html">
+                 PutRepositoryPermissionsPolicy
+                </a>
+               </td>
+               <td>
+                Grants permission to attach a resource policy to a repository
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-ReadFromRepository">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/repo-policies.html">
+                 ReadFromRepository
+                </a>
+               </td>
+               <td>
+                Grants permission to return package assets and metadata from a repository endpoint
+               </td>
+               <td>
+                Read
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-UpdatePackageVersionsStatus">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_UpdatePackageVersionsStatus.html">
+                 UpdatePackageVersionsStatus
+                </a>
+               </td>
+               <td>
+                Grants permission to modify the status of one or more versions of a package
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-package">
+                  package*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-UpdateRepository">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_UpdateRepository.html">
+                 UpdateRepository
+                </a>
+               </td>
+               <td>
+                Grants permission to modify the properties of a repository
+               </td>
+               <td>
+                Write
+               </td>
+               <td>
+                <p>
+                 <a href="#awscodeartifact-repository">
+                  repository*
+                 </a>
+                </p>
+               </td>
+               <td>
+               </td>
+               <td>
+               </td>
+              </tr>
+             </table>
+            </div>
+           </div>
+           <h2 id="awscodeartifact-resources-for-iam-policies">
+            Resource types defined by        AWS CodeArtifact
+           </h2>
+           <p>
+            The following resource types are defined by this service and can be used in the
+            <code class="code">
+             Resource
+            </code>
+            element of IAM permission policy statements. Each action in the
+            <a href="#awscodeartifact-actions-as-permissions">
+             Actions table
+            </a>
+            identifies the      resource types that can be specified with that action. A resource
+                                    type can also define which      condition keys you can include in a policy. These
+                                    keys are displayed in the last column of the      table. For details about the columns
+                                    in the following table, see
+            <a href="./reference_policies_actions-resources-contextkeys.html#resources_table">
+             The resource types table
+            </a>
+            .
+           </p>
+           <div class="table-container">
+            <div class="table-contents">
+             <table id="w469aac33c14c29d180c15b5">
+              <thead>
+               <tr>
+                <th>
+                 Resource types
+                </th>
+                <th>
+                 ARN
+                </th>
+                <th>
+                 Condition keys
+                </th>
+               </tr>
+              </thead>
+              <tr>
+               <td>
+                <a id="awscodeartifact-domain">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/auth-and-access-control-iam-access-control-identity-based.html#arn-formats">
+                 domain
+                </a>
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:codeartifact:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:domain/$
+                 <span>
+                  {
+                 </span>
+                 DomainName}
+                </code>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-repository">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/repo-policies.html">
+                 repository
+                </a>
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:codeartifact:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:repository/$
+                 <span>
+                  {
+                 </span>
+                 DomainName}/$
+                 <span>
+                  {
+                 </span>
+                 RepositoryName}
+                </code>
+               </td>
+               <td>
+               </td>
+              </tr>
+              <tr>
+               <td>
+                <a id="awscodeartifact-package">
+                </a>
+                <a href="https://docs.aws.amazon.com/codeartifact/latest/userguide/repo-policies.html">
+                 package
+                </a>
+               </td>
+               <td>
+                <code class="code">
+                 arn:$
+                 <span>
+                  {
+                 </span>
+                 Partition}:codeartifact:$
+                 <span>
+                  {
+                 </span>
+                 Region}:$
+                 <span>
+                  {
+                 </span>
+                 Account}:package/$
+                 <span>
+                  {
+                 </span>
+                 DomainName}/$
+                 <span>
+                  {
+                 </span>
+                 RepositoryName}/$
+                 <span>
+                  {
+                 </span>
+                 PackageFormat}/$
+                 <span>
+                  {
+                 </span>
+                 PackageNamespace}/$
+                 <span>
+                  {
+                 </span>
+                 PackageName}
+                </code>
+               </td>
+               <td>
+               </td>
+              </tr>
+             </table>
+            </div>
+           </div>
+           <h2 id="awscodeartifact-policy-keys">
+            Condition keys for        AWS CodeArtifact
+           </h2>
+           <p>
+            CodeArtifact has no service-specific context keys that can be used in the
+            <code class="code">
+             Condition
+            </code>
+            element of policy statements. For the list of the global context keys      that are
+                                    available to all services, see
+            <a href="reference_policies_condition-keys.html#AvailableKeys" target="_blank">
+             Available keys for        conditions
+            </a>
+            .
+           </p>
+           <awsdocs-copyright class="copyright-print">
+           </awsdocs-copyright>
+           <awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}">
+           </awsdocs-thumb-feedback>
+          </div>
+          <noscript>
+           <div>
+            <div>
+             <div>
+              <div id="js_error_message">
+               <p>
+                <img alt="Warning" src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png"/>
+                <strong>
+                 Javascript is disabled or is unavailable in your
+                                                   browser.
+                </strong>
+               </p>
+               <p>
+                To use the AWS Documentation, Javascript must be
+                                                enabled. Please refer to your browser's Help pages for instructions.
+               </p>
+              </div>
+             </div>
+            </div>
+           </div>
+          </noscript>
+          <div class="awsui-util-font-size-0" id="main-col-footer">
+           <div id="doc-conventions">
+            <a href="/general/latest/gr/docconventions.html" target="_top">
+             Document Conventions
+            </a>
+           </div>
+           <div class="prev-next">
+            <div accesskey="p" class="prev-link" href="./list_awscodesigningforamazonfreertos.html" id="previous">
+             AWS Code Signing for Amazon FreeRTOS
+            </div>
+            <div accesskey="n" class="next-link" href="./list_awscodebuild.html" id="next">
+             AWS CodeBuild
+            </div>
+           </div>
+          </div>
+          <awsdocs-page-utilities>
+          </awsdocs-page-utilities>
+         </div>
+         <div id="quick-feedback-yes" style="display: none;">
+          <div class="title">
+           Did this page help you? - Yes
+          </div>
+          <div class="content">
+           <p>
+            Thanks for letting us know we're doing a good
+                                    job!
+           </p>
+           <p>
+            If you've got a moment, please tell us what we did right
+                                    so we can do more of it.
+           </p>
+           <p>
+            <awsui-button click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IAM&amp;topic_url=https://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_awscodeartifact.html" id="fblink" target="_blank" text="Feedback">
+            </awsui-button>
+           </p>
+          </div>
+         </div>
+         <div id="quick-feedback-no" style="display: none;">
+          <div class="title">
+           Did this page help you? - No
+          </div>
+          <div class="content">
+           <p>
+            Thanks for letting us know this page needs work. We're
+                                    sorry we let you down.
+           </p>
+           <p>
+            If you've got a moment, please tell us how we can make
+                                    the documentation better.
+           </p>
+           <p>
+            <awsui-button click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IAM&amp;topic_url=https://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/list_awscodeartifact.html" id="fblink" target="_blank" text="Feedback">
+            </awsui-button>
+           </p>
+          </div>
+         </div>
+        </div>
+       </body>
+      </div>
+     </awsdocs-view>
+     <div class="page-loading-indicator" id="page-loading-indicator">
+      <awsui-spinner size="large">
+      </awsui-spinner>
+     </div>
+    </div>
+    <div dom-region="tools" id="tools-panel">
+     <awsdocs-tools-panel id="awsdocs-tools-panel">
+     </awsdocs-tools-panel>
+    </div>
+   </awsui-app-layout>
+   <awsdocs-cookie-banner class="doc-cookie-banner">
+   </awsdocs-cookie-banner>
+   <!--
+                SiteCatalyst code version: H.25.2.
+                Copyright 1996-2012 Adobe, Inc. All Rights Reserved
+                More info available at http://www.omniture.com
+            -->
+   <script language="JavaScript" type="text/javascript">
+    var awsdocs = awsdocs || {};
+awsdocs.prop66 = 'AWS Identity and Access Management';
+awsdocs.prop65 =  'User Guide';
+   </script>
+   <script language="JavaScript" src="https://a0.awsstatic.com/s_code/js/3.0/awshome_s_code.js" type="text/javascript">
+   </script>
+   <!--/DO NOT REMOVE/-->
+   <!--End SiteCatalyst code version: H.25.2.-->
+  </div>
+ </body>
+</html>

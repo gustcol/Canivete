@@ -1,0 +1,20 @@
+{
+  "tags": [
+    {
+      "Key": "Name",
+      "Value": "SpaceCrabStack"
+    },
+    {
+      "Key": "business_unit",
+      "Value": "Security"
+    },
+    {
+      "Key": "resource_owner",
+      "Value": "example"
+    },
+    {
+      "Key": "service_name",
+      "Value": "example"
+    }
+  ]
+}

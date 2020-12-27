@@ -1,0 +1,204 @@
+{
+  "id": "pylib",
+  "name": "pylib",
+  "description": "Python / Jython Utility Library for my other repos",
+  "projectName": "Hari Sekhon GitHub Projects",
+  "projectId": "GitHub",
+  "href": "/app/rest/buildTypes/id:pylib",
+  "webUrl": "http://localhost:8111/viewType.html?buildTypeId=pylib",
+  "project": {
+    "id": "GitHub",
+    "name": "Hari Sekhon GitHub Projects",
+    "parentProjectId": "_Root",
+    "description": "HariSekhon's GitHub Projects Builds",
+    "href": "/app/rest/projects/id:GitHub",
+    "webUrl": "http://localhost:8111/project.html?projectId=GitHub"
+  },
+  "templates": {
+    "count": 1,
+    "buildType": [
+      {
+        "id": "HariSekhon_Make",
+        "name": "Make",
+        "templateFlag": true,
+        "description": "Standard 'make' build",
+        "projectName": "Hari Sekhon GitHub Projects",
+        "projectId": "GitHub",
+        "href": "/app/rest/buildTypes/id:HariSekhon_Make"
+      }
+    ]
+  },
+  "vcs-root-entries": {
+    "count": 1,
+    "vcs-root-entry": [
+      {
+        "id": "Pylib",
+        "vcs-root": {
+          "id": "Pylib",
+          "name": "https://github.com/HariSekhon/pylib",
+          "href": "/app/rest/vcs-roots/id:Pylib"
+        },
+        "checkout-rules": ""
+      }
+    ]
+  },
+  "settings": {
+    "count": 5,
+    "property": [
+      {
+        "name": "allowExternalStatus",
+        "value": "true",
+        "inherited": true
+      },
+      {
+        "name": "branchFilter",
+        "value": ""
+      },
+      {
+        "name": "buildNumberCounter",
+        "value": "1"
+      },
+      {
+        "name": "executionTimeoutMin",
+        "value": "120",
+        "inherited": true
+      },
+      {
+        "name": "publishArtifactCondition",
+        "value": "SUCCESSFUL",
+        "inherited": true
+      }
+    ]
+  },
+  "parameters": {
+    "count": 0,
+    "href": "/app/rest/buildTypes/id:pylib/parameters",
+    "property": []
+  },
+  "steps": {
+    "count": 3,
+    "step": [
+      {
+        "id": "RUNNER_0",
+        "name": "CI Bootstrap",
+        "type": "simpleRunner",
+        "inherited": true,
+        "properties": {
+          "count": 3,
+          "property": [
+            {
+              "name": "script.content",
+              "value": "setup/ci_bootstrap.sh"
+            },
+            {
+              "name": "teamcity.step.mode",
+              "value": "default"
+            },
+            {
+              "name": "use.custom.script",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      {
+        "id": "RUNNER_1",
+        "name": "Make",
+        "type": "simpleRunner",
+        "inherited": true,
+        "properties": {
+          "count": 4,
+          "property": [
+            {
+              "name": "plugin.docker.imagePlatform",
+              "value": "linux"
+            },
+            {
+              "name": "script.content",
+              "value": "make"
+            },
+            {
+              "name": "teamcity.step.mode",
+              "value": "default"
+            },
+            {
+              "name": "use.custom.script",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      {
+        "id": "RUNNER_2",
+        "name": "Make Test",
+        "type": "simpleRunner",
+        "inherited": true,
+        "properties": {
+          "count": 3,
+          "property": [
+            {
+              "name": "script.content",
+              "value": "make test"
+            },
+            {
+              "name": "teamcity.step.mode",
+              "value": "default"
+            },
+            {
+              "name": "use.custom.script",
+              "value": "true"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "features": {
+    "count": 0
+  },
+  "triggers": {
+    "count": 1,
+    "trigger": [
+      {
+        "id": "vcsTrigger",
+        "type": "vcsTrigger",
+        "inherited": true,
+        "properties": {
+          "count": 3,
+          "property": [
+            {
+              "name": "branchFilter",
+              "value": "+:refs/heads/master"
+            },
+            {
+              "name": "enableQueueOptimization",
+              "value": "true"
+            },
+            {
+              "name": "quietPeriodMode",
+              "value": "DO_NOT_USE"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "snapshot-dependencies": {
+    "count": 0
+  },
+  "artifact-dependencies": {
+    "count": 0
+  },
+  "agent-requirements": {
+    "count": 0
+  },
+  "builds": {
+    "href": "/app/rest/buildTypes/id:pylib/builds/"
+  },
+  "investigations": {
+    "href": "/app/rest/investigations?locator=buildType:(id:pylib)"
+  },
+  "compatibleAgents": {
+    "href": "/app/rest/agents?locator=compatible:(buildType:(id:pylib))"
+  }
+}

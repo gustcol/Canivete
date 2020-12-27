@@ -1,0 +1,22 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action": [
+                        "ds:DescribeDirectories",
+                        "ds:AuthorizeApplication",
+                        "ds:UnauthorizeApplication",
+                        "ds:GetAuthorizedApplicationDetails"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v2",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-05-15T16:51:50Z"
+    }
+}

@@ -1,0 +1,33 @@
+# .github/workflows/test.yml
+
+name: continuous-integration
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - run: invoke build.install-package
+      - run: invoke test.format
+      - run: invoke integration.clean
+      - run: invoke integration.version
+      - run: invoke integration.initialize
+      - run: invoke unit.pytest
+      - run: invoke test.lint
+      - run: invoke test.security
+      - run: invoke integration.query
+      - run: invoke integration.write-policy
+      - run: invoke build.uninstall-package

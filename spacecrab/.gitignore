@@ -1,0 +1,9 @@
+*-credentials
+*.zip
+.DS_Store
+.Python
+bin/
+include/
+lib/
+pip-selfcheck.json
+*.sublime-*

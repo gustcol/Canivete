@@ -1,0 +1,25 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2011-06-01 16:58:33 +0000 (Wed, 01 Jun 2011)
+#
+
+# run: CASK=1 ../brew_install_packages.sh brew-packages-desktop-casks.txt
+
+anaconda
+atom
+ccmenu
+codeship/taps/jet
+docker
+#iterm2
+firefox-developer-edition
+google-chrome
+keepassxc
+keka
+minikube
+minishift
+podman
+postman
+powershell
+spotify
+vagrant
+virtualbox

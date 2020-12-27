@@ -1,0 +1,5 @@
+*.pyc
+*.pyo
+venv/
+dist/
+krampus.zip

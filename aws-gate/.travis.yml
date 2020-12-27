@@ -1,0 +1,19 @@
+language: python
+dist: xenial
+cache:
+  pip: true
+  directories:
+    - $TRAVIS_BUILD_DIR/.hypothesis
+python:
+  - 3.6
+  - 3.7
+  - 3.8
+before_install:
+  - pip install -U pip setuptools
+install:
+  - pip install -r requirements/requirements.txt
+  - pip install -r requirements/requirements_dev.txt
+before_script:
+  - pytest --version
+script:
+  - ./tests/run.py

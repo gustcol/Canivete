@@ -1,0 +1,56 @@
+---
+cloud_config:
+  name_suffix: ''                                  # Set this to a domain name (like '.example.com') when using the Azure internal DNS otherwise the cluster won't use FQDN nodes
+  location: 'West Europe'
+  admin_username: azure-user
+  ssh:
+    publickey: '~/.ssh/id_rsa.pub'
+    privatekey: '~/.ssh/id_rsa'
+  resource_group: Testing
+  storage_account:
+    name: teststorage000111111
+    type: Standard_LRS
+  network:
+    name: "{{ cluster_name }}-network"
+    address: "10.10.0.0/16"
+  subnet:
+    name: "{{ cluster_name }}-subnet"
+    address: "10.10.0.0/24"
+  security_groups:
+    - name: ssh_access
+      port: 22
+
+nodes:
+  - role: "hdp-master"
+    count: 1
+    image:
+      offer: CentOS
+      publisher: OpenLogic
+      sku: '7.4'
+      version: latest
+    flavor: Standard_D3_v2
+    public_ip: true
+    security_group: ssh_access
+    ambari_server: true
+
+  - role: "hdp-slave"
+    count: 2
+    image:
+      offer: CentOS
+      publisher: OpenLogic
+      sku: '7.4'
+      version: latest
+    flavor: Standard_A5
+    public_ip: true
+    security_group: ssh_access
+
+  - role: "hdp-edge"
+    count: 0
+    image:
+      offer: CentOS
+      publisher: OpenLogic
+      sku: '7.4'
+      version: latest
+    flavor: Standard_A2
+    public_ip: true
+    security_group: ssh_access

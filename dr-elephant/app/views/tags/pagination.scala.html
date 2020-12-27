@@ -1,0 +1,58 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+
+@(paginationStats: controllers.PaginationStats, route:Call)
+
+@*
+* The layout of the pagination bar.
+*
+* @param paginationStats The pagination information
+* @param route the search call to be made
+*@
+
+<div class="pagination">
+
+  @searchQuery() = @{
+    var queryString = paginationStats.getQueryString()
+    if (queryString != null)
+      queryString + "&"
+    else
+      queryString
+  }
+
+  @if(paginationStats.getCurrentPage() == 1) {
+    <li class="disabled"><a href="./" onclick="return false;">Previous</a></li>
+  } else {
+    <li><a href="@route?@(searchQuery())page=@(paginationStats.getCurrentPage() - 1)">Previous</a></li>
+  }
+
+  @for(page <- paginationStats.getPaginationBarStartIndex() until paginationStats.getCurrentPage()) {
+    <li><a href="@route?@(searchQuery())page=@page">@page</a></li>
+  }
+
+  <li class="active"><a href="#">@(paginationStats.getCurrentPage())</a></li>
+
+  @for(page <- paginationStats.getCurrentPage() + 1 until paginationStats.getPaginationBarEndIndex() + 1) {
+    <li><a href="@route?@(searchQuery())page=@page">@page</a></li>
+  }
+
+  @if(paginationStats.getCurrentPage() == paginationStats.getPaginationBarEndIndex()) {
+    <li class="disabled"><a href="./" onclick="return false;">Next</a></li>
+  } else {
+    <li><a href="@route?@(searchQuery())page=@(paginationStats.getCurrentPage() + 1)">Next</a></li>
+  }
+
+</div>

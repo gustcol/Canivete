@@ -1,0 +1,60 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2019-11-28 14:34:17 +0000 (Thu, 28 Nov 2019)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/harisekhon/kubernetes-templates
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/HariSekhon
+#
+
+# ============================================================================ #
+#                    R o l e s   &   C l u s t e r R o l e s
+# ============================================================================ #
+
+# https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-endpoints
+rules:
+  - apiGroups: [""]
+    resources: ["services", "endpoints", "pods", "storageclasses"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: default
+  name: NAME
+rules:
+  - nonResourceURLs: ["metrics/", "/metrics/*"]
+    verbs: ["get", "post"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/logs"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+rules:
+  - apiGroups: [""]
+    resourcesNames: ["my-pod"]  # must name resources to allow update / patch
+    verbs: ["patch", "update"]

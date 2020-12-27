@@ -1,0 +1,15 @@
+language: scala
+sudo: true
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+python: "2.6"
+install:
+  - sudo pip install inspyred
+  - sudo pip install argparse
+
+# only build PRs and master (not all branch pushes)
+branches:
+  only:
+    - master
+

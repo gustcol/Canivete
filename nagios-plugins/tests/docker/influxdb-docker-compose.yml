@@ -1,0 +1,68 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-01-19 18:21:15 +0000 (Fri, 19 Jan 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  influxdb:
+    extends:
+      file: common.yml
+      service: common
+    image: influxdb:${VERSION:-alpine}
+    ports:
+      - 8086
+      - 2003
+    networks:
+      - influxdb
+    environment:
+      - INFLUXDB_GRAPHITE_ENABLED=true
+
+  influxdb-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/influxdb.cfg -d
+    ports:
+      - 8086
+    networks:
+      - influxdb
+    volumes:
+      - ../../haproxy-configs:/conf:ro
+
+  chronograf:
+    image: chronograf:alpine
+    command: --influxdb-url=http://influxdb-haproxy:8086
+    ports:
+      - 8888:8888
+    networks:
+      - influxdb
+
+  influxdb-collectd:
+    image: harisekhon/collectd
+    networks:
+      - influxdb
+    # Graphite protocol on port 2003 isn't relevant to proxy via InfluxDB 8086, it's only needed by Chronograf
+    #links:
+    #  - influxdb-haproxy:influxdb
+    volumes:
+      - ../conf/collectd.d/write_influxdb_graphite.conf:/etc/collectd.d/write_influxdb_graphite.conf:ro
+
+  telegraf:
+    image: telegraf:${TELEGRAF_VERSION:-alpine}
+    networks:
+      - influxdb
+    links:
+      - influxdb-haproxy:influxdb
+    volumes:
+      - ../conf/telegraf-influxdb.conf:/etc/telegraf/telegraf.conf:ro
+
+networks:
+  influxdb:

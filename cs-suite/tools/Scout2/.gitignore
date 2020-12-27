@@ -1,0 +1,60 @@
+# virtualenv 
+env/
+venv/
+
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+.eggs
+.cache/
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# In case people do a `git add .` ...
+*.csv
+tests/data/ruleset-test.json
+
+# Data folder and files
+scout2-report*
+inc-awsconfig*
+report-*
+
+# PyCharm
+.idea/
+
+# Mac cruft
+.DS_Store
+
+# Emacs backups
+*~

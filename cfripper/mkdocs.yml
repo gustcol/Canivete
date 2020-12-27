@@ -1,0 +1,47 @@
+site_name: CFRipper
+site_description: "Library and CLI tool for analysing CloudFormation templates and check them for security compliance."
+strict: true
+site_url: https://cfripper.readthedocs.io
+
+theme:
+  name: 'material'
+  logo: 'img/logo.png'
+  favicon: 'img/favicon.ico'
+  features:
+    - instant
+    - navigation.expand
+    - search.highlight
+repo_name: Skyscanner/cfripper
+repo_url: https://github.com/Skyscanner/cfripper
+
+nav:
+  - Home: index.md
+  - CLI: cli.md
+  - Rules: rules.md
+  - Rule Config: rule_config.md
+  - Changelog: changelog.md
+  - Contributing: contributing.md
+  - Code of conduct: code_of_conduct.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - macros:
+      module_name: docs.macros
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: 'https://github.com/Skyscanner'
+      name: 'Skyscanner on Github'
+    - icon: fontawesome/brands/twitter
+      link: 'https://twitter.com/skyscannereng'
+      name: 'Skyscanner on twitter'
+    - icon: fontawesome/brands/linkedin
+      link: 'https://www.linkedin.com/company/skyscanner/'
+      name: 'Skyscanner on linkedin'

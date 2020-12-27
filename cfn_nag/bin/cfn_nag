@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'cfn-nag'
+require 'logging'
+require 'json'
+require 'rubygems/specification'
+
+exec = CfnNagExecutor.new
+
+exit exec.scan(options_type: 'file')

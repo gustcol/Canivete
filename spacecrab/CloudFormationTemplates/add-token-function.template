@@ -1,0 +1,177 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "FunctionDatabaseUser": {
+      "Type": "String",
+      "Description": "The username lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The encrypted password lambda functions will use to talk to the token database"
+    },
+    "IamTokenUserPath": {
+      "Type": "String",
+      "Description": "The path to use for token IAM users",
+      "NoEcho": "true"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "TokenGroup": {
+      "Type": "String",
+      "Description": "The group token users will be added to"
+    },
+    "TokenGroupArn": {
+      "Type": "String",
+      "Description": "The ARN of the group token users will be added to"
+    },
+    "TokenDatabaseAddress": {
+      "Type": "String",
+      "Description": "The address of the database where token metadata is stored"
+    },
+    "TokenDatabasePort": {
+      "Type": "Number",
+      "Description": "The port of the database where token metadata is stored"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "LambdaGenerateUsernameFunctionArn": {
+      "Type": "String",
+      "Description": "The ARN of the function that generates usernames"
+    }
+  },
+  "Resources": {
+    "AddTokenExecutionPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "Policy for lambda function that adds tokens",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "lambda:InvokeFunction"
+              ],
+              "Resource": [
+                {
+                  "Ref": "LambdaGenerateUsernameFunctionArn"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "LambdaAddTokenFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "AddTokenExecutionPolicy"
+      ],
+      "Properties": {
+        "FunctionName": "AddTokenFunction",
+        "Description": "Adds a honey token user",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "AddTokenFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {
+            "TOKEN_GROUP": {
+              "Ref": "TokenGroup"
+            },
+            "HONEY_TOKEN_USER_PATH": {
+              "Ref": "IamTokenUserPath"
+            },
+            "HONEY_PATH": {
+              "Ref": "IamPath"
+            },
+            "FUNCTION_DATABASE_USER": {
+              "Ref": "FunctionDatabaseUser"
+            },
+            "ENCRYPTED_DATABASE_PASSWORD": {
+              "Ref": "EncryptedFunctionDatabasePassword"
+            },
+            "TOKEN_DATABASE_ADDRESS": {
+              "Ref": "TokenDatabaseAddress"
+            },
+            "TOKEN_DATABASE_PORT": {
+              "Ref": "TokenDatabasePort"
+            },
+            "GENERATE_USERNAME_FUNCTION_ARN": {
+              "Ref": "LambdaGenerateUsernameFunctionArn"
+            }
+          }
+        },
+        "Timeout": 15,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaAddTokenFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaAddTokenFunction",
+          "Arn"
+        ]
+      },
+      "Description": "LambdaAddTokenFunction ARN"
+    }
+  }
+}

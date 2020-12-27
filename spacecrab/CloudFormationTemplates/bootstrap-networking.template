@@ -1,0 +1,408 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {},
+  "Resources": {
+    "SpaceCrabVpc": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/24",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "InstanceTenancy": "default"
+      }
+    },
+    "SpaceCrabDatabaseSubnet1": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "CidrBlock": "10.0.0.0/27",
+        "AvailabilityZone": {
+          "Fn::Select": [
+            "0",
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SpaceCrabDatabaseSubnet2": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "CidrBlock": "10.0.0.32/27",
+        "AvailabilityZone": {
+          "Fn::Select": [
+            "1",
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "NatGatewaySubnet1": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "CidrBlock": "10.0.0.64/27",
+        "AvailabilityZone": {
+          "Fn::Select": [
+            "0",
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "CidrBlock": "10.0.0.128/26",
+        "AvailabilityZone": {
+          "Fn::Select": [
+            "0",
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "CidrBlock": "10.0.0.192/26",
+        "AvailabilityZone": {
+          "Fn::Select": [
+            "1",
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "TokenDatabaseSecurityGroup": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow lambda functions to connect to token database",
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "5432",
+            "ToPort": "5432",
+            "CidrIp": "10.0.0.0/24"
+          }
+        ]
+      }
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow lambda functions to connect to token database and internet",
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "5432",
+            "ToPort": "5432",
+            "CidrIp": "10.0.0.0/26"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "SpaceCrabDatabaseSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Token database subnet",
+        "SubnetIds": [
+          {
+            "Ref": "SpaceCrabDatabaseSubnet1"
+          },
+          {
+            "Ref": "SpaceCrabDatabaseSubnet2"
+          }
+        ]
+      }
+    },
+    "InternetGateway": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {}
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "DependsOn": [
+        "InternetGateway"
+      ],
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "NatGateWayExternalIPAllocator": {
+      "DependsOn": [
+        "AttachGateway"
+      ],
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "NatGatewayForLambdas": {
+      "DependsOn": [
+        "AttachGateway",
+        "NatGateWayExternalIPAllocator"
+      ],
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "NatGateWayExternalIPAllocator",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "NatGatewaySubnet1"
+        }
+      }
+    },
+    "RouteTableSpaceCrabVpc": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        }
+      }
+    },
+    "RouteTableNatGateway": {
+      "DependsOn": [
+        "SpaceCrabVpc"
+      ],
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "SpaceCrabVpc"
+        }
+      }
+    },
+    "RouteNatGateway2Internet": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": [
+        "RouteTableNatGateway",
+        "AttachGateway",
+        "InternetGateway"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTableNatGateway"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "RouteLambda2NatGateway": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": [
+        "RouteTableSpaceCrabVpc",
+        "AttachGateway",
+        "NatGatewayForLambdas"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTableSpaceCrabVpc"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NatGatewayForLambdas"
+        }
+      }
+    },
+    "RouteTableNatGatewaySubnet1": {
+      "DependsOn": [
+        "RouteTableNatGateway",
+        "NatGatewaySubnet1"
+      ],
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTableNatGateway"
+        },
+        "SubnetId": {
+          "Ref": "NatGatewaySubnet1"
+        }
+      }
+    },
+    "RouteTableSpaceCrabFunctionSubnet1": {
+      "DependsOn": [
+        "RouteTableSpaceCrabVpc",
+        "SpaceCrabFunctionSubnet1"
+      ],
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTableSpaceCrabVpc"
+        },
+        "SubnetId": {
+          "Ref": "SpaceCrabFunctionSubnet1"
+        }
+      }
+    },
+    "RouteTableSpaceCrabFunctionSubnet2": {
+      "DependsOn": [
+        "RouteTableSpaceCrabVpc",
+        "SpaceCrabFunctionSubnet2"
+      ],
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTableSpaceCrabVpc"
+        },
+        "SubnetId": {
+          "Ref": "SpaceCrabFunctionSubnet2"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "SpaceCrabVpc": {
+      "Description": "VPC for all honey resources",
+      "Value": {
+        "Ref": "SpaceCrabVpc"
+      },
+      "Export" : {
+        "Name" : "SpaceCrabVpc"
+      }
+    },
+    "SpaceCrabDatabaseSubnet1": {
+      "Description": "First subnet for the token database",
+      "Value": {
+        "Ref": "SpaceCrabDatabaseSubnet1"
+      },
+      "Export" : {
+        "Name" : "SpaceCrabDatabaseSubnet1"
+      }
+    },
+    "SpaceCrabDatabaseSubnet2": {
+      "Description": "Second subnet for the token database",
+      "Value": {
+        "Ref": "SpaceCrabDatabaseSubnet2"
+      },
+      "Export" : {
+        "Name" : "SpaceCrabDatabaseSubnet2"
+      }
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Description": "First subnet for lambda functions",
+      "Value": {
+        "Ref": "SpaceCrabFunctionSubnet1"
+      },
+      "Export" : {
+        "Name" : "SpaceCrabFunctionSubnet1"
+      }
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Description": "Second subnet for lambda functions",
+      "Value": {
+        "Ref": "SpaceCrabFunctionSubnet2"
+      },
+      "Export" : {
+        "Name" : "SpaceCrabFunctionSubnet2"
+      }
+    },
+    "SpaceCrabDatabaseSubnetGroup": {
+      "Description": "Subnet group for the token database",
+      "Value": {
+        "Ref": "SpaceCrabDatabaseSubnetGroup"
+      },
+      "Export" : {
+        "Name" : "SpaceCrabDatabaseSubnetGroup"
+      }
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Description": "Security group for lambda functions",
+      "Value": {
+        "Ref": "SpaceCrabFunctionSecurityGroup"
+      },
+      "Export" : {
+        "Name" : "SpaceCrabFunctionSecurityGroup"
+      }
+    },
+    "TokenDatabaseSecurityGroup": {
+      "Description": "Security group for token database",
+      "Value": {
+        "Ref": "TokenDatabaseSecurityGroup"
+      },
+      "Export" : {
+        "Name" : "TokenDatabaseSecurityGroup"
+      }
+    }
+  }
+}

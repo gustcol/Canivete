@@ -1,0 +1,914 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "TemplateCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where cloudformation templates were uploaded"
+    },
+    "MasterDatabaseUser": {
+      "Type": "String",
+      "Description": "The master username for token database",
+      "NoEcho": "true"
+    },
+    "MasterDatabasePassword": {
+      "Type": "String",
+      "Description": "The master password for token database",
+      "NoEcho": "true"
+    },
+    "EncryptedMasterDatabasePassword": {
+      "Type": "String",
+      "Description": "The encrypted password setup/restore functions will use to talk to the token database"
+    },
+    "FunctionDatabaseUser": {
+      "Type": "String",
+      "Description": "The username lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The encrypted password lambda functions will use to talk to the token database"
+    },
+    "EncryptedPagerdutyToken": {
+      "Type": "String",
+      "Description": "Encrypted pagerduty token"
+    },
+    "IamTokenUserPath": {
+      "Type": "String",
+      "Description": "The path to use for token IAM users"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "First subnet for lambda functions"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "Second subnet for lambda functions"
+    },
+    "SpaceCrabDatabaseSubnetGroup": {
+      "Type": "String",
+      "Description": "Subnet group for the token database"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "Security group for lambda functions"
+    },
+    "TokenDatabaseSecurityGroup": {
+      "Type": "String",
+      "Description": "Security group for token database"
+    }
+  },
+  "Resources": {
+    "IAMaccessPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "DependsOn": [
+        "TokenGroup"
+      ],
+      "Properties": {
+        "Description": "adds ability for lambda function to update tokens",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "Roles": [
+          {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iam:CreateUser",
+                "iam:CreateAccessKey",
+                "iam:GetUser",
+                "iam:ListAccessKeys",
+                "iam:DeleteUser",
+                "iam:DeleteAccessKey"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:iam::",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":user",
+                      {
+                        "Ref": "IamTokenUserPath"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iam:AddUserToGroup",
+                "iam:RemoveUserFromGroup"
+              ],
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TokenGroup",
+                    "Arn"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "TokenPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "Description": "Explicity deny all policy for honey token users",
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Action": "*",
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    },
+    "TokenGroup": {
+      "Type": "AWS::IAM::Group",
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "TokenPolicy"
+      ],
+      "Properties": {
+        "Path": {
+          "Ref": "IamPath"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Ref": "TokenPolicy"
+          }
+        ]
+      }
+    },
+    "LambdaDatabaseResourceFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "IAMaccessPolicy",
+        "TokenDatabase",
+        "TokenGroup"
+      ],
+      "Properties": {
+        "FunctionName": "DatabaseResourceFunction",
+        "Description": "Bootstraps the token database",
+        "Code": {
+          "S3Bucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "S3Key": "DatabaseResourceFunction.zip"
+        },
+        "Role": {
+          "Ref": "SpaceCrabLambdaExecutionRoleArn"
+        },
+        "Environment": {
+          "Variables": {
+            "TOKEN_DATABASE_USER": {
+              "Ref": "MasterDatabaseUser"
+            },
+            "TOKEN_DATABASE_PASSWORD": {
+              "Ref": "MasterDatabasePassword"
+            },
+            "TOKEN_DATABASE_ADDRESS": {
+              "Fn::GetAtt": [
+                "TokenDatabase",
+                "Endpoint.Address"
+              ]
+            },
+            "TOKEN_DATABASE_PORT": {
+              "Fn::GetAtt": [
+                "TokenDatabase",
+                "Endpoint.Port"
+              ]
+            }
+          }
+        },
+        "Timeout": 15,
+        "Handler": "index.lambda_handler",
+        "Runtime": "python2.7",
+        "MemorySize": 128,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SpaceCrabFunctionSecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SpaceCrabFunctionSubnet1"
+            },
+            {
+              "Ref": "SpaceCrabFunctionSubnet2"
+            }
+          ]
+        }
+      }
+    },
+    "TokenDatabase": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBName": "TokenDatabase",
+        "AllocatedStorage": 5,
+        "DBInstanceClass": "db.t2.small",
+        "Engine": "postgres",
+        "EngineVersion": "9.6.2",
+        "MasterUsername": {
+          "Ref": "MasterDatabaseUser"
+        },
+        "MasterUserPassword": {
+          "Ref": "MasterDatabasePassword"
+        },
+        "DBSubnetGroupName": {
+          "Ref": "SpaceCrabDatabaseSubnetGroup"
+        },
+        "VPCSecurityGroups": [
+          {
+            "Ref": "TokenDatabaseSecurityGroup"
+          }
+        ]
+      },
+      "DeletionPolicy": "Delete"
+    },
+    "TokenDatabaseTable": {
+      "Type": "Custom::TokenDatabaseTable",
+      "DependsOn": [
+        "TokenDatabase",
+        "LambdaDatabaseResourceFunction"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LambdaDatabaseResourceFunction",
+            "Arn"
+          ]
+        },
+        "FunctionDatabaseUser": {
+          "Ref": "FunctionDatabaseUser"
+        },
+        "EncryptedFunctionDatabasePassword": {
+          "Ref": "EncryptedFunctionDatabasePassword"
+        }
+      }
+    },
+    "GenerateUsernameFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/generate-username-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "AddTokenFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "TokenGroup",
+        "TokenDatabase",
+        "GenerateUsernameFunctionStack"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Ref": "EncryptedFunctionDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "IamTokenUserPath": {
+            "Ref": "IamTokenUserPath"
+          },
+          "TokenGroup": {
+            "Ref": "TokenGroup"
+          },
+          "TokenGroupArn": {
+            "Fn::GetAtt": [
+              "TokenGroup",
+              "Arn"
+            ]
+          },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Address"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Port"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "LambdaGenerateUsernameFunctionArn": {
+            "Fn::GetAtt": [
+              "GenerateUsernameFunctionStack",
+              "Outputs.LambdaGenerateUsernameFunctionArn"
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/add-token-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "GetTokenFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "TokenGroup",
+        "TokenDatabase",
+        "AddTokenFunctionStack"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Ref": "EncryptedFunctionDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Address"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Port"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "LambdaAddTokenFunctionArn": {
+            "Fn::GetAtt": [
+              "AddTokenFunctionStack",
+              "Outputs.LambdaAddTokenFunctionArn"
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/get-token-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "UpdateTokenFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "TokenGroup",
+        "TokenDatabase"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Ref": "EncryptedFunctionDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "IamTokenUserPath": {
+            "Ref": "IamTokenUserPath"
+          },
+          "TokenGroup": {
+            "Ref": "TokenGroup"
+          },
+          "TokenGroupArn": {
+            "Fn::GetAtt": [
+              "TokenGroup",
+              "Arn"
+            ]
+          },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Address"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Port"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/update-token-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "DeleteTokenFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "TokenDatabase"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Ref": "EncryptedFunctionDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "IamTokenUserPath": {
+            "Ref": "IamTokenUserPath"
+          },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Address"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Port"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "TokenGroup": {
+            "Ref": "TokenGroup"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/delete-token-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "ExpireTokensFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "TokenDatabase"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Ref": "EncryptedFunctionDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "IamTokenUserPath": {
+            "Ref": "IamTokenUserPath"
+          },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Address"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Port"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "TokenGroup": {
+            "Ref": "TokenGroup"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/expire-tokens-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "BackupFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "TokenDatabase"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Ref": "EncryptedFunctionDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Address"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Port"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/backup-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "RestoreFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "TokenDatabase",
+        "BackupFunctionStack"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "MasterDatabaseUser": {
+            "Ref": "MasterDatabaseUser"
+          },
+          "EncryptedMasterDatabasePassword": {
+            "Ref": "EncryptedMasterDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "TokenDatabaseAddress": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Address"
+            ]
+          },
+          "TokenDatabasePort": {
+            "Fn::GetAtt": [
+              "TokenDatabase",
+              "Endpoint.Port"
+            ]
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "BackupBucketName": {
+            "Fn::GetAtt": [
+              "BackupFunctionStack",
+              "Outputs.BackupBucketName"
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/restore-function.template"
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "TokenGroup": {
+      "Description": "",
+      "Value": {
+        "Ref": "TokenGroup"
+      }
+    },
+    "TokenGroupArn": {
+      "Description": "",
+      "Value": {
+        "Fn::GetAtt": [
+          "TokenGroup",
+          "Arn"
+        ]
+      }
+    },
+    "TokenDatabaseAddress": {
+      "Description": "",
+      "Value": {
+        "Fn::GetAtt": [
+          "TokenDatabase",
+          "Endpoint.Address"
+        ]
+      }
+    },
+    "TokenDatabasePort": {
+      "Description": "",
+      "Value": {
+        "Fn::GetAtt": [
+          "TokenDatabase",
+          "Endpoint.Port"
+        ]
+      }
+    },
+    "LambdaGenerateUsernameFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "GenerateUsernameFunctionStack",
+          "Outputs.LambdaGenerateUsernameFunctionArn"
+        ]
+      },
+      "Description": "LambdaGenerateUsernameFunction ARN"
+    },
+    "LambdaAddTokenFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "AddTokenFunctionStack",
+          "Outputs.LambdaAddTokenFunctionArn"
+        ]
+      },
+      "Description": "LambdaAddTokenFunction ARN"
+    },
+    "LambdaUpdateTokenFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "UpdateTokenFunctionStack",
+          "Outputs.LambdaUpdateTokenFunctionArn"
+        ]
+      },
+      "Description": "LambdaUpdateTokenFunction ARN"
+    },
+    "LambdaDeleteTokenFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "DeleteTokenFunctionStack",
+          "Outputs.LambdaDeleteTokenFunctionArn"
+        ]
+      },
+      "Description": "LambdaDeleteTokenFunction ARN"
+    },
+    "LambdaExpireTokensFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ExpireTokensFunctionStack",
+          "Outputs.LambdaExpireTokensFunctionArn"
+        ]
+      },
+      "Description": "LambdaExpireTokensFunction ARN"
+    },
+    "LambdaBackupFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "BackupFunctionStack",
+          "Outputs.LambdaBackupFunctionArn"
+        ]
+      },
+      "Description": "LambdaBackupFunction ARN"
+    },
+    "LambdaRestoreFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "RestoreFunctionStack",
+          "Outputs.LambdaRestoreFunctionArn"
+        ]
+      },
+      "Description": "LambdaRestoreFunction ARN"
+    }
+  }
+}

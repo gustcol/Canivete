@@ -1,0 +1,37 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                         Deb Package Requirements Optional
+# ============================================================================ #
+
+# Installed if available in repos
+
+# installs /usr/lib/nagios/plugins/utils.pm
+monitoring-plugins-common  # newer deb distros, not available on Ubuntu 14.04
+nagios-plugins-common      # older deb distros, sometimes installs monitoring-plugins-common on newer systems, other times not found
+
+# =====================================
+# for check_whois.pl - looks like this has been removed from repos :-/
+jwhois
+
+# needed to build perl's DBD::mysql and python's MySQL-python
+#
+# Ubuntu 12 Precise which is still used in Travis CI uses libmysqlclient-dev, but Debian 9 Stretch and Ubuntu 16 Xenial
+# use libmariadbd-dev so this must now be handled separately in Makefile to try installing
+# libmariadbd-dev and if failing then try falling back to libmysqlclient-dev
+# included from perl library
+#libmariadbd-dev
+#libmysqlclient-dev
+#libmariadb-dev-compat
+
+# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
+libmariadbclient18

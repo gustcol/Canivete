@@ -1,0 +1,429 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "FunctionCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where code was uploaded"
+    },
+    "TemplateCodeBucket": {
+      "Type": "String",
+      "Description": "The name of the s3 bucket to where cloudformation templates were uploaded"
+    },
+    "FunctionDatabaseUser": {
+      "Type": "String",
+      "Description": "The username lambda functions will use to talk to the token database",
+      "NoEcho": "true"
+    },
+    "EncryptedFunctionDatabasePassword": {
+      "Type": "String",
+      "Description": "The encrypted password lambda functions will use to talk to the token database"
+    },
+    "EncryptedPagerdutyToken": {
+      "Type": "String",
+      "Description": "Encrypted pagerduty token"
+    },
+    "EncryptedAlertEmailAddress": {
+      "Type": "String",
+      "Description": "encrypted target email"
+    },
+    "EncryptedFromEmailAddress": {
+      "Type": "String",
+      "Description": "encrypted sending email"
+    },
+    "SESRegion": {
+      "Type": "String",
+      "Description": "SES API Endpoint Region"
+    },
+    "IamTokenUserPath": {
+      "Type": "String",
+      "Description": "The path to use for token IAM users",
+      "NoEcho": "true"
+    },
+    "IamPath": {
+      "Type": "String",
+      "Description": "The path to use for all non-user IAM resources",
+      "NoEcho": "true"
+    },
+    "SpaceCrabLambdaExecutionRole": {
+      "Type": "String",
+      "Description": "An execution role we'll pass around to everyone"
+    },
+    "SpaceCrabLambdaExecutionRoleArn": {
+      "Type": "String",
+      "Description": "An execution role arn we'll pass around to everyone"
+    },
+    "SpaceCrabFunctionSecurityGroup": {
+      "Type": "String",
+      "Description": "The security group that allows lambda functions to connect to the token database and internet"
+    },
+    "SpaceCrabFunctionSubnet1": {
+      "Type": "String",
+      "Description": "The 1st subnet where lambda functions are located"
+    },
+    "SpaceCrabFunctionSubnet2": {
+      "Type": "String",
+      "Description": "The 2nd subnet where lambda functions are located"
+    },
+    "TokenDatabaseAddress": {
+      "Type": "String",
+      "Description": "The address of the database where token metadata is stored"
+    },
+    "TokenDatabasePort": {
+      "Type": "Number",
+      "Description": "The port of the database where token metadata is stored"
+    }
+  },
+  "Resources": {
+    "AlertingSnsTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": "AlertingSnsTopic"
+      }
+    },
+    "ProcessCloudTrailFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "AlertingSnsTopic"
+      ],
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "FunctionDatabaseUser": {
+            "Ref": "FunctionDatabaseUser"
+          },
+          "EncryptedFunctionDatabasePassword": {
+            "Ref": "EncryptedFunctionDatabasePassword"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "IamTokenUserPath": {
+            "Ref": "IamTokenUserPath"
+          },
+          "TokenDatabaseAddress": {
+            "Ref": "TokenDatabaseAddress"
+          },
+          "TokenDatabasePort": {
+            "Ref": "TokenDatabasePort"
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "AlertingSnsTopic": {
+            "Ref": "AlertingSnsTopic"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/process-cloudtrail-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "AlertPagerdutyFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "EncryptedPagerdutyToken": {
+            "Ref": "EncryptedPagerdutyToken"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/alert-pagerduty-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "AlertEmailFunctionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "FunctionCodeBucket": {
+            "Ref": "FunctionCodeBucket"
+          },
+          "IamPath": {
+            "Ref": "IamPath"
+          },
+          "SpaceCrabLambdaExecutionRole": {
+            "Ref": "SpaceCrabLambdaExecutionRole"
+          },
+          "SpaceCrabLambdaExecutionRoleArn": {
+            "Ref": "SpaceCrabLambdaExecutionRoleArn"
+          },
+          "SpaceCrabFunctionSecurityGroup": {
+            "Ref": "SpaceCrabFunctionSecurityGroup"
+          },
+          "SpaceCrabFunctionSubnet1": {
+            "Ref": "SpaceCrabFunctionSubnet1"
+          },
+          "SpaceCrabFunctionSubnet2": {
+            "Ref": "SpaceCrabFunctionSubnet2"
+          },
+          "EncryptedAlertEmailAddress": {
+            "Ref": "EncryptedAlertEmailAddress"
+          },
+          "EncryptedFromEmailAddress": {
+            "Ref": "EncryptedFromEmailAddress"
+          },
+          "SESRegion": {
+            "Ref": "SESRegion"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/",
+              {
+                "Ref": "TemplateCodeBucket"
+              },
+              "/alert-email-function.template"
+            ]
+          ]
+        }
+      }
+    },
+    "ProcessCloudTrailLambdaPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "ProcessCloudTrailFunctionStack"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "Principal": "s3.amazonaws.com",
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        },
+        "SourceArn": "arn:aws:s3:::*",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ProcessCloudTrailFunctionStack",
+            "Outputs.LambdaProcessCloudTrailFunctionArn"
+          ]
+        }
+      }
+    },
+    "SpaceCrabCloudTrailBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "ProcessCloudTrailFunctionStack",
+        "ProcessCloudTrailLambdaPermission"
+      ],
+      "Properties": {
+        "AccessControl": "BucketOwnerFullControl",
+        "NotificationConfiguration": {
+          "LambdaConfigurations": [
+            {
+              "Function": {
+                "Fn::GetAtt": [
+                  "ProcessCloudTrailFunctionStack",
+                  "Outputs.LambdaProcessCloudTrailFunctionArn"
+                ]
+              },
+              "Event": "s3:ObjectCreated:*",
+              "Filter": {
+                "S3Key": {
+                  "Rules": [
+                    {
+                      "Name": "suffix",
+                      "Value": ".json.gz"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SpaceCrabCloudTrailBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "DependsOn": [
+        "SpaceCrabCloudTrailBucket",
+        "ProcessCloudTrailFunctionStack"
+      ],
+      "Properties": {
+        "Bucket": {
+          "Ref": "SpaceCrabCloudTrailBucket"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "AWSCloudTrailAclCheck",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudtrail.amazonaws.com"
+              },
+              "Action": "s3:GetBucketAcl",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "SpaceCrabCloudTrailBucket"
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "Sid": "AWSCloudTrailWrite",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudtrail.amazonaws.com"
+              },
+              "Action": "s3:PutObject",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "SpaceCrabCloudTrailBucket"
+                    },
+                    "/AWSLogs/",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Sid": "ProcessCloudTrailFunctionRead",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Ref": "SpaceCrabLambdaExecutionRoleArn"
+                }
+              },
+              "Action": "s3:GetObject",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "SpaceCrabCloudTrailBucket"
+                    },
+                    "/AWSLogs/",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SpaceCrabCloudTrail": {
+      "DependsOn": [
+        "SpaceCrabCloudTrailBucket",
+        "SpaceCrabCloudTrailBucketPolicy",
+        "ProcessCloudTrailLambdaPermission"
+      ],
+      "Type": "AWS::CloudTrail::Trail",
+      "Properties": {
+        "S3BucketName": {
+          "Ref": "SpaceCrabCloudTrailBucket"
+        },
+        "IsLogging": "true",
+        "IsMultiRegionTrail": "true",
+        "IncludeGlobalServiceEvents": "true",
+        "EnableLogFileValidation": "true"
+      }
+    }
+  },
+  "Outputs": {
+    "LambdaProcessCloudTrailFunctionArn": {
+      "Description": "The ARN of the lambda function that processes cloudtrails",
+      "Value": {
+        "Fn::GetAtt": [
+          "ProcessCloudTrailFunctionStack",
+          "Outputs.LambdaProcessCloudTrailFunctionArn"
+        ]
+      }
+    },
+    "AlertingSnsTopicArn": {
+      "Description": "The ARN of the sns topic that does alerting",
+      "Value": {
+        "Ref": "AlertingSnsTopic"
+      }
+    },
+    "LambdaAlertPagerdutyFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "AlertPagerdutyFunctionStack",
+          "Outputs.LambdaAlertPagerdutyFunctionArn"
+        ]
+      },
+      "Description": "LambdaAlertPagerdutyFunction ARN"
+    },
+    "LambdaAlertEmailFunctionArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "AlertEmailFunctionStack",
+          "Outputs.LambdaAlertEmailFunctionArn"
+        ]
+      },
+      "Description": "LambdaAlertEmailFunction ARN"
+    }
+  }
+}

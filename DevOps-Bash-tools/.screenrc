@@ -1,0 +1,158 @@
+#  vim:ts=4:sts=4:sw=4:et
+#
+#  Author: Hari Sekhon
+#  Date: circa 2006 - 2008
+#
+#  https://github.com/harisekhon/bash-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                                S c r e e n r c
+# ============================================================================ #
+
+# Reload .screenrc without restarting:
+#
+# Ctrl-a :source $HOME/.screenrc
+bind R source $HOME/.screenrc
+
+startup_message off
+
+defscrollback 20000
+
+# enables monitor to notify of change in backgrounded panes (default: off)
+# do not enable - causes flickering ocassionally noticeable, but really awful when running welcome
+#defmonitor on
+
+crlf off
+vbell off
+
+# default: off - echos command on every new pane
+#verbose on
+
+#version
+
+# redundant vs caption - ends up with 2 lines of the same stuff
+# caption is better when splitting
+#hardstatus string "..."
+
+# called only during Power Detach (C-a D D), ie. a detach that sends a HUP signal to screen's parent, results in a logout from the parent shell
+pow_detach_msg "Screen session of \$LOGNAME \$:cr:\$:nl:ended."
+
+# set pw to prevent root attaching - if no crypted pw, initially prompts twice for pw
+#password [<crypted_pw>]
+
+#altscreen on
+
+# don't use this, wastes a line at bottom of terminal
+# and if setting string you end up with 2 status lines at bottom since 'caption always' is set further down
+#hardstatus on
+#hardstatus alwayslastline
+
+#term screen-256color
+
+# ============================================================================ #
+# default:
+# shell $SHELL
+#
+# dash prefix starts a login shell
+# shell -$SHELL
+#
+# must be full path because script which relies on $SHELL which is set by this
+#
+# might be a touch expensive as profile logins may do expensive rare initialization operations
+# instead rely on inheriting the profile environment by this point
+#shell -/bin/bash
+shell /bin/bash
+
+# ============================================================================ #
+# defaults to "Unnamed" otherwise
+# shelltitle ""
+#
+# Auto-Title - makes title the first word after the "$ " prompt or sets it to the thing on the other side of | which is simply blank
+#
+# Requires that PS1 have a null shelltitle escape sequence to be able to capture this
+#
+# causes marginal flickering
+#shelltitle '$ |'
+#
+# change prompt to use > instead of $
+# the space before the > is useful to distinguish the PS1 prompt from the PS4 prompt
+# 'screen -t blah' disables dynamic shelltitle on that new pane and cannot reactivate dynamic title even when re-sourcing this config or using functions from .bash.d/screen.sh profile
+shelltitle ' > |'
+
+# ============================================================================ #
+
+# bind    - prefixes ctrl-a
+# bindkey - plain key sequence
+
+# to unbind a key, run the bind again with no command
+
+# no longer exists - left as example
+#bindkey ^f screen -t Tech-Stable ssh tech-stable.harisekhon.com
+
+# open selection list to jump to any URLs in the current pane - this is better done in adjacent vim and tmux configs
+# ugly hack due to screen not supporting piping hardcopy and none of the usual shell / coreutil tricks work
+# eg. - or /dev/stdout or /dev/fd/1 - hardcopy silently fails if not regular file
+#bind u eval "hardcopy hardcopy.tmp" "exec ... urlview hardcopy.tmp" "exec rm hardcopy.tmp"
+#bind u exec ... urlview
+#bind u exec urlview
+
+# ctrl-a ctrl-x
+#bind ^x focus up
+
+# ctrl-a `
+bind ` focus up
+
+# Mac key in similar position to PC key `
+# doesn't work when testing 'ctrl-a §'
+# ignore since that key is slightly awkward and just use the up arrow set above
+#bind § focus up
+
+#bindkey ^` focus up
+# ctrl-a <up_arrow>
+# ctrl-a <down_arrow>
+bindkey "^A^[OA" focus up
+bindkey "^A^[OB" focus down
+
+bindkey -k k1 select 0  # F1 = screen 0
+bindkey -k k2 select 1  # F2 = screen 1
+bindkey -k k3 select 2  # F3 = screen 2
+bindkey -k k4 select 3  # F4 = screen 3
+bindkey -k k5 select 4  # F5 = screen 4
+bindkey -k k6 select 5  # F6 = screen 5
+bindkey -k k7 select 6  # F7 = screen 6
+bindkey -k k8 copy      # F8 = scrollback mode
+bindkey -k k9 title     # F9 = change title
+bindkey -k k; windowlist -b # F10 = windowlist
+bindkey -k F2 next      # F12 = next
+bindkey -k F1 prev      # F11 = previous
+
+# ============================================================================ #
+
+# %=       - pads space
+# .        - sets background transparent
+# %{-}     - pops one colour off the colour change stack to restore the last colour, useful for consistency
+# $LOGNAME - <user> - needs double quotes
+#
+# can use `` the same as in shell
+
+# Hari's style:
+#
+# transparent magenta <hostname> brightGreen <windows_before_current> brightBlue<num>*<flags> <title> <pop> windows_after_current <pad> brightRed <load> brightGreen <24HR>:<secs> <Day> <dd>/<Mon>/<YYYY>
+caption always "%{= .G}[ %{= .m}%H %{-}| %-Lw%?%{r}[%{B}%n%f* %t%{-}]%{-}%?%+Lw %= | %{= .R}%l %{-}| %c:%s %D %d/%M/%Y %{= .G}]"
+#       splitonly (default - only shows during splits - but we want always to replace hardline and standardize look with or without splits)
+
+# ============================================================================ #
+
+#idle 60 blanker
+idle 0  # off
+
+#blankerprg cmatrix
+# save battery
+blankerprg ""

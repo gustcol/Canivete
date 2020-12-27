@@ -1,0 +1,27 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "guardduty:*",
+                    "Resource": "*"
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": "iam:CreateServiceLinkedRole",
+                    "Resource": "*",
+                    "Condition": {
+                        "StringLike": {
+                            "iam:AWSServiceName": "guardduty.amazonaws.com"
+                        }
+                    }
+                }
+            ]
+        },
+        "VersionId": "v1",
+        "IsDefaultVersion": true,
+        "CreateDate": "2017-11-28T22:31:30Z"
+    }
+}

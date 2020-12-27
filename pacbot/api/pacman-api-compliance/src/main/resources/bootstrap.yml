@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: compliance-service
+    title: Pacman Service
+    description: Pacman API provides compliance capabilities
+  cloud:
+    config:
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888/api/config/}
+      enabled: true
+      fail-fast: true
+      name: api,compliance-service
+      password: ${CONFIG_PASSWORD}
+      username: user
+      label: latest
+       
+  profiles:
+    active: ${ENVIRONMENT:prd}
+   
+
+security: 
+  oauth2:
+    resource:
+      user-info-uri: ${PACMAN_HOST_NAME}/api/auth/user
+query:
+    assetGroupQuery: SELECT groupName, targetType, attributeName, attributeValue, dataSource, aliasQuery FROM cf_AssetGroups
+    
+spring.jpa.hibernate.naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

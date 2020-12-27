@@ -1,0 +1,162 @@
+---
+- name: Load default variables
+  include_vars:
+    file: '../defaults/main.yml'
+
+- name: Load variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_os_family|lower }}-{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_os_family|lower }}-{{ ansible_distribution|lower }}.yml"
+        - "{{ ansible_os_family|lower }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_os_family|lower }}.yml"
+        - defaults.yml
+      paths:
+        - ../vars
+
+- name: Fail if HA NameNode prerequisites are not met
+  fail:
+    msg: "HA NameNode has been requested but there are less than 3 JournalNodes."
+  when: namenode_groups is defined and namenode_groups|length > 1 and journalnode_groups is defined and journalnode_groups|length < 3
+
+- name: Fail if Ranger prerequisites are not met
+  fail:
+    msg: "Ranger has been requested to be installed but the database option is embedded."
+  when: rangeradmin_hosts is defined and rangeradmin_hosts|length > 0 and database == 'embedded'
+
+- name: Fail if Streamline prerequisites are not met
+  fail:
+    msg: "Streamline has been requested to be installed but the database option is embedded."
+  when: streamline_hosts is defined and streamline_hosts|length > 0 and database == 'embedded'
+
+- name: Fail if Registry prerequisites are not met
+  fail:
+    msg: "Registry has been requested to be installed but the database option is embedded."
+  when: registry_hosts is defined and registry_hosts|length > 0 and database == 'embedded'
+
+- block:
+    - name: Get the VersionDefinition id from Ambari (Ambari >= 2.6)
+      uri:
+        url: "http://{{ ansible_fqdn }}:8080/api/v1/version_definitions?VersionDefinition/release/version={{ (install_hdp|default(false) == true) | ternary(hdp_version,hdf_version) }}"
+        method: GET
+        force_basic_auth: yes
+        user: "{{ ambari_admin_user }}"
+        password: "{{ ambari_admin_password }}"
+        headers: '{"X-Requested-By":"ambari"}'
+        status_code: 200,201,202
+        return_content: yes
+      register: version_definition
+
+    - name: Fail if could not get a VersionDefinition from Ambari
+      fail:
+        msg: "Could not get the VersionDefinition from Ambari. The following is the received information from Ambari: {{ version_definition }}"
+      when: (version_definition.content|from_yaml)['items'] | length == 0
+
+    - name: Set the VersionDefinition id (Ambari >= 2.6)
+      set_fact:
+        vdf_id: "{{ (version_definition.content|from_yaml)['items'][0]['VersionDefinition']['id'] }}"
+  when: ambari_version is version_compare('2.6', '>=')
+
+- name: Upload the blueprint and the cluster creation template
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0640
+    force: yes
+  with_items:
+    - src: "{{ blueprint_file }}"
+      dest: "/tmp/{{ blueprint_name }}"
+    - src: "{{ cluster_template_file }}"
+      dest: "/tmp/cluster_template"
+
+- name: Delete any existing blueprint called {{ blueprint_name }}
+  uri:
+    url: "http://{{ ansible_fqdn }}:8080/api/v1/blueprints/{{ blueprint_name }}"
+    method: DELETE
+    force_basic_auth: yes
+    user: "{{ ambari_admin_user }}"
+    password: "{{ ambari_admin_password }}"
+    headers: '{"X-Requested-By":"ambari"}'
+    status_code: 200,201,202,404
+    return_content: no
+
+- name: Slurp the blueprint
+  slurp:
+    src: "/tmp/{{ blueprint_name }}"
+  register: cluster_blueprint
+
+- name: Upload the blueprint to the Ambari server
+  uri:
+    url: "http://{{ ansible_fqdn }}:8080/api/v1/blueprints/{{ blueprint_name }}"
+    method: POST
+    force_basic_auth: yes
+    user: "{{ ambari_admin_user }}"
+    password: "{{ ambari_admin_password }}"
+    headers: '{"X-Requested-By":"ambari"}'
+    body: " {{ cluster_blueprint.content | b64decode }}"
+    body_format: raw
+    status_code: 200,201,202,404
+    timeout: 60
+    return_content: no
+
+- name: Check if a cluster {{ cluster_name }} already exists
+  uri:
+    url: "http://{{ ansible_fqdn }}:8080/api/v1/clusters/{{ cluster_name }}"
+    method: GET
+    force_basic_auth: yes
+    user: "{{ ambari_admin_user }}"
+    password: "{{ ambari_admin_password }}"
+    headers: '{"X-Requested-By":"ambari"}'
+    status_code: 200,201,202,404
+  register: cluster_check
+
+- name: Fail if a cluster {{ cluster_name }} already exists
+  fail:
+    msg: Cluster {{ cluster_name }} already exists!
+  when: cluster_check.status!=404
+
+- name: Slurp the cluster creation template
+  slurp:
+    src: '/tmp/cluster_template'
+  register: cluster_template
+
+- name: Launch the create cluster request
+  uri:
+    url: http://{{ ansible_fqdn }}:8080/api/v1/clusters/{{ cluster_name }}
+    method: POST
+    force_basic_auth: yes
+    user: "{{ ambari_admin_user }}"
+    password: "{{ ambari_admin_password }}"
+    headers: '{"X-Requested-By":"ambari"}'
+    body: " {{ cluster_template.content | b64decode }}"
+    body_format: raw
+    status_code: 200,201,202
+    timeout: 120
+    return_content: yes
+  register: cluster_create_task
+
+- name: Wait for the cluster to be built
+  uri:
+    url: "{{ (cluster_create_task.content|from_json).href }}"
+    force_basic_auth: yes
+    user: "{{ ambari_admin_user }}"
+    password: "{{ ambari_admin_password }}"
+    headers: '{"X-Requested-By":"ambari", "Content-Type":"application/json"}'
+    status_code: 200,201,202
+    return_content: yes
+  register: cluster_check_task
+  until: (((cluster_check_task.content|from_json).Requests.request_status == 'COMPLETED' and (cluster_check_task.content|from_json).Requests.completed_task_count|int > 0) or
+         (cluster_check_task.content|from_json).Requests.request_status == 'FAILED' or
+         (cluster_check_task.content|from_json).Requests.request_status == 'TIMEDOUT' or
+         (cluster_check_task.content|from_json).Requests.request_status == 'ABORTED')
+  retries: "{{ wait_timeout // 10 }}"
+  delay: 10
+  when: wait and cluster_create_task is defined and cluster_create_task
+
+- name: Fail if the cluster create task is in an error state
+  fail:
+    msg: "Failed to build the {{ cluster_name }} cluster. Task Status is {{ (cluster_check_task.content|from_json).Requests.request_status }}."
+  when: wait and ((cluster_check_task.content|from_json).Requests.request_status == 'FAILED' or
+         (cluster_check_task.content|from_json).Requests.request_status == 'TIMEDOUT' or
+         (cluster_check_task.content|from_json).Requests.request_status == 'ABORTED')

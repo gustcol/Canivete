@@ -1,0 +1,14 @@
+boto3
+botocore
+cryptography
+ipwhois
+jira
+pbr
+pyjwt
+requests
+requests_aws4auth
+slackbot
+slackclient
+watchtower
+xlrd
+xlwt

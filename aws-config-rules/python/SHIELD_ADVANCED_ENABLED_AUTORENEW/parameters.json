@@ -1,0 +1,13 @@
+{
+  "Version": "1.0",
+  "Parameters": {
+    "RuleName": "SHIELD_ADVANCED_ENABLED_AUTORENEW",
+    "SourceRuntime": null,
+    "CodeKey": null,
+    "InputParameters": "{}",
+    "OptionalParameters": "{}",
+    "SourcePeriodic": "TwentyFour_Hours",
+    "SourceIdentifier": "SHIELD_ADVANCED_ENABLED_AUTORENEW"
+  },
+  "Tags": "[]"
+}

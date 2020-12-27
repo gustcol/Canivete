@@ -1,0 +1,27 @@
+# Posix Regex
+/Makefile$
+/\.
+\.pyc$
+\.pyo$
+\.jyc$
+\.jyo$
+\.zip$
+\.tar$
+\.tgz$
+\.tbz$
+\.gz$
+\.bz2$
+\.class$
+\.plist$
+/target/
+/fatpacks/
+/build/
+/gradle/
+/gradlew
+/mvnw
+dependency-reduced-pom.xml
+/[[:alnum:]-]+-[[:digit:]\.]+/
+/cover_db/
+check_memcached_stats.cfg-pnp4nagios
+/spark-.*-bin-hadoop.*/
+-bin\b

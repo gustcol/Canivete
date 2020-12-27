@@ -1,0 +1,11 @@
+{
+    "status_code": 200,
+    "data": {
+        "ClientToken": "6zPNON5jQ9rEuL4pDVwzJlm70HqAQcYDkaOEHQr9gos=",
+        "FlowLogIds": [
+            "fl-041cdc74dc6435446"
+        ],
+        "Unsuccessful": [],
+        "ResponseMetadata": {}
+    }
+}

@@ -1,0 +1,58 @@
+#  vim:ts=4:sts=4:sw=4:et
+#
+#  Author: Hari Sekhon
+#  Date: Wed Feb 3 16:44:26 2016 +0000
+#
+#  https://github.com/harisekhon/devops-bash-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# use install_ansible.sh instead now which will try to use OS package manager first and only use pip if not available
+# if OS package manager version is too old then consider installing newer version via pip
+#ansible
+
+ansible-lint
+athenacli
+autopep8
+aws-shell
+awscli
+beautifulsoup4
+bitbucket-cli
+cfn-lint
+flake8
+#gitlab-python  # Python 3 only by the look of it
+gitsome
+# tries to uninstall thrift -> ERROR: Cannot uninstall 'thrift'. It is a distutils installed project and thus we cannot accurately determine which files belong to it which would lead to only a partial uninstall.
+# just use impala-shell from CDH parcel on edge node instead
+# impala-shell
+iredis
+kazoo
+kube-shell
+mycli
+nose
+pgcli
+pipx
+# pep8 has been renamed to pycodestyle
+pycodestyle
+pyflakes
+pygments
+pyhcl  # Hashicorp's config language parser - returns dict and comes with cli tool to parse hcl to json - hcltool INFILE [OUTFILE]
+PyInstaller
+pylint
+pytest
+python-cson
+requests
+tabulate
+saws
+PyYAML
+yamllint
+yq
+
+#avro
+#hadoopy
+#pymongo

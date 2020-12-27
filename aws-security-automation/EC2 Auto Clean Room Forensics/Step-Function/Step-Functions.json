@@ -1,0 +1,152 @@
+{
+	"Comment": " A state machine that submits a Job to AWS Batch and monitors the Job until it completes. ",
+	"StartAt": "Create Support Ticket Job",
+	"States": {
+		"Create Support Ticket Job": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-1-createSupportTicket",
+			"ResultPath": "$.supportID",
+			"Next": "Start Isolating the instance",
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		},
+		"Start Isolating the instance": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-2-isolateInstance",
+			"Next": "Job Complete?",
+			"InputPath": "$",
+			"ResultPath": "$",
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		},
+		"Wait X Seconds": {
+			"Type": "Wait",
+			"SecondsPath": "$.wait_time",
+			"Next": "Start Isolating the instance"
+		},
+		"Job Complete?": {
+			"Type": "Choice",
+			"Choices": [{
+				"Variable": "$.STATUS",
+				"StringEquals": "FAILED",
+				"Next": "Job Failed"
+			}, {
+				"Variable": "$.STATUS",
+				"StringEquals": "SUCCEEDED",
+				"Next": "Alert Security Team on Isolation and Incident"
+			}],
+			"Default": "Wait X Seconds"
+		},
+		"Job Failed": {
+			"Type": "Fail",
+			"Cause": "AWS Batch Job Failed",
+			"Error": "DescribeJob returned FAILED"
+		},
+		"Alert Security Team on Isolation and Incident": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-3-sendIsolationNotification",
+			"InputPath": "$",
+			"ResultPath": "$",
+			"Next": "Prepare for Remediation",
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		},
+		"Prepare for Remediation": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-4-snapShotCreation",
+			"InputPath": "$",
+			"ResultPath": "$.snapshotID",
+			"Next": "Start Forensic Instance",
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		},
+		"Start Forensic Instance": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-5-startForensicInstance",
+			"InputPath": "$",
+			"ResultPath": "$",
+			"Next": "Attach Volume For Forensic Analysis",
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		},
+		"Attach Volume For Forensic Analysis": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-6-createAndAttachAffectedVolume",
+			"InputPath": "$",
+			"Next": "SSM Activation Job Complete?",
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		},
+		"Wait for instance boot up": {
+			"Type": "Wait",
+			"SecondsPath": "$.wait_time",
+			"Next": "IsSSMInstalled"
+		},
+		"IsSSMInstalled": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-7-isSSMInstalled",
+			"InputPath": "$",
+			"Next": "SSM Activation Job Complete?",
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		},
+		"SSM Activation Job Complete?": {
+			"Type": "Choice",
+			"Choices": [{
+				"Variable": "$.SSM_STATUS",
+				"StringEquals": "FAILED",
+				"Next": "SSM Activation Job Failed"
+			}, {
+				"Variable": "$.SSM_STATUS",
+				"StringEquals": "SUCCEEDED",
+				"Next": "Generate Forensic Report"
+			}],
+			"Default": "Wait for instance boot up"
+		},
+		"SSM Activation Job Failed": {
+			"Type": "Fail",
+			"Cause": "AWS SSM Activation Job Failed",
+			"Error": "DescribeJob returned FAILED"
+		},
+		"Generate Forensic Report": {
+			"Type": "Task",
+			"Resource": "arn:aws:lambda:ap-southeast-2:<<Account Number>>:function:sec-ir-8-runForesnsicAnalysis",
+			"InputPath": "$",
+			"End": true,
+			"Retry": [{
+				"ErrorEquals": ["States.ALL"],
+				"IntervalSeconds": 1,
+				"MaxAttempts": 3,
+				"BackoffRate": 2.0
+			}]
+		}
+	}
+}

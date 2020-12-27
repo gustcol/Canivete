@@ -1,0 +1,29 @@
+{
+    "run_id": "1",
+    "accounts": [
+        {
+            "id": "123456789012",
+            "exclude": ["loggingbucket1"]
+        }
+    ],
+    "athena_database_name": "analysisdatabase",
+    "athena_table_name": "analysistable",
+    "is_smoke_test": true,
+    "athena_queries": [
+        {
+            "name":"large dump",
+            "query": "select * from {ATHENA_TABLE} where size > 1000000000000"
+        },
+        {
+            "name":"secrets",
+            "query": "select * from {ATHENA_TABLE} where ((lower(substr(key,-4)) = '.pfx')  or (lower(substr(key,-11)) = 'credentials')   or (lower(substr(key,-18)) = 'client_secret.json'))"
+        },
+        {
+            "name":"source code",
+            "query": "select * from {ATHENA_TABLE} where (lower(substr(key,-3)) in ('.go', '.py', '.cs'))"
+        }
+    ],
+    "sender_email_address": "no-reply@s3insights.domain.com",
+    "recipient_email_addresses": ["person@gmail.com"],
+    "supported_regions": ["us-east-1", "us-east-2", "us-west-1", "us-west-2"]
+}

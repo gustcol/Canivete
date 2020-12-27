@@ -1,0 +1,72 @@
+# Clean Debian packages
+apt-clean() {
+    sudo apt-get clean
+    sudo apt-get autoclean
+    sudo apt-get autoremove
+}
+
+# Create a new directory and enter it
+mkd() {
+    mkdir -p "$@" && cd "$@"
+}
+
+# Print README file
+readme() {
+    for readme in {readme,README}.{md,MD,markdown,mkd,txt,TXT}; do
+        if [[ -x "$(command -v glow)" ]] && [[ -f "$readme" ]]; then
+            mdv "$readme"
+        elif [[ -f "$readme" ]]; then
+            cat "$readme"
+        fi
+    done
+}
+
+# Weather
+weather() {
+    curl -s "https://wttr.in/${1:-Ponorogo}?m2F&format=v2"
+}
+
+# Get an information of IP address
+ip-address() {
+    curl -s -H "Accept: application/json" "https://ipinfo.io/${1:-}" | jq "del(.loc, .postal, .readme)"
+}
+
+# Git commit browser
+fshow() {
+    local commit_hash="echo {} | grep -o '[a-f0-9]\{7\}' | head -1"
+    local view_commit="$commit_hash | xargs -I % sh -c 'git show --color=always % | diff-so-fancy'"
+    git log --color=always \
+        --format="%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset" "$@" | \
+    fzf --no-sort --tiebreak=index --no-multi --reverse --ansi \
+        --header="enter to view, alt-y to copy hash" --preview="$view_commit" \
+        --bind="enter:execute:$view_commit | less -R" \
+        --bind="alt-y:execute:$commit_hash | xclip -selection clipboard"
+}
+
+# Remove all commit in Git
+git-remove-all-commit() {
+    local branch
+    branch=$(git symbolic-ref --short HEAD)
+    echo -e "\nDo you want to remove all your commit in \033[1m$branch\033[0m branch? [Y/n] "
+    read -r response
+    case "$response" in
+        [yY][eE][sS]|[yY])
+            git checkout --orphan latest_branch
+            git add -A
+            git commit -am "Initial commit"
+            git branch -D "$branch"
+            git branch -m "$branch"
+            echo -e "\nTo force update your repository, run this command:\n\n    git push -fu origin $branch"
+            ;;
+        *)
+            echo "Cancelled."
+            ;;
+    esac
+}
+
+# Start PHP server
+phpserver() {
+    local ip=localhost
+    local port="${1:-4000}"
+    php -S "${ip}:${port}"
+}

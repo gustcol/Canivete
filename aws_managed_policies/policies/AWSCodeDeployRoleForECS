@@ -1,0 +1,46 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action": [
+                        "ecs:DescribeServices",
+                        "ecs:CreateTaskSet",
+                        "ecs:UpdateServicePrimaryTaskSet",
+                        "ecs:DeleteTaskSet",
+                        "elasticloadbalancing:DescribeTargetGroups",
+                        "elasticloadbalancing:DescribeListeners",
+                        "elasticloadbalancing:ModifyListener",
+                        "elasticloadbalancing:DescribeRules",
+                        "elasticloadbalancing:ModifyRule",
+                        "lambda:InvokeFunction",
+                        "cloudwatch:DescribeAlarms",
+                        "sns:Publish",
+                        "s3:GetObject",
+                        "s3:GetObjectVersion"
+                    ],
+                    "Resource": "*",
+                    "Effect": "Allow"
+                },
+                {
+                    "Action": [
+                        "iam:PassRole"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "*",
+                    "Condition": {
+                        "StringLike": {
+                            "iam:PassedToService": [
+                                "ecs-tasks.amazonaws.com"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "VersionId": "v3",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-09-23T22:37:46Z"
+    }
+}

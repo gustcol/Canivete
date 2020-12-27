@@ -1,0 +1,21 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "aws-marketplace:CreatePrivateMarketplaceRequests",
+                        "aws-marketplace:ListPrivateMarketplaceRequests",
+                        "aws-marketplace:DescribePrivateMarketplaceRequests"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        "VersionId": "v1",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-10-28T21:44:03Z"
+    }
+}

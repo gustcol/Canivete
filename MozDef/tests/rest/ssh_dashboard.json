@@ -1,0 +1,13 @@
+{
+  "dashboard": {
+    "title": "Your Basic Dashboard",
+    "description": "",
+    "panelsJSON": "[]",
+    "optionsJSON": "{\"darkTheme\":false,\"useMargins\":true,\"hidePanelTitles\":false}",
+    "timeRestore": false,
+    "kibanaSavedObjectMeta": {
+      "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+    }
+  },
+  "type": "dashboard"
+}

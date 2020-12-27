@@ -1,0 +1,38 @@
+! Oxide Color scheme
+! Diki Ananta (https://github.com/dikiaap/dotfiles)
+
+#define oxide_00_black      #212121
+#define oxide_01_red        #e57373
+#define oxide_02_green      #a6bc69
+#define oxide_03_yellow     #fac863
+#define oxide_04_blue       #6699cc
+#define oxide_05_magenta    #c594c5
+#define oxide_06_cyan       #5fb3b3
+#define oxide_07_white      #c0c5ce
+#define oxide_08_bright_black   #5c5c5c
+#define oxide_15_bright_white   #f3f4f5
+
+*foreground:   oxide_07_white
+#ifdef background_opacity
+*background:   [background_opacity]oxide_00_black
+#else
+*background:   oxide_00_black
+#endif
+*cursorColor:  oxide_07_white
+
+*color0:       oxide_00_black
+*color1:       oxide_01_red
+*color2:       oxide_02_green
+*color3:       oxide_03_yellow
+*color4:       oxide_04_blue
+*color5:       oxide_05_magenta
+*color6:       oxide_06_cyan
+*color7:       oxide_07_white
+*color8:       oxide_08_bright_black
+*color9:       oxide_01_red
+*color10:      oxide_02_green
+*color11:      oxide_03_yellow
+*color12:      oxide_04_blue
+*color13:      oxide_05_magenta
+*color14:      oxide_06_cyan
+*color15:      oxide_15_bright_white

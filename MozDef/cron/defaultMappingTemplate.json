@@ -1,0 +1,138 @@
+{
+  "order": 0,
+  "index_patterns": [
+    ["events*", "alerts*"]
+  ],
+  "settings": {},
+  "mappings": {
+    "_doc": {
+      "date_detection": false,
+      "dynamic_templates": [
+        {
+          "string_fields": {
+            "mapping": {
+              "type": "keyword"
+            },
+            "match": "*",
+            "match_mapping_type": "string"
+          }
+        },
+        {
+          "binary_fields": {
+            "mapping": {
+              "type": "keyword"
+            },
+            "match": "*",
+            "match_mapping_type": "binary"
+          }
+        },
+        {
+          "double_fields": {
+            "mapping": {
+              "type": "keyword"
+            },
+            "match": "*",
+            "match_mapping_type": "double"
+          }
+        },
+        {
+          "long_fields": {
+            "mapping": {
+              "type": "keyword"
+            },
+            "match": "*",
+            "match_mapping_type": "long"
+          }
+        }
+      ],
+      "properties": {
+        "type": {
+          "type": "keyword"
+        },
+        "category": {
+          "type": "keyword"
+        },
+        "hostname": {
+          "type": "keyword"
+        },
+        "processid": {
+          "type": "keyword"
+        },
+        "processname": {
+          "type": "keyword"
+        },
+        "severity": {
+          "type": "keyword"
+        },
+        "source": {
+          "type": "keyword"
+        },
+        "summary": {
+          "type": "text"
+        },
+        "details": {
+          "properties": {
+            "sourceipaddress": {
+              "type": "ip"
+            },
+            "sourceipv4address": {
+              "type": "keyword"
+            },
+            "destinationipaddress": {
+              "type": "ip"
+            },
+            "destinationport": {
+              "type": "keyword"
+            },
+            "destinationipgeopoint": {
+              "type": "geo_point"
+            },
+            "sourceipgeopoint": {
+              "type": "geo_point"
+            },
+            "success": {
+              "type": "boolean"
+            },
+            "sourceport": {
+              "type": "keyword"
+            },
+            "apiversion": {
+              "properties": {
+                "raw_value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "requestparameters": {
+              "properties": {
+                "logstreamname": {
+                  "properties": {
+                    "raw_value": {
+                      "type": "keyword"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "receivedtimestamp": {
+          "format": "dateOptionalTime",
+          "type": "date"
+        },
+        "timestamp": {
+          "format": "dateOptionalTime",
+          "type": "date"
+        },
+        "utctimestamp": {
+          "format": "dateOptionalTime",
+          "type": "date"
+        },
+        "version": {
+          "type": "keyword"
+        }
+      }
+    }
+  },
+  "aliases": {}
+}

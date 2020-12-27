@@ -1,0 +1,71 @@
+# Copyright 2017 Insurance Australia Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation stack for Watchmen.
+
+Parameters:
+
+  Prefix:
+    Description: Environment prefix.
+    Type: String
+    AllowedPattern: '[a-z0-9-_]*'
+    ConstraintDescription: "Must be lowercase.Hyphen and numbers allowed.No spaces"
+
+  CloudFormationS3Bucket:
+    Description: The S3 bucket which stores the CloudFormation templates for the nested stacks.
+    Type: String
+
+  LambdaS3Bucket:
+    Description: The S3 bucket which stores all the lambda functions
+    Type: String
+
+Resources:
+
+###############
+# Main stacks #
+###############
+
+  RolesStack:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Parameters:
+        Prefix: !Ref Prefix
+      TemplateURL: !Sub "https://s3.amazonaws.com/${CloudFormationS3Bucket}/roles.yml"
+
+######################
+# Proxy lambda stack #
+######################
+  ProxyLambdaStack:
+    Type: "AWS::CloudFormation::Stack"
+    DependsOn: RolesStack
+    Properties:
+      Parameters:
+        Prefix: !Ref Prefix
+        LambdaExecutionRole: !GetAtt RolesStack.Outputs.LambdaExecutionRole
+        LambdaS3Bucket: !Ref LambdaS3Bucket
+      TemplateURL: !Sub "https://s3.amazonaws.com/${CloudFormationS3Bucket}/proxy-lambda.yml"
+
+######################
+# Proxy rules stack  #
+######################
+  ProxyRulesStack:
+    Type: "AWS::CloudFormation::Stack"
+    DependsOn: ProxyLambdaStack
+    Properties:
+      Parameters:
+        Prefix: !Ref Prefix
+        LambdaS3Bucket: !Ref LambdaS3Bucket
+      TemplateURL: !Sub "https://s3.amazonaws.com/${CloudFormationS3Bucket}/proxy-rules.yml"

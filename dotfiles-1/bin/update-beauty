@@ -1,0 +1,240 @@
+#!/usr/bin/env bash
+
+magenta='\e[1;35m'
+green='\e[1;32m'
+red='\e[0;31m'
+white='\e[0;37m'
+source_dir="$HOME/.local/src"
+
+# Since some programs are installed in non-root directories,
+# don't run this script as root to avoid permission conflict.
+if [[ $EUID -eq 0 ]]; then
+    echo "Don't run this script as root"
+    exit 1
+fi
+
+# Print usage message.
+usage() {
+    local program_name
+    program_name=${0##*/}
+    cat <<EOF
+Usage: $program_name [-option]
+
+Options:
+    --help    Print this message
+    -a        Update all packages
+EOF
+}
+
+# Tools.
+row() {
+    seq -s '─' 0 "$(tput cols)" | tr -d '[:digit:]'
+}
+
+# Get latest release.
+get_latest_release() {
+    local regex_to_remove_url='sed -re ''s#(http://|https://|git@|git://)github.com(/|:)##'' -e ''s#(/|.git)$##'''
+    local username_and_repo
+    username_and_repo=$(git config --get remote.origin.url | $regex_to_remove_url)
+    curl -s "https://api.github.com/repos/$username_and_repo/releases/latest" | awk -F '"' '/tag_name/{print $4}'
+}
+
+# Use latest release.
+use_latest_release() {
+    local get_version
+    get_version=$(get_latest_release)
+    if [ -n "$get_version" ]; then
+        git clean -fd
+        git fetch origin tag "$get_version" --no-tags || return 1
+        git checkout "$get_version"
+    else
+        echo -e "${red}[!] Error: There is an internet connection issue.${white}"
+        return 1
+    fi
+}
+
+# Installer.
+update_oh-my-zsh() {
+    echo -e "$magenta\n Updating oh-my-zsh... \n$white"
+    sh "$HOME/.oh-my-zsh/tools/upgrade.sh"
+    echo -e "$magenta\n Updating zsh plugins... \n$white"
+    cd "$HOME/.zsh/plugins" || return
+    find . -mindepth 1 -maxdepth 1 -type d -print -exec git -C {} pull \;
+}
+
+update_i3-gaps() {
+    echo -e "$magenta\n Updating & compiling i3-gaps... \n$white"
+    cd "$source_dir/i3-gaps" || return
+    rm -rf build
+    use_latest_release || return 1
+    autoreconf -fi
+    mkdir build
+    cd build || return
+    ../configure --prefix=/usr --sysconfdir=/etc --enable-debug=no --disable-sanitizers
+    make
+    echo -e "$green\n Previous i3-gaps version: \n$white"
+    row
+    i3 -v
+    row
+    echo -e "$magenta\n Installing i3-gaps... \n$white"
+    sudo make install
+    echo -e "$green\n Current i3-gaps version: \n$white"
+    row
+    i3 -v
+    row
+}
+
+update_i3blocks() {
+    echo -e "$magenta\n Updating & compiling i3blocks... \n$white"
+    cd "$source_dir/i3blocks" || return
+    use_latest_release || return 1
+    autoreconf -fi
+    ./configure
+    make
+    echo -e "$green\n Previous i3blocks version: \n$white"
+    row
+    i3blocks -V
+    row
+    echo -e "$magenta\n Installing i3blocks... \n$white"
+    sudo make install
+    echo -e "$green\n Current i3blocks version: \n$white"
+    row
+    i3blocks -V
+    row
+    echo -e "$magenta\n Updating i3blocks-contrib... \n$white"
+    cd "$source_dir/i3blocks-contrib" || return
+    git pull
+}
+
+update_i3lock() {
+    echo -e "$magenta\n Updating & compiling i3lock... \n$white"
+    cd "$source_dir/i3lock-color" || return
+    rm -rf build
+    use_latest_release || return 1
+    autoreconf -i
+    mkdir build
+    cd build || return
+    ../configure --enable-debug=no --disable-sanitizers
+    make
+    echo -e "$green\n Previous i3lock version: \n$white"
+    row
+    i3lock -v
+    row
+    echo -e "$magenta\n Installing i3lock... \n$white"
+    sudo make install
+    echo -e "$green\n Current i3lock version: \n$white"
+    row
+    i3lock -v
+    row
+    echo -e "$magenta\n Updating i3lock-fancy... \n$white"
+    cd "$source_dir/i3lock-fancy" || return
+    git pull
+    sudo make install
+}
+
+update_rofi() {
+    echo -e "$magenta\n Updating & compiling rofi... \n$white"
+    cd "$source_dir/rofi" || return
+    rm -rf build
+    use_latest_release || return 1
+    git submodule update --init
+    autoreconf -i
+    mkdir build
+    cd build || return
+    ../configure --disable-check
+    make
+    echo -e "$green\n Previous rofi version: \n$white"
+    row
+    rofi -v
+    row
+    echo -e "$magenta\n Installing rofi... \n$white"
+    sudo make install
+    echo -e "$green\n Current rofi version: \n$white"
+    row
+    rofi -v
+    row
+}
+
+update_dunst() {
+    echo -e "$magenta\n Updating & compiling dunst... \n$white"
+    cd "$source_dir/dunst" || return
+    make clean
+    use_latest_release || return 1
+    make
+    make dunstify
+    echo -e "$green\n Previous dunst version: \n$white"
+    row
+    dunst -v
+    row
+    echo -e "$magenta\n Installing dunst... \n$white"
+    sudo make install
+    echo -e "$green\n Current dunst version: \n$white"
+    row
+    dunst -v
+    row
+}
+
+update_picom() {
+    echo -e "$magenta\n Updating & compiling picom... \n$white"
+    cd "$source_dir/picom" || return
+    rm -rf build
+    use_latest_release || return 1
+    git submodule update --init
+    meson --buildtype=release . build -Dwith_docs=false
+    ninja -C build
+    echo -e "$green\n Previous picom version: \n$white"
+    row
+    picom --version
+    row
+    echo -e "$magenta\n Installing picom... \n$white"
+    sudo install -Dm755 --verbose build/src/picom /usr/local/bin/picom
+    echo -e "$green\n Current picom version: \n$white"
+    row
+    picom --version
+    row
+}
+
+update_one_by_one() {
+    declare -a arr=("update_oh-my-zsh" "update_i3-gaps" "update_i3blocks"
+                    "update_i3lock" "update_rofi" "update_dunst" "update_picom")
+
+    for update_command in "${arr[@]}"; do
+        echo
+        read -r -p "Do you want to ${update_command//_/ }? [y/n] " response
+        case $response in
+            [yY][eE][sS]|[yY])
+                $update_command
+                ;;
+            *)
+                echo "Cancelled."
+                ;;
+        esac
+    done
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        '')
+            update_one_by_one
+            ;;
+        -a)
+            update_oh-my-zsh
+            update_i3-gaps
+            update_i3blocks
+            update_i3lock
+            update_rofi
+            update_dunst
+            update_picom
+            ;;
+        *)
+            echo "Command not found"
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

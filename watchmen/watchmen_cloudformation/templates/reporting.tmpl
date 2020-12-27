@@ -1,0 +1,114 @@
+# Copyright 2017 Insurance Australia Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS stack for Reporting resources used by Watchmen.
+
+Parameters:
+
+  Prefix:
+    Description: Environment prefix.
+    Type: String
+    AllowedPattern: '[a-z0-9-_]*'
+    ConstraintDescription: "Must be lowercase.Hyphen and numbers allowed.No spaces"
+
+  LambdaS3Bucket:
+    Description: The S3 bucket which stores the lambda functions
+    Type: String
+
+  ReportS3Bucket:
+    Type: String
+
+  RetentionInDays: # Using default
+    Description: The number of days log events are kept in CloudWatch Logs.
+    Type: Number
+    ConstraintDescription: Must be a valid retention in days Value
+    Default: 30
+
+Resources:
+
+  ImportConfigRuleStatus:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${Prefix}ImportConfigRuleStatus"
+      Description: Lambda function to import config rule status into DynamoDB for Citizen accounts
+      Handler: import_config_rule_status.lambda_handler
+      Timeout: 300
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/${Prefix}Watchmen"
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: "{{import_config_rule_status}}"
+      Runtime: python2.7
+
+  ImportConfigRuleStatusLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: ImportConfigRuleStatus
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}ImportConfigRuleStatus"
+      RetentionInDays: !Ref RetentionInDays
+
+  ImportConfigRuleStatusCloudWatchEvent:
+    Type: AWS::Events::Rule
+    DependsOn: ImportConfigRuleStatus
+    Properties:
+      Name: !Sub "${Prefix}ImportConfigRuleStatus"
+      Description: Triggers the import config rule status lambda function
+      ScheduleExpression: "rate(1 day)"
+      State: ENABLED
+      Targets:
+      - Id: "Target1"
+        Arn: !GetAtt ImportConfigRuleStatus.Arn
+        Input: !Sub "{\"prefix\": \"${Prefix}\"}"
+
+  ImportConfigRuleStatusPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn: ImportConfigRuleStatus
+    Properties:
+      FunctionName: !Sub "${Prefix}ImportConfigRuleStatus"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt ImportConfigRuleStatusCloudWatchEvent.Arn
+
+  CitizenAccountTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${Prefix}CitizenAccount"
+      KeySchema:
+        - AttributeName: AccountId
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: AccountId
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ConfigRuleStatusTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${Prefix}ConfigRuleStatus"
+      KeySchema:
+        - AttributeName: AccountId
+          KeyType: HASH
+        - AttributeName: RuleName
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: AccountId
+          AttributeType: S
+        - AttributeName: RuleName
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5

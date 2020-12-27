@@ -1,0 +1,100 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2014-11-29 01:02:47 +0000 (Sat, 29 Nov 2014)
+#
+#  https://github.com/harisekhon/bash-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#  to help improve or steer this or other code I publish
+#
+#  http://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                               T r a v i s   C I
+# ============================================================================ #
+
+# https://docs.travis-ci.com/user/customizing-the-build/
+
+version: ~> 1.0
+
+# ==============================================================
+# https://docs.travis-ci.com/user/languages/minimal-and-generic/
+language: bash
+
+# =========================================
+# https://docs.travis-ci.com/user/multi-os/
+os:
+  - linux
+  - osx
+
+# ==============================================
+# https://docs.travis-ci.com/user/reference/osx/
+# macOS 10.15.7 - otherwise defaults to Mac macOS 10.13 with xcode9.4 otherwise - and HomeBrew update takes 50 minutes until the build times out :-/
+osx_image: xcode12.2
+
+# =======================================
+# https://docs.travis-ci.com/user/docker/
+services:
+  - docker
+
+# ======================================================
+# https://docs.travis-ci.com/user/environment-variables/
+env:
+  - PYTHONUNBUFFERED=1
+
+# ==============================================
+# https://docs.travis-ci.com/user/notifications/
+notifications:
+  email: false
+
+# =================================================================================
+# https://docs.travis-ci.com/user/customizing-the-build/#building-specific-branches
+# https://docs.travis-ci.com/user/conditional-builds-stages-jobs
+#branches:
+#  only:
+#    - master
+
+# ========================================
+# https://docs.travis-ci.com/user/caching/
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+cache:
+  - pip
+  - directories:
+    - $HOME/.cache
+    - $HOME/.cpan
+    - $HOME/.cpanm
+    - $HOME/.gem
+    - pytools_checks
+
+# ==============================================
+# https://docs.travis-ci.com/user/job-lifecycle/
+
+# avoid package checksum mismatches when installing packages
+before_install:
+  - sudo rm -f "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
+  - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
+
+install:
+  #- travis_retry make
+  - make
+
+script:
+  #- travis_retry make test
+  - make test
+
+after_success:
+  # Alpine Github
+  #- curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/df816f2a-9407-4f1b-8b51-39615d784e65/trigger/8d9cb826-48df-439c-8c20-1975713064fc/call/
+  # Debian Github
+  #- curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/439eff84-50c7-464a-a49e-0ac0bf1a9a43/trigger/0cfb3fe7-2028-494b-a43b-068435e6a2b3/call/
+  # CentOS Github
+  #- curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/efba1846-5a9e-470a-92f8-69edc1232ba0/trigger/316d1158-7ffb-49a4-a7bd-8e5456ba2d15/call/
+  # Ubuntu Github
+  #- curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/8b3dc094-d4ca-4c92-861e-1e842b5fac42/trigger/abd4dbf0-14bc-454f-9cde-081ec014bc48/call/

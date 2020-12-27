@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create MozDef Amazon ES
+Parameters:
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Comma-delimited list of subnet IDs within which the ElasticSearch instance will be provisioned.
+  BlockStoreSizeGB:
+    Type: Number
+    Description: The size of the Elastic Block Store to have back ElasticSearch, in GigaBytes.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC ID of the VPC to deploy in
+  MozDefInstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: The MozDef EC2 Instance security group that accesses ES
+  ESInstanceCount:
+    Type: Number
+    Description: The number of ElasticSearch nodes in the cluster
+Resources:
+  MozDefElasticSearchSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ES Security Group
+      SecurityGroupEgress:
+        -
+          Description: Allow all egress traffic
+          IpProtocol: '-1'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupIngress:
+        -
+          Description: Allow 443 inbound from the MozDef EC2 SG
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: !Ref MozDefInstanceSecurityGroup
+        -
+          Description: Allow 80 inbound from the MozDef EC2 SG currently required for MozDef crons
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref MozDefInstanceSecurityGroup
+      Tags:
+        - Key: application
+          Value: mozdef
+        - Key: stack
+          Value: !Ref AWS::StackName
+      VpcId: !Ref VpcId
+## Not currently supported by CloudFormation.
+#  ESServiceLinkedRole:
+#    Type: AWS::IAM::ServiceLinkedRole
+#    Properties:
+#      AWSServiceName: es.amazonaws.com
+#      Description: Role to enable Amazon ES to manage your cluster.
+  MozDefElasticSearch:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      VPCOptions:
+        SubnetIds:
+          - !Select [ 0, !Ref SubnetIds ]
+        SecurityGroupIds:
+          - !Ref MozDefElasticSearchSecurityGroup
+      EBSOptions:
+        EBSEnabled: true
+        VolumeType: gp2
+        VolumeSize: !Ref BlockStoreSizeGB
+      ElasticsearchVersion: '6.7'
+      ElasticsearchClusterConfig:
+        InstanceCount: !Ref ESInstanceCount
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: es:*
+            Resource: '*'
+            # This grants rights to not only the ES domain subresources but also
+            # the ES domain configuration. At the moment it doesn't look like
+            # there's a way to constrain this with CloudFormation
+            # https://serverfault.com/q/937008/35719
+      Tags:
+        - Key: application
+          Value: mozdef
+        - Key: stack
+          Value: !Ref AWS::StackName
+Outputs:
+  ElasticsearchDomainArn:
+    Description: ARN of the provisioned ElasticSearch Cluster
+    Value: !GetAtt MozDefElasticSearch.DomainArn
+  ElasticsearchDomainEndpoint:
+    Description: Endpoint of the provisioned ElasticSearch Cluster
+    Value: !GetAtt MozDefElasticSearch.DomainEndpoint
+  ElasticsearchKibanaURL:
+    Description: URL for the Kibana UI
+    Value: !Join [ '', [ 'https://', !GetAtt MozDefElasticSearch.DomainEndpoint, '/_plugin/kibana/' ] ]
+  ElasticsearchURL:
+    Description: URL for the Kibana UI
+    Value: !Join [ '', [ 'http://', !GetAtt MozDefElasticSearch.DomainEndpoint, ':80' ] ]
+  ElasticsearchDomainOnlyURL:
+    Description: URL for the Kibana UI (domain only)
+    Value: !Join [ '', [ 'https://', !GetAtt MozDefElasticSearch.DomainEndpoint ] ]

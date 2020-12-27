@@ -1,0 +1,30 @@
+{
+    "PolicyVersion": {
+        "Document": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "polly:SynthesizeSpeech"
+                    ],
+                    "Resource": [
+                        "*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "comprehend:DetectSentiment"
+                    ],
+                    "Resource": [
+                        "*"
+                    ]
+                }
+            ]
+        },
+        "VersionId": "v2",
+        "IsDefaultVersion": true,
+        "CreateDate": "2019-11-13T22:29:16Z"
+    }
+}

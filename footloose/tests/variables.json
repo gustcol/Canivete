@@ -1,0 +1,10 @@
+{
+  "image": [
+    "amazonlinux2",
+    "centos7",
+    "fedora29",
+    "ubuntu18.04",
+    "debian10",
+    "clearlinux"
+  ]
+}

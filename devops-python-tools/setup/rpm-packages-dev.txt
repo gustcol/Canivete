@@ -1,0 +1,25 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/devops-python-tools
+#
+#  License: see accompanying LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                          RPM Dev Package Requirements
+# ============================================================================ #
+
+gcc-c++
+# needed to build python-krbV and cloudera/thrift_sasl
+cyrus-sasl-devel
+krb5-devel
+openldap-devel
+openssl-devel
+
+# moved to optional to account for changed package names on CentOS 8
+# needed to build python-snappy for avro module
+#snappy-devel

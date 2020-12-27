@@ -1,0 +1,24 @@
+{
+    "status_code": 200,
+    "data": {
+        "DBSubnetGroups": [
+            {
+                "DBSubnetGroupName": "default",
+                "DBSubnetGroupDescription": "default",
+                "VpcId": "vpc-d2d616b5",
+                "SubnetGroupStatus": "Complete",
+                "Subnets": [],
+                "DBSubnetGroupArn": "arn:aws:rds:us-east-1:644160558196:subgrp:default"
+            },
+            {
+                "DBSubnetGroupName": "not-used",
+                "DBSubnetGroupDescription": "not used",
+                "VpcId": "vpc-d2d616b5",
+                "SubnetGroupStatus": "Complete",
+                "Subnets": [],
+                "DBSubnetGroupArn": "arn:aws:rds:us-east-1:644160558196:subgrp:not-used"
+            }
+        ],
+        "ResponseMetadata": {}
+    }
+}

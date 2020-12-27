@@ -1,0 +1,123 @@
+{
+  "eventVersion": "1.03", 
+  "eventID": "bf3b3e3a-07f5-452a-a76d-991b839ef854", 
+  "eventTime": "2016-02-11T21:58:38Z", 
+  "requestParameters": {
+    "engine": "MySQL", 
+    "multiAZ": false, 
+    "dBName": "OnenessDB", 
+    "tdeCredentialPassword": "****", 
+    "storageType": "standard", 
+    "vpcSecurityGroupIds": [
+      "sg-64952a01"
+    ], 
+    "masterUserPassword": "****", 
+    "autoMinorVersionUpgrade": true, 
+    "masterUsername": "root", 
+    "allocatedStorage": 5, 
+    "engineVersion": "5.6.23", 
+    "dBInstanceClass": "db.t2.micro", 
+    "port": 3306, 
+    "dBInstanceIdentifier": "onenessdb", 
+    "dBSubnetGroupName": "upfdbsubnet"
+  }, 
+  "eventType": "AwsApiCall", 
+  "responseElements": {
+    "dBSecurityGroups": [], 
+    "domainMemberships": [], 
+    "dbiResourceId": "db-7WHDN5VYHL4Q4ZXXM6CSILMFOM", 
+    "autoMinorVersionUpgrade": true, 
+    "dBSubnetGroup": {
+      "subnets": [
+        {
+          "subnetStatus": "Active", 
+          "subnetIdentifier": "subnet-572f3623", 
+          "subnetAvailabilityZone": {
+            "name": "us-east-1b"
+          }
+        }, 
+        {
+          "subnetStatus": "Active", 
+          "subnetIdentifier": "subnet-54f2177f", 
+          "subnetAvailabilityZone": {
+            "name": "us-east-1a"
+          }
+        }
+      ], 
+      "dBSubnetGroupName": "upfdbsubnet", 
+      "vpcId": "vpc-8334cce6", 
+      "dBSubnetGroupDescription": "subnet for upf applications", 
+      "subnetGroupStatus": "Complete"
+    }, 
+    "allocatedStorage": 5, 
+    "dbInstancePort": 0, 
+    "dBInstanceClass": "db.t2.micro", 
+    "dBParameterGroups": [
+      {
+        "dBParameterGroupName": "default.mysql5.6", 
+        "parameterApplyStatus": "in-sync"
+      }
+    ], 
+    "vpcSecurityGroups": [
+      {
+        "status": "active", 
+        "vpcSecurityGroupId": "sg-64952a01"
+      }
+    ], 
+    "preferredMaintenanceWindow": "fri:05:57-fri:06:27", 
+    "monitoringInterval": 0, 
+    "optionGroupMemberships": [
+      {
+        "status": "in-sync", 
+        "optionGroupName": "default:mysql-5-6"
+      }
+    ], 
+    "pendingModifiedValues": {
+      "masterUserPassword": "****"
+    }, 
+    "engine": "mysql", 
+    "multiAZ": false, 
+    "storageType": "standard", 
+    "cACertificateIdentifier": "rds-ca-2015", 
+    "preferredBackupWindow": "04:11-04:41", 
+    "readReplicaDBInstanceIdentifiers": [], 
+    "engineVersion": "5.6.23", 
+    "backupRetentionPeriod": 1, 
+    "dBName": "OnenessDB", 
+    "dBInstanceIdentifier": "onenessdb", 
+    "dBInstanceStatus": "creating", 
+    "publiclyAccessible": false, 
+    "masterUsername": "root", 
+    "licenseModel": "general-public-license", 
+    "copyTagsToSnapshot": false, 
+    "storageEncrypted": false
+  }, 
+  "awsRegion": "us-east-1", 
+  "eventName": "CreateDBInstance", 
+  "userIdentity": {
+    "principalId": "globalgook:userid", 
+    "accessKeyId": "notasecret", 
+    "invokedBy": "cloudformation.amazonaws.com", 
+    "sessionContext": {
+      "sessionIssuer": {
+        "userName": "DeveloperRole", 
+        "type": "Role", 
+        "arn": "arn:aws::sts:101010101111:assumed-role/UserRole/userid", 
+        "principalId": "AROAIERCO4YMBWJY27BKU", 
+        "accountId": "101010101111"
+      }, 
+      "attributes": {
+        "creationDate": "2016-02-11T21:50:01Z", 
+        "mfaAuthenticated": "false"
+      }
+    }, 
+    "type": "AssumedRole", 
+    "arn": "arn:aws::sts:101010101111:assumed-role/UserRole/userid", 
+    "accountId": "101010101111"
+  }, 
+  "eventSource": "rds.amazonaws.com", 
+  "requestID": "9a365c97-d10a-11e5-9cb5-1fb2dc6ea46a", 
+  "userAgent": "cloudformation.amazonaws.com", 
+  "sourceIPAddress": "192.168.1.2", 
+  "recipientAccountId": "101010101111"
+}

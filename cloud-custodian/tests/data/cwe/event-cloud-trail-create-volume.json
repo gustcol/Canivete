@@ -1,0 +1,35 @@
+{
+  "eventVersion": "1.03", 
+  "eventID": "59e2b117-e1dd-466b-a6f3-5c027f0af0f2", 
+  "eventTime": "2016-02-11T15:31:57Z", 
+  "requestParameters": {
+    "snapshotId": "snap-37beda4c", 
+    "zone": "us-east-1b"
+  }, 
+  "eventType": "AwsApiCall", 
+  "responseElements": {
+    "status": "creating", 
+    "zone": "us-east-1b", 
+    "encrypted": true, 
+    "volumeType": "standard", 
+    "volumeId": "vol-97c02b3e", 
+    "snapshotId": "snap-37beda4c", 
+    "createTime": 1455204717646, 
+    "size": "100"
+  }, 
+  "awsRegion": "us-east-1", 
+  "eventName": "CreateVolume", 
+  "userIdentity": {
+    "userName": "AWS_DCS_DEV", 
+    "principalId": "globalgook:userid", 
+    "accessKeyId": "notasecret", 
+    "type": "IAMUser", 
+    "arn": "arn:aws::sts:101010101111:assumed-role/UserRole/userid", 
+    "accountId": "101010101111"
+  }, 
+  "eventSource": "ec2.amazonaws.com", 
+  "requestID": "b2177606-4ce8-4f7b-abe2-6a4cc3237995", 
+  "userAgent": "aws-cli/1.7.36 Python/2.6.6 Linux/2.6.32-573.8.1.el6.x86_64", 
+  "sourceIPAddress": "192.168.1.2", 
+  "recipientAccountId": "101010101111"
+}

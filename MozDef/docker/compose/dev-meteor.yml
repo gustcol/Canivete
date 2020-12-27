@@ -1,0 +1,18 @@
+---
+version: '3.7'
+services:
+  meteor:
+    build:
+      context: ../../
+      dockerfile: docker/compose/mozdef_meteor/Dockerfile
+      args:
+        METEOR_BUILD: 'NO'
+    restart: always
+    command: bash -c 'cd /opt/mozdef/envs/mozdef/meteor;meteor npm install --save @babel/runtime;meteor'
+    depends_on:
+      - mongodb
+      - rest
+    networks:
+      - default
+    volumes:
+        - ../../meteor:/opt/mozdef/envs/mozdef/meteor

@@ -1,0 +1,17 @@
+[
+{
+    "duplicate": 12,
+    "category": "syslog",
+    "processid": "0",
+    "severity": "NOTICE",
+    "hostname": "example.com",
+    "summary": "%-SSHD_LOGIN_FAILED: Login failed for user 'ch' from host <randomipaddress>",
+    "file": "systemslogs",
+    "details": {
+      "processid": "188",
+      "hostname": "example.com",
+      "program": "sshd"
+    }
+}
+]
+

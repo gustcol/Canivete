@@ -1,0 +1,76 @@
+{
+  "account": {
+    "aws_account_id": "12345678910",
+    "kms_key_alias": "alternate-alias",
+    "prefix": "unit-test",
+    "region": "us-west-1"
+  },
+  "general": {
+    "terraform_files": [],
+    "matcher_locations": [],
+    "rule_locations": [],
+    "scheduled_query_locations": [],
+    "publisher_locations": [],
+    "third_party_libraries": [
+      "pathlib2==2.3.5"
+    ]
+  },
+  "infrastructure": {
+    "alerts_table": {
+      "read_capacity": 5,
+      "write_capacity": 5
+    },
+    "classifier_sqs": {
+      "use_prefix": true
+    },
+    "firehose": {
+      "buffer_interval": 900,
+      "buffer_size": 128,
+      "compression_format": "GZIP",
+      "enabled": true,
+      "enabled_logs": {},
+      "use_prefix": true
+    },
+    "monitoring": {},
+    "rule_staging": {
+      "enabled": false,
+      "table": {
+        "read_capacity": 5,
+        "write_capacity": 5
+      }
+    }
+  },
+  "threat_intel": {
+    "dynamodb_table": "test_table_name",
+    "enabled": false,
+    "excluded_iocs": {
+      "domain": {
+        "not-evil.com": {
+          "comment": "This domain is not evil"
+        }
+      },
+      "ip": {
+        "10.0.0.0/8": {
+          "comment": "RFC1918"
+        },
+        "127.0.0.0/8": {
+          "comment": "localhost"
+        },
+        "172.16.0.0/12": {
+          "comment": "RFC1918"
+        },
+        "192.168.0.0/16": {
+          "comment": "RFC1918"
+        },
+        "52.52.52.52/32": {
+          "comment": "Test IP"
+        }
+      },
+      "md5": {
+        "feca1deadbeefcafebeadbeefcafebee": {
+          "comment": "not malicious, but delicious"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+@*
+* Copyright 2016 LinkedIn Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*@
+<p>
+  Unlike Map/Reduce jobs, a Spark application allocates its resources all at once and never release any during the
+  the entire runtime process until everything is finished. It is critical to optimize the load balance situation of
+  executors to avoid excessive usage of the cluster.
+</p>
+<h5>Example</h5>
+<div name="SparkExecutorLoadBalance" class="list-group-item list-group-item-danger">
+  <h4 class="list-group-item-heading">Spark Executor Load Balance</h4>
+  <table class="list-group-item-text table table-condensed left-table">
+    <thead><tr>
+      <th colspan="2">
+        Severity: Critical
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Average peak storage memory</td>
+        <td>1.09 GB (0 B~2.04 GB)</td>
+      </tr>
+      <tr>
+        <td>Average runtime</td>
+        <td>12min 55sec (0 sec~31min 50sec)</td>
+      </tr>
+      <tr>
+        <td>Average input size</td>
+        <td>125.95 GB (0 B~304.21 GB)</td>
+      </tr>
+      <tr>
+        <td>Average output size</td>
+        <td>0 B (0 B~0 B)</td>
+      </tr>
+      <tr>
+        <td>Average task number</td>
+        <td>399 (0~962)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>Suggestions</h3>
+<h5><strong>1. If there are unused executors (0 tasks, 0 seconds to run and etc.) </strong></h5>
+<p>
+  Even though a Spark application asks for all the resources all at once, YARN will only grant resources gradually. Users should try to allocate less in this case since those resources won't be used anyway. An
+  application will kick off even only part of the resources are allocated. The allocation speed is majorly depending on
+  how busy the cluster is. However, oftentime, asking for less memory per executor and less executor in total will
+  always help shorten the entire allocation time.
+</p>
+
+<h5><strong>2. Some executors are getting much more tasks than others. </strong></h5>
+<p>
+  Each RDD contains a certain number of partitions. While computing those partitions, one partition will be assigned to
+  only one executor. This means if a to-be-computed RDD has 10 partitions but we have 100 executors in total, only 10
+  of the 100 executors will be used. Lots of low partitioned RDD can yield to an unbalanced executor leverage. A way to
+  improve this is to load RDD from HDFS with more partition numbers or leverage <strong>RDD#repartition</strong> method.
+  A good choice of partition number should be equal to or slightly less than <strong>k*[executor num]</strong> where
+  <strong>k</strong> is an integer around 2~5.
+</p>

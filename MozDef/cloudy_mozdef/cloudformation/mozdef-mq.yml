@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates MozDef Amazon MQ
+# This template is unused currently as Amazon MQ supports only amqp protocol 1.0
+# and MozDef expects to talk to a Rabbit MQ instance speaking the default Rabbit
+# MQ protocol of amqp protocol 0.9.1
+# https://aws.amazon.com/blogs/compute/migrating-from-rabbitmq-to-amazon-mq/
+# If AWS adds support for amqp 0.9.1 to Amazon MQ or if we refactor MozDef to speak
+# amqp 1.0 to Rabbit MQ (which can support amqp 1.0 with a plugin), then we can
+# move to using this template instead of running Rabbit MQ on an EC2 instance
+Parameters:
+  MQUserParameter:
+    Type: String
+    Description: The username for the AmazonMQ user.
+    Default: mozdef
+  MQPasswordParameter:
+    Type: String
+    Description: The password for the AmazonMQ user. Leave this blank if you want an auto-generated password.
+    Default: ''
+    NoEcho: true
+  MQInstanceType:
+    Type: String
+    Description: The instance type for the AmazonMQ instance.
+    Default: mq.t2.micro
+  MQVpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC ID of the VPC within which the AmazonMQ instance will be provisioned.
+  MQSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Comma-delimited list of subnet IDs of the VPCs within which the AmazonMQ instance will be provisioned.
+  MozDefSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: The security group of the Mozdef endpoint that is accessing AmazonMQ
+Conditions:
+  PasswordIsSet: !Not [ !Equals [ !Ref MQPasswordParameter, '' ]]
+  PasswordIsNotSet: !Equals [ !Ref MQPasswordParameter, '' ]
+Resources:
+  AmazonMQSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Limits security group ingress and egress traffic for the Amazon MQ instance
+      VpcId: !Ref MQVpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5671
+          ToPort: 5671
+          SourceSecurityGroupId: !Ref MozDefSecurityGroup
+      Tags:
+        - Key: application
+          Value: mozdef
+        - Key: stack
+          Value: !Ref AWS::StackName
+  MozDefAmazonMQ:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      AutoMinorVersionUpgrade: false
+      BrokerName: !Join [ '-', [ Broker, !Select [ 2, !Split [ '/', !Ref 'AWS::StackId' ] ] ] ]
+      Users:
+        - Username: !Ref MQUserParameter
+          Password: !If [ PasswordIsSet, !Ref MQPasswordParameter, !GetAtt DefaultPassword.Password ]
+      DeploymentMode: ACTIVE_STANDBY_MULTI_AZ
+      EngineType: ACTIVEMQ
+      EngineVersion: 5.15.0
+      HostInstanceType: !Ref MQInstanceType
+      PubliclyAccessible: true
+      SecurityGroups:
+        - !Ref AmazonMQSecurityGroup
+      SubnetIds:
+        - !Select
+          - 0
+          - !Ref MQSubnetIds
+        - !Select
+          - 1
+          - !Ref MQSubnetIds
+  CloudFormationLambdaIAMRole:
+    Type: AWS::IAM::Role
+    Condition: PasswordIsNotSet
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+        -
+          PolicyName: AllowLambdaLogging
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - logs:*
+                Resource: '*'
+        -
+          PolicyName: AllowMQDescribeBroker
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - mq:DescribeBroker
+                Resource: '*'
+  DefaultPasswordGeneratorLambdaFunction:
+    Type: AWS::Lambda::Function
+    Condition: PasswordIsNotSet
+    Properties:
+      Description: Function used within CloudFormation to generate a default strong password for use in the AmazonMQ Broker
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import secrets, string
+          def handler(event, context):
+            alphabet = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabet) for i in range(int(event['ResourceProperties']['Length'])))
+            physical_id = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for i in range(13))
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, {'Password': password}, "DefaultPasswordGenerator-%s" % physical_id)
+      Handler: index.handler
+      Runtime: python3.6
+      Role: !GetAtt CloudFormationLambdaIAMRole.Arn
+      Tags:
+        - Key: application
+          Value: mozdef
+        - Key: stack
+          Value: !Ref AWS::StackName
+      Timeout: 20
+  DefaultPassword:
+    Type: AWS::CloudFormation::CustomResource
+    Condition: PasswordIsNotSet
+    Properties:
+      Length: 16
+      ServiceToken: !GetAtt DefaultPasswordGeneratorLambdaFunction.Arn
+Outputs:
+  MQUser:
+    Description: Username of the MQ user
+    Value: !Ref MQUserParameter
+  MQPassword:
+    Description: Password of the MQ user
+    Value: !If [ PasswordIsSet, !Ref MQPasswordParameter, !GetAtt DefaultPassword.Password ]
+  MQHostName:
+    Description: Hostname of the AMQP broker
+    Value: !Select [ 0, !Split [ ':', !Select [ 2, !Split [ '/', !Select [ 0, !GetAtt 'MozDefAmazonMQ.AmqpEndpoints' ] ] ] ] ]
+  MQScheme:
+    Description: Scheme of the AMQP broker
+    Value: !Select [ 0, !Split [ '/', !Select [ 0, !GetAtt 'MozDefAmazonMQ.AmqpEndpoints' ] ] ]
+  MQPort:
+    Description: Port of the AMQP broker
+    Value: !Select [ 2, !Split [ ':', !Select [ 0, !GetAtt 'MozDefAmazonMQ.AmqpEndpoints' ] ] ]

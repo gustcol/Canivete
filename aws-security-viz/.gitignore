@@ -1,0 +1,43 @@
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/test/tmp/
+/test/version_tmp/
+/tmp/
+/data/
+
+## Documentation cache and generated files:
+/.yardoc/
+/_yardoc/
+/doc/
+/rdoc/
+
+## Environment normalisation:
+/.bundle/
+/lib/bundler/man/
+
+.ruby-version
+.rbenv-gemsets
+.gems
+.envrc
+
+# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
+.rvmrc
+
+opts.yml
+
+.vagrant
+Gemfile.lock
+
+# in case you run the sample commands in this directory..
+viz.svg
+aws.json
+navigator.html
+*.png
+*.dot
+*.svg
+.DS_Store

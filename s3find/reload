@@ -1,0 +1,4 @@
+#/bin/sh
+gem uninstall s3find
+gem build s3find.gemspec
+gem install s3find-0.1.0.gem -N

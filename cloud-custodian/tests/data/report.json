@@ -1,0 +1,274 @@
+{
+  "ec2": {
+    "records": {
+      "full": {
+        "CustodianDate": "2015-12-23",
+        "State": {
+          "Name": "running"
+        },
+        "InstanceId": "InstanceId-1",
+        "InstanceType": "InstanceType-1",
+        "LaunchTime": "LaunchTime-1",
+        "VpcId": "VpcId-1",
+        "PrivateIpAddress": "PrivateIpAddress-1",
+        "IgnoredField": "IgnoredValue",
+        "CustomField": "CustomValue",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Name-1"
+          },
+          {
+            "Key": "ASV",
+            "Value": "ASV-1"
+          },
+          {
+            "Key": "CMDBEnvironment",
+            "Value": "CMDBEnvironment-1"
+          },
+          {
+            "Key": "OwnerContact",
+            "Value": "OwnerContact-1"
+          },
+          {
+            "Key": "CustomTag",
+            "Value": "Custom-1"
+          }
+        ]
+      },
+      "minimal": {
+        "CustodianDate": "2015-12-22",
+        "State": {
+          "Name": "running"
+        },
+        "InstanceId": "InstanceId-2",
+        "InstanceType": "InstanceType-2",
+        "LaunchTime": "LaunchTime-2",
+        "Tags": [],
+        "IgnoredField": "IgnoredValue",
+	"policy": "policy-name",
+	"region": "us-east-1"
+      },
+      "duplicate": {
+        "CustodianDate": "2015-12-20",
+        "State": {
+          "Name": "running"
+        },
+        "InstanceId": "InstanceId-2",
+        "InstanceType": "InstanceType-2",
+        "LaunchTime": "LaunchTime-2",
+        "Tags": [],
+        "IgnoredField": "IgnoredValue"
+      },
+      "terminated": {
+        "CustodianDate": "2015-12-21",
+        "State": {
+          "Name": "terminated"
+        },
+        "InstanceId": "InstanceId-3",
+        "InstanceType": "InstanceType-3",
+        "LaunchTime": "LaunchTime-3",
+        "Tags": [],
+        "IgnoredField": "IgnoredValue"
+      }
+    },
+    "headers": [
+      "CustodianDate",
+      "InstanceId",
+      "Name",
+      "InstanceType",
+      "LaunchTime",
+      "VpcId",
+      "PrivateIpAddress",
+      "ASV",
+      "CMDBEnvironment",
+      "OwnerContact"
+    ],
+    "rows": {
+      "full": [
+        "2015-12-23",
+        "InstanceId-1",
+        "Name-1",
+        "InstanceType-1",
+        "LaunchTime-1",
+        "VpcId-1",
+        "PrivateIpAddress-1"
+      ],
+      "minimal": [
+        "2015-12-22",
+        "InstanceId-2",
+        "",
+        "InstanceType-2",
+        "LaunchTime-2",
+        "",
+        ""
+      ],
+      "minimal_multipolicy": [
+        "2015-12-22",
+        "InstanceId-2",
+        "",
+        "InstanceType-2",
+        "LaunchTime-2",
+        "",
+        "",
+	"us-east-1",
+	"policy-name"
+      ],
+      "full_custom": [
+        "2015-12-23",
+        "InstanceId-1",
+        "Name-1",
+        "InstanceType-1",
+        "LaunchTime-1",
+        "VpcId-1",
+        "PrivateIpAddress-1",
+      	"CustomValue",
+      	"",
+      	"Custom-1"
+      ],
+      "minimal_custom": [
+        "CustomValue",
+        "",
+        "Custom-1"
+      ]
+    }
+  },
+  "asg": {
+    "records": {
+      "full": {
+        "CustodianDate": "2015-12-23",
+        "AutoScalingGroupName": "AutoScalingGroupName-1",
+        "Instances": ["Instance-1", "Instance-2", "Instance-3"],
+        "LaunchTime": "LaunchTime-1",
+        "VpcId": "VpcId-1",
+        "PrivateIpAddress": "PrivateIpAddress-1",
+        "IgnoredField": "IgnoredValue",
+        "Tags": [
+          {"Key": "Name", "Value": "Name-1"},
+          {"Key": "ASV", "Value": "ASV-1"},
+          {"Key": "CMDBEnvironment", "Value": "CMDBEnvironment-1"},
+          {"Key": "OwnerContact", "Value": "OwnerContact-1"}
+        ]
+      },
+      "minimal": {
+        "CustodianDate": "2015-12-22",
+        "AutoScalingGroupName": "AutoScalingGroupName-2",
+        "Instances": [],
+        "LaunchTime": "LaunchTime-2",
+        "Tags": [],
+        "IgnoredField": "IgnoredValue"
+      },
+      "duplicate": {
+        "CustodianDate": "2015-12-20",
+        "AutoScalingGroupName": "AutoScalingGroupName-2",
+        "Instances": [],
+        "LaunchTime": "LaunchTime-2",
+        "Tags": [],
+        "IgnoredField": "IgnoredValue"
+      }
+    },
+    "headers": [
+      "AutoScalingGroupName",
+      "Instances",
+      "ASV",
+      "CMDBEnvironment",
+      "OwnerContact"
+    ],
+    "rows": {
+      "full": [
+          "AutoScalingGroupName-1",
+      	  "",
+      	  "",
+          "3",
+          "",
+          "",
+      	  ""
+      ],
+      "minimal": [
+          "AutoScalingGroupName-2",
+      	  "",
+      	  "",
+          "0",
+          "",
+          "",
+          ""
+      ]
+    }
+  },
+  "elb": {
+    "records": {
+      "full": {
+        "CustodianDate": "2015-12-23",
+        "LoadBalancerName": "LoadBalancerName-1",
+        "CreatedTime": "CreatedTime-1",
+        "VPCId": "VPCId-1",
+        "Instances": [{"InstanceId": "InstanceId-1"}],
+        "DNSName": "DNSName-1",
+        "ListenerDescriptions": [
+          {
+            "Listener": {
+              "InstancePort": 80,
+              "LoadBalancerPort": 80,
+              "Protocol": "TCP",
+              "InstanceProtocol": "TCP"
+            },
+            "PolicyNames": []
+          },
+          {
+            "Listener": {
+              "InstancePort": 443,
+              "LoadBalancerPort": 443,
+              "Protocol": "TCP",
+              "InstanceProtocol": "TCP"
+            },
+            "PolicyNames": []
+          }
+        ],
+        "PrivateIpAddress": "PrivateIpAddress-1",
+        "IgnoredField": "IgnoredValue",
+        "Tags": [{"Key": "Name", "Value": "Name-1"}]
+      },
+      "minimal": {
+        "CustodianDate": "2015-12-22",
+        "LoadBalancerName": "LoadBalancerName-2",
+        "Instances": [],
+        "DNSName": "DNSName-2",
+        "CreatedTime": "CreatedTime-2",
+        "Tags": [],
+        "IgnoredField": "IgnoredValue"
+      },
+      "duplicate": {
+        "CustodianDate": "2015-12-20",
+        "LoadBalancerName": "LoadBalancerName-2",
+        "Instances": [],
+        "DNSName": "DNSName-2",
+        "CreatedTime": "CreatedTime-2",
+        "Tags": [],
+        "IgnoredField": "IgnoredValue"
+      }
+    },
+    "headers": [
+      "LoadBalancerName",
+      "DNSName",
+      "VPCId",
+      "count:Instances",
+      "list:ListenerDescriptions[].Listener.LoadBalancerPort"
+    ],
+    "rows": {
+      "full": [
+          "LoadBalancerName-1",
+      	  "DNSName-1",
+      	  "VPCId-1",
+          "1",
+      	  "80, 443"
+      ],
+      "minimal": [
+          "LoadBalancerName-2",
+      	  "DNSName-2",
+      	  "",
+          "0",
+          ""
+      ]
+    }
+  }
+}
